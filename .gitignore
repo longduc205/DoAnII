@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment Variables
+.env
+
+# Database
+*.db
+*.sqlite3
+instance/
+
+# AI Models (large files)
+ai/models/*.pkl
+ai/models/*.joblib
+!ai/models/.gitkeep
+
+# Data (large files - keep structure)
+data/raw/*.csv
+data/raw/*.json
+!data/raw/.gitkeep
+data/processed/*.csv
+data/processed/*.json
+!data/processed/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Flask
+instance/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/

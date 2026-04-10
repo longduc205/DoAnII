@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}AI VulnScanner - Home{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>AI Web Vulnerability Scanner</h1>
+    <p>Scan web applications for SQL Injection and XSS vulnerabilities with AI-assisted analysis</p>
+</section>
+
+<section class="scan-form">
+    <form action="{{ url_for('scan.new_scan') }}" method="POST" id="scan-form">
+        <div class="form-group">
+            <label for="target_url">Target URL</label>
+            <input type="url" id="target_url" name="target_url" 
+                   placeholder="https://example.com" required>
+        </div>
+        <button type="submit" class="btn-primary" id="btn-start-scan">Start Scan</button>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,28 @@
+# Web Framework
+Flask==3.1.0
+Flask-SQLAlchemy==3.1.1
+
+# HTTP & Parsing
+requests==2.32.3
+beautifulsoup4==4.13.3
+lxml==5.3.1
+urllib3==2.3.0
+
+# AI / Machine Learning
+scikit-learn==1.6.1
+numpy==2.2.4
+pandas==2.2.3
+joblib==1.4.2
+
+# Database
+PyMySQL==1.1.1
+
+# Utilities
+python-dotenv==1.0.1
+
+# Testing
+pytest==8.3.5
+pytest-cov==6.1.1
+
+# Development
+flask-debugtoolbar==0.16.0

@@ -27,29 +27,37 @@ This project implements a web vulnerability scanner with artificial intelligence
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.9+
-- pip
+- Docker & Docker Compose (recommended)
+- Or: Python 3.9+ with pip (manual setup)
 
-### Installation
+### Installation (Docker - Recommended)
 
 ```bash
 # Clone the repository
 git clone <repo-url>
 cd DoAnII
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# venv\Scripts\activate   # Windows
+# Copy environment file
+cp .env.example .env
 
-# Install dependencies
+# Build and run with Docker
+docker compose up --build
+```
+
+That's it! Open `http://localhost:5000` in your browser.
+
+> **Live reload**: Source code is mounted as a volume — any changes you make will reflect immediately without rebuilding.
+
+### Installation (Manual - Alternative)
+
+```bash
+# Requires Python 3.9+
+python3 -m venv venv
+source venv/bin/activate
+
 pip install -r requirements.txt
-
-# Initialize database
-python -m app.utils.db_init
-
-# Run the application
-python run.py
+cp .env.example .env
+python3 run.py
 ```
 
 ### Access

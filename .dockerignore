@@ -1,0 +1,17 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.git/
+.gitignore
+.env
+*.db
+*.sqlite3
+ai/models/*.pkl
+ai/models/*.joblib
+data/raw/*.csv
+data/processed/*.csv
+docs/
+.agents/
+*.md
+!requirements.txt

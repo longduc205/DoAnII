@@ -1,0 +1,856 @@
+{% extends "base.html" %}
+{% block title %}AI VulnScanner - Tasks{% endblock %}
+
+{% block content %}
+<div class="tasks-page">
+
+    <!-- Header -->
+    <div class="page-header">
+        <div class="header-text">
+            <h1>Project Tasks</h1>
+            <p>Track your AI Web Vulnerability Scanner development progress across all phases</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-ghost" onclick="resetAllTasks()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                Reset All
+            </button>
+            <button class="btn-primary" onclick="seedTasks()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                Import TASKS.md
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="stats-row">
+        <div class="stat-card stat-total">
+            <div class="stat-ring">
+                <svg viewBox="0 0 36 36">
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--border)" stroke-width="3"/>
+                    <path id="progressRing" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--primary)" stroke-width="3" stroke-dasharray="0, 100"/>
+                </svg>
+                <span class="ring-percent" id="progressPercent">0%</span>
+            </div>
+            <div class="stat-info">
+                <span class="stat-label">Overall Progress</span>
+                <span class="stat-detail"><span id="doneTasks">0</span> / <span id="totalTasks">0</span> completed</span>
+            </div>
+        </div>
+        <div class="stat-card stat-pending">
+            <div class="stat-dot"></div>
+            <span class="stat-number" id="pendingTasks">0</span>
+            <span class="stat-label">Pending</span>
+        </div>
+        <div class="stat-card stat-progress">
+            <div class="stat-dot"></div>
+            <span class="stat-number" id="inProgressTasks">0</span>
+            <span class="stat-label">In Progress</span>
+        </div>
+        <div class="stat-card stat-done">
+            <div class="stat-dot"></div>
+            <span class="stat-number" id="doneTasks2">0</span>
+            <span class="stat-label">Done</span>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-row">
+        <div class="filter-chips" id="phaseFilters">
+            <button class="chip active" data-phase="all">All Phases</button>
+            <button class="chip" data-phase="Phase 1">Phase 1</button>
+            <button class="chip" data-phase="Phase 2">Phase 2</button>
+            <button class="chip" data-phase="Phase 3">Phase 3</button>
+            <button class="chip" data-phase="Phase 4">Phase 4</button>
+            <button class="chip" data-phase="Phase 5">Phase 5</button>
+            <button class="chip" data-phase="Phase 6">Phase 6</button>
+        </div>
+        <div class="filter-chips" id="statusFilters">
+            <button class="chip" data-status="all">All</button>
+            <button class="chip" data-status="pending">Pending</button>
+            <button class="chip" data-status="in_progress">In Progress</button>
+            <button class="chip" data-status="done">Done</button>
+        </div>
+    </div>
+
+    <!-- Phases Container -->
+    <div class="phases-container" id="phasesContainer">
+        {% if tasks %}
+            {% set phases = [] %}
+            {% for task in tasks %}
+                {% if task.phase not in phases %}
+                    {% set _ = phases.append(task.phase) %}
+                {% endif %}
+            {% endfor %}
+
+            {% for phase in phases %}
+            <div class="phase-block" data-phase="{{ phase }}" data-phase-key="{{ phase.split(':')[0].strip() }}">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <div class="phase-header-left">
+                        <span class="phase-number">{{ phase.split(':')[0].strip() }}</span>
+                        <div class="phase-info">
+                            <span class="phase-name">{{ phase.split(':')[1].strip() if ':' in phase else phase }}</span>
+                            <span class="phase-meta">{{ tasks|selectattr('phase', 'equalto', phase)|list|length }} tasks</span>
+                        </div>
+                    </div>
+                    <div class="phase-header-right">
+                        <div class="phase-bar-wrap">
+                            <div class="phase-bar"><div class="phase-bar-fill"></div></div>
+                            <span class="phase-fraction">0/0</span>
+                        </div>
+                        <span class="phase-toggle-icon">&#x25BC;</span>
+                    </div>
+                </div>
+                <div class="phase-body">
+                    {% for task in tasks %}
+                        {% if task.phase == phase %}
+                        <div class="task-item"
+                             data-task-id="{{ task.id }}"
+                             data-status="{{ task.status }}"
+                             data-phase="{{ task.phase }}"
+                             data-phase-key="{{ task.phase.split(':')[0].strip() }}">
+                            <button class="task-checkbox" onclick="toggleTaskStatus({{ task.id }}, event)" aria-label="Toggle task">
+                                <span class="checkbox-icon"></span>
+                            </button>
+                            <div class="task-content">
+                                <span class="task-title {% if task.status == 'done' %}done{% endif %}">{{ task.title }}</span>
+                                {% if task.description %}
+                                <span class="task-desc">{{ task.description }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="task-meta">
+                                <span class="task-day">{{ task.day }}</span>
+                                <span class="task-badge badge-{{ task.status }}">{{ task.status }}</span>
+                            </div>
+                            <div class="task-actions">
+                                <button class="task-action-btn" onclick="setTaskStatus({{ task.id }}, 'in_progress')" title="Mark In Progress">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                                </button>
+                                <button class="task-action-btn btn-delete" onclick="deleteTask({{ task.id }})" title="Delete">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-illustration">
+                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                        <rect x="10" y="10" width="60" height="60" rx="12" stroke="var(--border)" stroke-width="2" stroke-dasharray="4 4"/>
+                        <path d="M25 35h30M25 45h20" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="55" cy="45" r="15" fill="var(--bg-dark)" stroke="var(--primary)" stroke-width="2"/>
+                        <path d="M50 45l4 4 8-8" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h2>No tasks yet</h2>
+                <p>Import your tasks from TASKS.md to start tracking your project progress</p>
+                <button class="btn-primary" onclick="seedTasks()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    Import TASKS.md
+                </button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.tasks-page {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Page Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    animation: fadeInUp 0.4s ease;
+}
+
+.page-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.25rem;
+}
+
+.page-header p {
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.btn-ghost:hover {
+    border-color: var(--accent-red);
+    color: var(--accent-red);
+    background: var(--accent-red-bg);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+/* Stats Row */
+.stats-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    animation: fadeInUp 0.4s ease 0.05s both;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all var(--transition-fast);
+}
+
+.stat-card:hover {
+    border-color: var(--primary);
+}
+
+.stat-total {
+    gap: 1.25rem;
+}
+
+.stat-ring {
+    position: relative;
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+}
+
+.stat-ring svg {
+    width: 52px;
+    height: 52px;
+    transform: rotate(-90deg);
+}
+
+.stat-ring path:last-child {
+    transition: stroke-dasharray 0.6s ease;
+}
+
+.ring-percent {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+}
+
+.stat-detail {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.stat-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.stat-pending .stat-dot { background: var(--text-muted); }
+.stat-progress .stat-dot { background: var(--accent-yellow); }
+.stat-done .stat-dot { background: var(--accent-green); }
+
+.stat-pending .stat-number { color: var(--text-muted); }
+.stat-progress .stat-number { color: var(--accent-yellow); }
+.stat-done .stat-number { color: var(--accent-green); }
+
+/* Filters */
+.filters-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    animation: fadeInUp 0.4s ease 0.1s both;
+}
+
+.filter-chips {
+    display: flex;
+    gap: 0.375rem;
+    flex-wrap: wrap;
+}
+
+.chip {
+    padding: 0.375rem 0.875rem;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.chip:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.chip.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+/* Phase Block */
+.phase-block {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    animation: fadeInUp 0.4s ease both;
+    transition: border-color var(--transition-fast);
+}
+
+.phase-block:hover {
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+.phase-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background var(--transition-fast);
+}
+
+.phase-header:hover {
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.phase-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.phase-number {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--primary);
+    background: var(--primary-glow);
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-sm);
+    letter-spacing: 0.05em;
+}
+
+.phase-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.phase-name {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.phase-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.phase-header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.phase-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+}
+
+.phase-bar {
+    width: 100px;
+    height: 6px;
+    background: var(--bg-dark);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.phase-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--accent-green));
+    border-radius: var(--radius-full);
+    width: 0%;
+    transition: width 0.6s ease;
+}
+
+.phase-fraction {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-family: 'JetBrains Mono', monospace;
+    min-width: 32px;
+    text-align: right;
+}
+
+.phase-toggle-icon {
+    font-size: 0.625rem;
+    color: var(--text-muted);
+    transition: transform var(--transition-normal);
+}
+
+.phase-block.collapsed .phase-toggle-icon {
+    transform: rotate(-90deg);
+}
+
+.phase-block.collapsed .phase-body {
+    display: none;
+}
+
+/* Task Items */
+.phase-body {
+    border-top: 1px solid var(--border);
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid var(--border-light);
+    transition: background var(--transition-fast);
+}
+
+.task-item:last-child {
+    border-bottom: none;
+}
+
+.task-item:hover {
+    background: rgba(99, 102, 241, 0.03);
+}
+
+.task-item.hidden {
+    display: none;
+}
+
+.task-item[data-status="done"] .task-title {
+    color: var(--text-muted);
+    text-decoration: line-through;
+}
+
+/* Custom Checkbox */
+.task-checkbox {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--border);
+    border-radius: 0.375rem;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all var(--transition-fast);
+    padding: 0;
+}
+
+.task-checkbox:hover {
+    border-color: var(--primary);
+}
+
+.task-item[data-status="done"] .task-checkbox {
+    background: var(--accent-green);
+    border-color: var(--accent-green);
+}
+
+.checkbox-icon {
+    width: 10px;
+    height: 10px;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.task-item[data-status="done"] .checkbox-icon {
+    opacity: 1;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+/* Task Content */
+.task-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.task-title {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.task-desc {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.125rem;
+}
+
+/* Task Meta */
+.task-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.task-day {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg-dark);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+}
+
+.task-badge {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-full);
+}
+
+.badge-pending {
+    background: rgba(100, 116, 139, 0.15);
+    color: var(--text-muted);
+}
+
+.badge-in_progress {
+    background: var(--accent-yellow-bg);
+    color: var(--accent-yellow);
+}
+
+.badge-done {
+    background: var(--accent-green-bg);
+    color: var(--accent-green);
+}
+
+/* Task Actions */
+.task-actions {
+    display: flex;
+    gap: 0.25rem;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.task-item:hover .task-actions {
+    opacity: 1;
+}
+
+.task-action-btn {
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    background: var(--bg-dark);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    padding: 0;
+}
+
+.task-action-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-glow);
+}
+
+.task-action-btn.btn-delete:hover {
+    border-color: var(--accent-red);
+    color: var(--accent-red);
+    background: var(--accent-red-bg);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    animation: fadeInUp 0.4s ease;
+}
+
+.empty-illustration {
+    margin-bottom: 1.5rem;
+}
+
+.empty-state h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    max-width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.empty-state .btn-primary {
+    display: inline-flex;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+}
+</style>
+
+<script>
+// TASKS.md data structure for import
+const TASKS_DATA = [
+    { phase: "Phase 1: Literature Review & Topic Refinement", day: "Day 1-2", title: "Web Application Security Fundamentals", description: "HTTP/HTTPS, client-server model, request-response", status: "pending" },
+    { phase: "Phase 1: Literature Review & Topic Refinement", day: "Day 3-4", title: "SQL Injection Theory", description: "SQLi types, prevention methods", status: "pending" },
+    { phase: "Phase 1: Literature Review & Topic Refinement", day: "Day 5-6", title: "Cross-Site Scripting (XSS) Theory", description: "Reflected, Stored, DOM-based XSS", status: "pending" },
+    { phase: "Phase 1: Literature Review & Topic Refinement", day: "Day 7-8", title: "Web Crawling & Vulnerability Scanner Theory", description: "Crawler workflow, scanner comparison", status: "pending" },
+    { phase: "Phase 1: Literature Review & Topic Refinement", day: "Day 9-10", title: "AI/ML in Cybersecurity", description: "Classification concepts, feature engineering", status: "pending" },
+    { phase: "Phase 2: Requirement Analysis & System Design", day: "Day 11-12", title: "Requirement Analysis", description: "Functional & Non-functional requirements", status: "pending" },
+    { phase: "Phase 2: Requirement Analysis & System Design", day: "Day 13", title: "System Architecture Design", description: "System architecture diagram", status: "pending" },
+    { phase: "Phase 2: Requirement Analysis & System Design", day: "Day 14", title: "UML Diagrams", description: "Use Case, Sequence, Activity diagrams", status: "pending" },
+    { phase: "Phase 2: Requirement Analysis & System Design", day: "Day 15", title: "Database Design", description: "ER Diagram, table schema", status: "pending" },
+    { phase: "Phase 3: Core Scanner Development", day: "Day 16-17", title: "Development Environment Setup", description: "Virtual environment, dependencies", status: "pending" },
+    { phase: "Phase 3: Core Scanner Development", day: "Day 18-20", title: "Web Interface (Flask UI)", description: "Templates, navigation, forms", status: "pending" },
+    { phase: "Phase 3: Core Scanner Development", day: "Day 21-24", title: "Web Crawler Implementation", description: "BeautifulSoup, link extraction, form discovery", status: "pending" },
+    { phase: "Phase 3: Core Scanner Development", day: "Day 25-28", title: "SQL Injection Detection", description: "Payload testing, error detection", status: "pending" },
+    { phase: "Phase 3: Core Scanner Development", day: "Day 29-32", title: "XSS Detection", description: "Payload testing, reflection detection", status: "pending" },
+    { phase: "Phase 3: Core Scanner Development", day: "Day 33-35", title: "Scanner Engine Integration", description: "Connect Crawler + Detector pipeline", status: "pending" },
+    { phase: "Phase 4: AI Module Integration", day: "Day 36-37", title: "Data Collection & Feature Engineering", description: "Extract features from responses", status: "pending" },
+    { phase: "Phase 4: AI Module Integration", day: "Day 38-39", title: "Model Training", description: "Train LogisticRegression/RandomForest", status: "pending" },
+    { phase: "Phase 4: AI Module Integration", day: "Day 40-41", title: "AI Integration into Pipeline", description: "Connect AI to scanning pipeline", status: "pending" },
+    { phase: "Phase 4: AI Module Integration", day: "Day 42", title: "AI Module Testing", description: "End-to-end test with AI", status: "pending" },
+    { phase: "Phase 5: Testing & Evaluation", day: "Day 43-44", title: "Functional Testing", description: "Test each feature", status: "pending" },
+    { phase: "Phase 5: Testing & Evaluation", day: "Day 45-46", title: "Performance Evaluation", description: "Test on DVWA, WebGoat", status: "pending" },
+    { phase: "Phase 5: Testing & Evaluation", day: "Day 47-48", title: "Strengths & Limitations Analysis", description: "Analyze results, write Chapter 5", status: "pending" },
+    { phase: "Phase 6: Report Writing & Revision", day: "Day 49-51", title: "Final Report Assembly", description: "Complete all chapters", status: "pending" },
+    { phase: "Phase 6: Report Writing & Revision", day: "Day 52-53", title: "Conclusion & Future Work", description: "Write conclusion and future work", status: "pending" },
+    { phase: "Phase 6: Report Writing & Revision", day: "Day 54-55", title: "Formatting & Polish", description: "Grammar, references, formatting", status: "pending" },
+    { phase: "Phase 6: Report Writing & Revision", day: "Day 56", title: "Presentation Preparation", description: "Create slides, prepare demo", status: "pending" },
+];
+
+let currentPhaseFilter = 'all';
+let currentStatusFilter = 'all';
+
+async function seedTasks() {
+    try {
+        const response = await fetch('/tasks/api/tasks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(TASKS_DATA)
+        });
+        if (response.ok) {
+            location.reload();
+        }
+    } catch (error) {
+        console.error('Error seeding tasks:', error);
+    }
+}
+
+function toggleTaskStatus(taskId, event) {
+    event.stopPropagation();
+    const item = document.querySelector(`.task-item[data-task-id="${taskId}"]`);
+    const currentStatus = item.dataset.status;
+    const newStatus = currentStatus === 'done' ? 'pending' : 'done';
+    setTaskStatus(taskId, newStatus);
+}
+
+async function setTaskStatus(taskId, status) {
+    try {
+        const response = await fetch(`/tasks/api/tasks/${taskId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status })
+        });
+        if (response.ok) {
+            location.reload();
+        }
+    } catch (error) {
+        console.error('Error updating task:', error);
+    }
+}
+
+async function deleteTask(taskId) {
+    if (!confirm('Delete this task?')) return;
+    try {
+        const response = await fetch(`/tasks/api/tasks/${taskId}`, { method: 'DELETE' });
+        if (response.ok) {
+            location.reload();
+        }
+    } catch (error) {
+        console.error('Error deleting task:', error);
+    }
+}
+
+async function resetAllTasks() {
+    if (!confirm('Reset all tasks to pending?')) return;
+    try {
+        const response = await fetch('/tasks/api/tasks/reset', { method: 'POST' });
+        if (response.ok) {
+            location.reload();
+        }
+    } catch (error) {
+        console.error('Error resetting tasks:', error);
+    }
+}
+
+function togglePhase(button) {
+    button.parentElement.classList.toggle('collapsed');
+}
+
+function updateStats() {
+    const rows = document.querySelectorAll('.task-item');
+    const total = rows.length;
+    let pending = 0, inProgress = 0, done = 0;
+
+    rows.forEach(row => {
+        const status = row.dataset.status;
+        if (status === 'pending') pending++;
+        else if (status === 'in_progress') inProgress++;
+        else if (status === 'done') done++;
+    });
+
+    document.getElementById('totalTasks').textContent = total;
+    document.getElementById('pendingTasks').textContent = pending;
+    document.getElementById('inProgressTasks').textContent = inProgress;
+    document.getElementById('doneTasks').textContent = done;
+    document.getElementById('doneTasks2').textContent = done;
+
+    const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+    document.getElementById('progressPercent').textContent = percent + '%';
+    document.getElementById('progressRing').setAttribute('stroke-dasharray', percent + ', 100');
+
+    // Update per-phase progress bars
+    document.querySelectorAll('.phase-block').forEach(phase => {
+        const allRows = phase.querySelectorAll('.task-item');
+        const doneRows = phase.querySelectorAll('.task-item[data-status="done"]');
+        const fraction = phase.querySelector('.phase-fraction');
+        const fill = phase.querySelector('.phase-bar-fill');
+        if (fraction) fraction.textContent = `${doneRows.length}/${allRows.length}`;
+        if (fill) fill.style.width = allRows.length > 0 ? `${(doneRows.length / allRows.length) * 100}%` : '0%';
+    });
+}
+
+function applyFilters() {
+    const rows = document.querySelectorAll('.task-item');
+    const phases = document.querySelectorAll('.phase-block');
+
+    rows.forEach(row => {
+        const phaseKey = row.dataset.phaseKey;
+        const status = row.dataset.status;
+        let show = true;
+        if (currentPhaseFilter !== 'all' && phaseKey !== currentPhaseFilter) show = false;
+        if (currentStatusFilter !== 'all' && status !== currentStatusFilter) show = false;
+        row.classList.toggle('hidden', !show);
+    });
+
+    phases.forEach(phase => {
+        const visibleRows = phase.querySelectorAll('.task-item:not(.hidden)');
+        phase.style.display = visibleRows.length > 0 ? 'block' : 'none';
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateStats();
+
+    document.querySelectorAll('#phaseFilters .chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            currentPhaseFilter = chip.dataset.phase;
+            document.querySelectorAll('#phaseFilters .chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            applyFilters();
+        });
+    });
+
+    document.querySelectorAll('#statusFilters .chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            currentStatusFilter = chip.dataset.status;
+            document.querySelectorAll('#statusFilters .chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            applyFilters();
+        });
+    });
+});
+</script>
+{% endblock %}

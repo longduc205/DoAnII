@@ -27,11 +27,13 @@ def create_app(config_name=None):
     from app.routes.scan import scan_bp
     from app.routes.results import results_bp
     from app.routes.history import history_bp
+    from app.routes.tasks import tasks_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(scan_bp, url_prefix='/scan')
     app.register_blueprint(results_bp, url_prefix='/results')
     app.register_blueprint(history_bp, url_prefix='/history')
+    app.register_blueprint(tasks_bp, url_prefix='/tasks')
 
     # Create database tables
     with app.app_context():

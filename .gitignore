@@ -56,3 +56,6 @@ instance/
 .pytest_cache/
 .coverage
 htmlcov/
+
+#cursor
+.cursor/

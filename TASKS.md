@@ -20,7 +20,7 @@
 > **Mục đích**: Xây dựng nền tảng lý thuyết, hiểu rõ domain trước khi code
 
 ### Ngày 1-2: Web Application Security Fundamentals
-- [ ] **🎯 Học**: Tìm hiểu kiến trúc web application (client-server model, request-response)
+- [x] **🎯 Học**: Tìm hiểu kiến trúc web application (client-server model, request-response)
   - HTTP/HTTPS protocol: methods (GET, POST), headers, status codes, body
   - Cách browser giao tiếp với server
   - Vai trò của backend, database trong web app
@@ -88,11 +88,11 @@
 > **Mục đích**: Phân tích yêu cầu, thiết kế kiến trúc hệ thống, vẽ UML
 
 ### Ngày 11-12: Requirement Analysis
-- [ ] **🎯 Học**: System requirements analysis methodology
+- [x] **🎯 Học**: System requirements analysis methodology
   - Functional vs Non-functional requirements
   - Use case analysis
   - Phân tích yêu cầu cho hệ thống scanner
-- [ ] **📝 Viết**: Functional Requirements
+- [x] **📝 Viết**: Functional Requirements
   - FR1: Nhận URL target từ người dùng
   - FR2: Crawl website, phát hiện pages & forms
   - FR3: Test SQLi trên các form tìm được
@@ -100,24 +100,25 @@
   - FR5: AI classify response (normal/suspicious)
   - FR6: Tạo báo cáo kết quả scan
   - FR7: Lưu lịch sử scan
-- [ ] **📝 Viết**: Non-functional Requirements
+- [x] **📝 Viết**: Non-functional Requirements
   - Usability, Modularity, Maintainability, Security
+- [x] **📝 Lưu**: `docs/requirements.md`
 
 ### Ngày 13: System Architecture Design
-- [ ] **🎯 Thiết kế**: Kiến trúc tổng thể hệ thống
+- [x] **🎯 Thiết kế**: Kiến trúc tổng thể hệ thống
   - Vẽ System Architecture Diagram
   - Mô tả data flow: User Input → Crawler → Detector → AI → Report
   - Xác định các module và interaction giữa chúng
-- [ ] **📝 Lưu**: `docs/diagrams/system_architecture.png`
+- [x] **📝 Lưu**: `docs/diagrams/architecture.md`
 
 ### Ngày 14: UML Diagrams
-- [ ] **🎯 Vẽ**: Use Case Diagram
+- [x] **🎯 Vẽ**: Use Case Diagram
   - Actor: User
   - Use cases: Start Scan, View Results, View History, Export Report
-- [ ] **🎯 Vẽ**: Sequence Diagram
+- [x] **🎯 Vẽ**: Sequence Diagram
   - Flow: User → WebUI → Scanner → Crawler → Detector → AI → DB → Report
-- [ ] **🎯 Vẽ**: Activity Diagram (optional)
-- [ ] **📝 Lưu**: `docs/diagrams/`
+- [x] **🎯 Vẽ**: Activity Diagram (optional)
+- [x] **📝 Lưu**: `docs/diagrams/uml.md`
 
 ### Ngày 15: Database Design
 - [ ] **🎯 Thiết kế**: Database schema

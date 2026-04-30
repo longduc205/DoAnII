@@ -121,14 +121,14 @@
 - [x] **📝 Lưu**: `docs/diagrams/uml.md`
 
 ### Ngày 15: Database Design
-- [ ] **🎯 Thiết kế**: Database schema
+- [x] **🎯 Thiết kế**: Database schema
   - Table: `scans` (scan sessions)
   - Table: `pages` (discovered pages)
   - Table: `vulnerabilities` (findings)
   - Table: `ai_results` (AI classifications)
   - Vẽ ER Diagram
-- [ ] **📝 Review**: Kiểm tra lại models trong `app/models/`
-- [ ] **📝 Lưu**: `docs/diagrams/er_diagram.png`
+- [x] **📝 Review**: Kiểm tra lại models trong `app/models/`
+- [x] **📝 Lưu**: `docs/diagrams/er_diagram.md`
 
 ### 📌 Phase 2 Deliverables
 - [ ] Draft Chapter 3 (System Analysis & Design)

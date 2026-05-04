@@ -1,8 +1,74 @@
 {% extends "base.html" %}
-{% block title %}AI VulnScanner - Results{% endblock %}
+{% block title %}AI-SCAN - Scan Results{% endblock %}
+{% block page_title %}Scan Results{% endblock %}
+{% block header_right %}
+<span class="header-badge">Target: {{ scan.target }}</span>
+{% endblock %}
 
 {% block content %}
-<h1>Scan Results</h1>
-<p>Scan ID: {{ scan_id }}</p>
-<!-- TODO: Display vulnerability findings, AI classifications, and report -->
+<!-- Summary Stats -->
+<div class="stat-row">
+    <div class="stat-card">
+        <span class="stat-label">Pages Crawled</span>
+        <span class="stat-value">{{ scan.pages_crawled }}</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Forms Found</span>
+        <span class="stat-value">{{ scan.forms_found }}</span>
+    </div>
+    <div class="stat-card stat-card--danger">
+        <span class="stat-label stat-label--danger">Vulnerabilities</span>
+        <span class="stat-value stat-value--danger">{{ scan.vuln_count }}</span>
+    </div>
+</div>
+
+<!-- AI Analysis Summary -->
+<div class="card card--accent">
+    <h2 class="card-title">AI Analysis Summary</h2>
+    <div class="ai-summary">
+        <div class="ai-stat">
+            <span class="ai-stat-label">MODEL</span>
+            <span class="ai-stat-value">{{ ai_summary.model }}</span>
+        </div>
+        <div class="ai-stat">
+            <span class="ai-stat-label ai-stat-label--accent">ACCURACY</span>
+            <span class="ai-stat-value ai-stat-value--accent">{{ ai_summary.accuracy }}</span>
+        </div>
+        <div class="ai-stat">
+            <span class="ai-stat-label ai-stat-label--danger">SUSPICIOUS</span>
+            <span class="ai-stat-value ai-stat-value--danger">{{ ai_summary.suspicious }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Vulnerability Findings -->
+<h2 class="card-title" style="margin-bottom: -16px;">Vulnerability Findings</h2>
+
+{% for vuln in vulnerabilities %}
+<div class="vuln-card vuln-card--{{ vuln.type_class }}">
+    <div class="vuln-card-header">
+        <span class="vuln-badge vuln-badge--{{ vuln.type_class }}">{{ vuln.type_label }}</span>
+        <span class="vuln-severity vuln-severity--{{ vuln.severity_class }}">{{ vuln.severity }}</span>
+    </div>
+    <div class="vuln-detail">URL: <code>{{ vuln.url }}</code></div>
+    <div class="vuln-detail">Payload: <code>{{ vuln.payload }}</code></div>
+    <div class="vuln-detail">Evidence: {{ vuln.evidence }}</div>
+    <div class="vuln-ai">
+        <span class="vuln-ai-label">AI: {{ vuln.ai_label }}</span>
+        <span class="vuln-ai-confidence">{{ vuln.ai_confidence }}% confidence</span>
+    </div>
+</div>
+{% endfor %}
+
+{% if not vulnerabilities %}
+<div class="card" style="text-align: center; padding: 60px;">
+    <p style="color: var(--accent); font-size: 18px; margin-bottom: 8px;">✅ No vulnerabilities found</p>
+    <p style="color: var(--text-muted); font-size: 14px;">The target appears to be secure against SQLi and XSS attacks.</p>
+</div>
+{% endif %}
+
+<!-- Export Button -->
+<button type="button" class="btn-primary" id="btn-export-report" style="align-self: flex-start;">
+    EXPORT REPORT
+</button>
 {% endblock %}

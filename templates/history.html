@@ -1,7 +1,62 @@
 {% extends "base.html" %}
-{% block title %}AI VulnScanner - History{% endblock %}
+{% block title %}AI-SCAN - History{% endblock %}
+{% block page_title %}Scan History{% endblock %}
+{% block header_right %}
+<span class="header-badge">Active: 1</span>
+{% endblock %}
 
 {% block content %}
-<h1>Scan History</h1>
-<!-- TODO: Display list of past scan sessions -->
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <input type="text" class="form-input" placeholder="Search URL or ID..."
+           id="history-search">
+    <button type="button" class="btn-ghost" id="btn-filter-severity">
+        Filter by Severity ▼
+    </button>
+</div>
+
+<!-- History Table -->
+<div class="card">
+    <table class="data-table" id="history-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Target</th>
+                <th>Date</th>
+                <th>Critical Vulns</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for scan in scans %}
+            <tr data-scan-id="{{ scan.id }}">
+                <td class="col-id">#{{ scan.id }}</td>
+                <td class="col-target">{{ scan.target }}</td>
+                <td style="color: var(--text-muted);">{{ scan.date }}</td>
+                <td>
+                    {% if scan.critical_vulns > 0 %}
+                    <span style="color: var(--danger);">{{ scan.critical_vulns }} {{ scan.vuln_summary }}</span>
+                    {% else %}
+                    <span style="color: var(--text-muted);">0</span>
+                    {% endif %}
+                </td>
+                <td class="col-actions">
+                    <a href="{{ url_for('results.show_results', scan_id=scan.id) }}"
+                       class="action-link action-link--accent">View Report</a>
+                    <span class="action-link action-link--danger"
+                          onclick="deleteScan({{ scan.id }})">Delete</span>
+                </td>
+            </tr>
+            {% endfor %}
+
+            {% if not scans %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                    No scan history yet. Start a new scan to see results here.
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

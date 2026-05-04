@@ -1,8 +1,97 @@
 {% extends "base.html" %}
-{% block title %}AI VulnScanner - New Scan{% endblock %}
+{% block title %}AI-SCAN - New Scan{% endblock %}
+{% block page_title %}Configure New Scan{% endblock %}
+{% block header_right %}
+<span class="header-badge">Active: 1</span>
+{% endblock %}
 
 {% block content %}
-<h1>New Vulnerability Scan</h1>
-<p>Configure and start a new scan.</p>
-<!-- TODO: Scan configuration form and progress display -->
+<div style="display: flex; justify-content: center; align-items: flex-start; flex: 1;">
+    <form action="{{ url_for('scan.new_scan') }}" method="POST" id="scan-form" class="card" style="width: 800px;">
+        <h2 class="card-title">Target Setup</h2>
+
+        <!-- URL Input -->
+        <div class="form-group" style="margin-bottom: 32px;">
+            <label class="form-label" for="target_url">Target URL</label>
+            <input type="url" id="target_url" name="target_url" class="form-input"
+                   placeholder="https://" required>
+        </div>
+
+        <!-- Config Grid -->
+        <div class="form-row" style="margin-bottom: 32px;">
+            <!-- Crawl Config -->
+            <div class="form-col">
+                <label class="form-label">Crawl Config</label>
+                <select id="crawl_depth" name="crawl_depth" class="form-select">
+                    <option value="1">Depth Level 1</option>
+                    <option value="2" selected>Depth Level 2*</option>
+                    <option value="3">Depth Level 3</option>
+                </select>
+            </div>
+
+            <!-- Security Checks -->
+            <div class="form-col">
+                <label class="form-label">Security Checks</label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="test_sqli" checked>
+                    SQL Injection
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="test_xss" checked>
+                    Cross-Site Scripting (XSS)
+                </label>
+            </div>
+        </div>
+
+        <div class="divider" style="margin-bottom: 32px;"></div>
+
+        <!-- AI Toggle -->
+        <div class="toggle-row" style="margin-bottom: 32px;">
+            <span class="toggle-label">Enable AI Analysis</span>
+            <label class="toggle-switch">
+                <input type="checkbox" name="use_ai" checked>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-primary" id="btn-launch-scan">
+            LAUNCH SCAN
+        </button>
+    </form>
+</div>
+
+<!-- Scan Progress Overlay -->
+<div class="scan-overlay" id="scan-overlay">
+    <div class="scan-overlay-backdrop" id="scan-overlay-backdrop"></div>
+    <div class="scan-modal">
+        <h2 class="scan-modal-title">Scanning in Progress...</h2>
+        <p class="scan-modal-target" id="scan-target-display">Target: —</p>
+        <div class="divider"></div>
+        <div class="scan-steps" id="scan-steps">
+            <div class="scan-step scan-step--pending" data-step="crawl">
+                <span class="scan-step-icon">○</span>
+                <span>Crawling pages...</span>
+            </div>
+            <div class="scan-step scan-step--pending" data-step="sqli">
+                <span class="scan-step-icon">○</span>
+                <span>Testing SQL Injection...</span>
+            </div>
+            <div class="scan-step scan-step--pending" data-step="xss">
+                <span class="scan-step-icon">○</span>
+                <span>Testing XSS...</span>
+            </div>
+            <div class="scan-step scan-step--pending" data-step="ai">
+                <span class="scan-step-icon">○</span>
+                <span>AI Analysis...</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="scan-progress-fill"></div>
+        </div>
+        <button type="button" class="btn-ghost" id="btn-cancel-scan">
+            CANCEL
+        </button>
+    </div>
+</div>
 {% endblock %}

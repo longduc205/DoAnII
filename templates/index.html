@@ -1,147 +1,104 @@
 {% extends "base.html" %}
-{% block title %}AI VulnScanner - Home{% endblock %}
+{% block title %}AI-SCAN - Dashboard{% endblock %}
+{% block page_title %}Dashboard Overview{% endblock %}
+{% block header_right %}
+<span class="header-badge">Active: {{ stats.active_scans }}</span>
+{% endblock %}
 
 {% block content %}
-<section class="hero">
-    <div class="hero-icon">
-        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-            <rect width="64" height="64" rx="16" fill="url(#grad1)"/>
-            <path d="M32 16L44 24V40L32 48L20 40V24L32 16Z" stroke="white" stroke-width="2.5" fill="none"/>
-            <circle cx="32" cy="32" r="6" fill="white" opacity="0.9"/>
-            <path d="M32 20V28M32 36V44M24 26L29 29.5M35 34.5L40 38M24 38L29 34.5M35 29.5L40 26" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
-            <defs>
-                <linearGradient id="grad1" x1="0" y1="0" x2="64" y2="64">
-                    <stop offset="0%" stop-color="#6366f1"/>
-                    <stop offset="100%" stop-color="#4f46e5"/>
-                </linearGradient>
-            </defs>
-        </svg>
+<!-- Stat Cards -->
+<div class="stat-row">
+    <div class="stat-card">
+        <span class="stat-label">Total Scans</span>
+        <span class="stat-value">{{ stats.total_scans }}</span>
     </div>
-    <h1>AI Web Vulnerability Scanner</h1>
-    <p>Detect SQL Injection and XSS vulnerabilities with intelligent AI-assisted analysis. Built for education and research.</p>
-</section>
-
-<section class="scan-form">
-    <div class="form-card">
-        <form action="{{ url_for('scan.new_scan') }}" method="POST" id="scan-form">
-            <div class="form-group">
-                <label for="target_url">Target URL</label>
-                <input type="url" id="target_url" name="target_url"
-                       placeholder="https://example.com" required>
-            </div>
-            <button type="submit" class="btn-primary btn-block" id="btn-start-scan">
-                <span>Start Scan</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-            </button>
-        </form>
+    <div class="stat-card stat-card--danger">
+        <span class="stat-label stat-label--danger">Critical Vulns</span>
+        <span class="stat-value stat-value--danger">{{ stats.critical_vulns }}</span>
     </div>
-    <p class="form-disclaimer">Only scan websites you have permission to test.</p>
-</section>
-
-<div class="feature-grid">
-    <div class="feature-card">
-        <div class="feature-icon">&#x1F50D;</div>
-        <h3>Smart Crawling</h3>
-        <p>Automatic link discovery and form extraction</p>
-    </div>
-    <div class="feature-card">
-        <div class="feature-icon">&#x26A1;</div>
-        <h3>SQLi Detection</h3>
-        <p>Detect SQL injection vulnerabilities</p>
-    </div>
-    <div class="feature-card">
-        <div class="feature-icon">&#x1F6E1;</div>
-        <h3>XSS Scanning</h3>
-        <p>Cross-site scripting vulnerability detection</p>
-    </div>
-    <div class="feature-card">
-        <div class="feature-icon">&#x1F916;</div>
-        <h3>AI Analysis</h3>
-        <p>ML-powered response classification</p>
+    <div class="stat-card stat-card--accent">
+        <span class="stat-label stat-label--accent">AI Detections</span>
+        <span class="stat-value">{{ stats.ai_detections }}</span>
     </div>
 </div>
 
-<style>
-.hero-icon {
-    margin-bottom: 1.5rem;
-    animation: float 3s ease-in-out infinite;
-}
+<!-- Quick Scan + Risk Distribution -->
+<div class="two-col">
+    <div class="card">
+        <h2 class="card-title">Quick Scan</h2>
+        <form action="{{ url_for('scan.new_scan') }}" method="POST" id="quick-scan-form">
+            <div class="url-row" style="margin-bottom: 24px;">
+                <input type="url" name="target_url" class="form-input"
+                       placeholder="https://target-website.com" required>
+                <button type="submit" class="btn-primary">START</button>
+            </div>
+            <!-- Hidden defaults for quick scan -->
+            <input type="hidden" name="crawl_depth" value="2">
+            <input type="hidden" name="test_sqli" value="on">
+            <input type="hidden" name="test_xss" value="on">
+            <input type="hidden" name="use_ai" value="on">
+            <div class="options-row">
+                <div class="option-item">
+                    <span>Depth:</span>
+                    <span class="option-value">Deep</span>
+                </div>
+                <div class="option-item">
+                    <span>SQLi:</span>
+                    <span class="option-value">On</span>
+                </div>
+                <div class="option-item">
+                    <span>XSS:</span>
+                    <span class="option-value">On</span>
+                </div>
+            </div>
+        </form>
+    </div>
 
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-}
+    <div class="card col-fixed">
+        <h2 class="card-title">Risk Distribution</h2>
+        <div class="risk-list">
+            <div class="risk-item">
+                <span class="risk-name">SQL Injection</span>
+                <span class="risk-pct risk-pct--danger">{{ stats.risk_sqli }}%</span>
+            </div>
+            <div class="risk-item">
+                <span class="risk-name">Cross-Site Scripting</span>
+                <span class="risk-pct risk-pct--warning">{{ stats.risk_xss }}%</span>
+            </div>
+            <div class="risk-item">
+                <span class="risk-name">Other</span>
+                <span class="risk-pct risk-pct--muted">{{ stats.risk_other }}%</span>
+            </div>
+        </div>
+    </div>
+</div>
 
-.hero h1 {
-    font-size: 2.75rem;
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    margin-bottom: 1rem;
-}
-
-.btn-block {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.form-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    box-shadow: var(--shadow-md);
-}
-
-.form-disclaimer {
-    text-align: center;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-top: 0.75rem;
-}
-
-.feature-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-top: 3rem;
-    animation: fadeInUp 0.5s ease 0.2s both;
-}
-
-.feature-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 1.25rem;
-    text-align: center;
-    transition: all var(--transition-normal);
-}
-
-.feature-card:hover {
-    border-color: var(--primary);
-    background: var(--bg-card-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-
-.feature-icon {
-    font-size: 2rem;
-    margin-bottom: 0.75rem;
-}
-
-.feature-card h3 {
-    font-size: 0.9375rem;
-    font-weight: 600;
-    margin-bottom: 0.375rem;
-}
-
-.feature-card p {
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-}
-</style>
+<!-- Recent Activity -->
+<div class="card">
+    <h2 class="card-title">Recent Activity</h2>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Target URL</th>
+                <th>Status</th>
+                <th>Vulnerabilities</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for scan in recent_activity %}
+            <tr>
+                <td>{{ scan.target }}</td>
+                <td>
+                    <span class="status status--{{ scan.status_class }}">
+                        {{ scan.status }}
+                    </span>
+                </td>
+                <td>{{ scan.vulns }}</td>
+                <td style="color: var(--text-muted);">{{ scan.time }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

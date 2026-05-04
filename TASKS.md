@@ -142,36 +142,36 @@
 > **Mục đích**: Xây dựng prototype hoạt động được: UI + Crawler + Detection
 
 ### Ngày 16-17: Development Environment Setup
-- [ ] **🎯 Setup**: Môi trường phát triển
+- [x] **🎯 Setup**: Môi trường phát triển
   - Tạo virtual environment: `python -m venv venv`
   - Install dependencies: `pip install -r requirements.txt`
   - Copy `.env.example` → `.env` và config
   - Test chạy Flask app: `python run.py`
   - Verify database initialization
-- [ ] **📝 Kiểm tra**: App chạy được trên `http://localhost:5000`
+- [x] **📝 Kiểm tra**: App chạy được trên `http://localhost:5000`
 
 ### Ngày 18-20: Web Interface (Flask UI)
-- [ ] **🎯 Học**: Flask basics (routes, templates, Jinja2, static files)
-- [ ] **📝 Code**: `templates/base.html` - Base layout
+- [x] **🎯 Học**: Flask basics (routes, templates, Jinja2, static files)
+- [x] **📝 Code**: `templates/base.html` - Base layout
   - Navigation bar (Home, Scan, History)
   - Footer, CSS styling
-- [ ] **📝 Code**: `templates/index.html` - Home page
+- [x] **📝 Code**: `templates/index.html` - Home page
   - URL input form
   - Scan configuration options
   - "Start Scan" button
-- [ ] **📝 Code**: `templates/scan.html` - Scan progress page
+- [x] **📝 Code**: `templates/scan.html` - Scan progress page
   - Scan status display
   - Live progress updates (optional)
-- [ ] **📝 Code**: `templates/results.html` - Results page
+- [x] **📝 Code**: `templates/results.html` - Results page
   - Summary statistics
   - Vulnerability list with details
   - AI classification results
-- [ ] **📝 Code**: `templates/history.html` - History page
+- [x] **📝 Code**: `templates/history.html` - History page
   - List of past scans
   - Click to view details
-- [ ] **📝 Code**: `app/static/css/style.css` - Styling
-- [ ] **📝 Code**: `app/static/js/main.js` - Frontend logic
-- [ ] **📝 Screenshot**: Chụp UI cho report → `docs/screenshots/`
+- [x] **📝 Code**: `app/static/css/style.css` - Styling
+- [x] **📝 Code**: `app/static/js/main.js` - Frontend logic
+- [x] **📝 Screenshot**: Chụp UI cho report → `docs/screenshots/`
 
 ### Ngày 21-24: Web Crawler Implementation
 - [ ] **🎯 Học**: BeautifulSoup4 & Requests library

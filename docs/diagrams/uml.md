@@ -9,27 +9,47 @@
 ## 1. Use Case Diagram
 
 ```mermaid
-use case
-  "User" as U
-  "System" as S
-  "AI Module" as AI
+flowchart LR
+    %% Actor
+    User((User))
 
-  U --> (Start Scan)
-  U --> (View Results)
-  U --> (View History)
-  U --> (Export Report)
-  U --> (Delete Scan)
+    %% System Boundary
+    subgraph System [AI Web Vulnerability Scanner]
+        direction TB
+        StartScan([Start Scan])
+        ViewResults([View Results])
+        ViewHistory([View History])
+        ExportReport([Export Report])
+        DeleteScan([Delete Scan])
 
-  (Start Scan) ..> (Validate URL) : include
-  (Start Scan) ..> (Crawl Pages) : include
-  (Start Scan) ..> (Detect Vulnerabilities) : include
-  (Start Scan) ..> (AI Classification) : include
-  (Start Scan) ..> (Save Results) : include
+        ValidateURL([Validate URL])
+        CrawlPages([Crawl Pages])
+        DetectVuln([Detect Vulnerabilities])
+        AIClass([AI Classification])
+        SaveResults([Save Results])
 
-  (Detect Vulnerabilities) ..> (Test SQLi) : include
-  (Detect Vulnerabilities) ..> (Test XSS) : include
+        TestSQLi([Test SQLi])
+        TestXSS([Test XSS])
+    end
 
-  (View Results) ..> (AI Classification) : include
+    %% Use Case Interactions
+    User --> StartScan
+    User --> ViewResults
+    User --> ViewHistory
+    User --> ExportReport
+    User --> DeleteScan
+
+    %% Includes
+    StartScan -. "«include»" .-> ValidateURL
+    StartScan -. "«include»" .-> CrawlPages
+    StartScan -. "«include»" .-> DetectVuln
+    StartScan -. "«include»" .-> AIClass
+    StartScan -. "«include»" .-> SaveResults
+
+    DetectVuln -. "«include»" .-> TestSQLi
+    DetectVuln -. "«include»" .-> TestXSS
+
+    ViewResults -. "«include»" .-> AIClass
 ```
 
 | Actor | Description |

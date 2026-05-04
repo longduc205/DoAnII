@@ -174,21 +174,21 @@
 - [x] **📝 Screenshot**: Chụp UI cho report → `docs/screenshots/`
 
 ### Ngày 21-24: Web Crawler Implementation
-- [ ] **🎯 Học**: BeautifulSoup4 & Requests library
+- [x] **🎯 Học**: BeautifulSoup4 & Requests library
   - HTML parsing với BeautifulSoup
   - HTTP requests với Requests library
   - URL parsing với urllib.parse
-- [ ] **📝 Code**: Hoàn thiện `app/services/crawler.py`
+- [x] **📝 Code**: Hoàn thiện `app/services/crawler.py`
   - `crawl()` - BFS traversal từ base URL
   - `_fetch_page()` - Fetch & parse HTML
   - `_extract_links()` - Tìm tất cả internal links
   - `_extract_forms()` - Tìm forms và input fields
   - `_should_skip()` - Filter URLs không cần crawl
-- [ ] **📝 Test**: Chạy crawler trên website test
+- [x] **📝 Test**: Chạy crawler trên website test
   - Test với DVWA locally
   - Verify link extraction hoạt động
   - Verify form extraction hoạt động
-- [ ] **📝 Code**: Viết tests trong `tests/test_crawler.py`
+- [x] **📝 Code**: Viết tests trong `tests/test_crawler.py`
 
 ### Ngày 25-28: SQL Injection Detection
 - [ ] **🎯 Học**: SQLi detection methodology

@@ -5,9 +5,10 @@ Coordinates the scanning workflow:
 1. Create scan record in DB
 2. Crawl target website
 3. Save discovered pages to DB
-4. Run vulnerability detection (Phase 3+)
-5. Run AI analysis (Phase 3+)
-6. Update scan record with final stats
+4. Run vulnerability detection (SQLi, XSS)
+5. Save vulnerability findings to DB
+6. Run AI analysis (Phase 4)
+7. Update scan record with final stats
 """
 
 import logging
@@ -16,7 +17,9 @@ from datetime import datetime, timezone
 from app import db
 from app.models.scan import Scan
 from app.models.page import Page
+from app.models.vulnerability import Vulnerability
 from app.services.crawler import CrawlerService
+from app.services.detector import VulnerabilityDetector
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +41,13 @@ class ScannerEngine:
             self._create_scan_record()
             crawl_results = self._run_crawler()
             self._save_pages(crawl_results)
-            self._finalize_scan(crawl_results)
+
+            # Run vulnerability detection if any test is enabled
+            findings = self._run_detection(crawl_results)
+            if findings:
+                self._save_vulnerabilities(findings)
+
+            self._finalize_scan(crawl_results, len(findings))
             return self.scan
 
         except Exception as exc:
@@ -97,15 +106,80 @@ class ScannerEngine:
         logger.info("Scan #%d: saved %d pages to DB",
                      self.scan.id, len(crawl_results['pages']))
 
-    def _finalize_scan(self, crawl_results):
+    def _run_detection(self, crawl_results):
+        """Step 3: Run vulnerability detection on discovered forms.
+
+        Tests each form for enabled vulnerability types (SQLi, XSS).
+        Returns a flat list of all findings.
+        """
+        forms = crawl_results.get('forms', [])
+        if not forms:
+            logger.info("Scan #%d: no forms found — skipping detection",
+                        self.scan.id)
+            return []
+
+        test_sqli = self.config.get('test_sqli', True)
+        test_xss = self.config.get('test_xss', False)
+
+        if not test_sqli and not test_xss:
+            logger.info("Scan #%d: no detection types enabled", self.scan.id)
+            return []
+
+        detector = VulnerabilityDetector(
+            timeout=self.config.get('timeout', 10),
+        )
+
+        all_findings = []
+
+        for i, form in enumerate(forms, 1):
+            logger.info(
+                "Scan #%d: testing form %d/%d — %s (%s)",
+                self.scan.id, i, len(forms),
+                form.get('action', '?'), form.get('method', '?'),
+            )
+
+            if test_sqli:
+                sqli_findings = detector.test_sqli(form)
+                all_findings.extend(sqli_findings)
+
+            if test_xss:
+                xss_findings = detector.test_xss(form) or []
+                all_findings.extend(xss_findings)
+
+        logger.info(
+            "Scan #%d: detection complete — %d vulnerabilities found",
+            self.scan.id, len(all_findings),
+        )
+        return all_findings
+
+    def _save_vulnerabilities(self, findings):
+        """Step 4: Save vulnerability findings to the database."""
+        for finding in findings:
+            vuln = Vulnerability(
+                scan_id=self.scan.id,
+                vuln_type=finding.get('vuln_type', 'unknown'),
+                severity=finding.get('severity', 'medium'),
+                url=finding.get('url', ''),
+                parameter=finding.get('parameter', ''),
+                payload=finding.get('payload', ''),
+                evidence=finding.get('evidence', ''),
+            )
+            db.session.add(vuln)
+
+        db.session.commit()
+        logger.info("Scan #%d: saved %d vulnerabilities to DB",
+                     self.scan.id, len(findings))
+
+    def _finalize_scan(self, crawl_results, vuln_count=0):
         """Step final: Update scan record with stats and mark completed."""
         self.scan.status = 'completed'
         self.scan.completed_at = datetime.now(timezone.utc)
         self.scan.total_pages = crawl_results['total_pages']
         self.scan.total_forms = crawl_results['total_forms']
-        self.scan.total_vulnerabilities = 0  # Will be updated in detection phase
+        self.scan.total_vulnerabilities = vuln_count
         db.session.commit()
-        logger.info("Scan #%d completed successfully", self.scan.id)
+        logger.info("Scan #%d completed successfully — %d vulns",
+                     self.scan.id, vuln_count)
 
     def _mark_failed(self, error_message):
         """Mark scan as failed if an error occurs."""

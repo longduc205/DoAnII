@@ -86,18 +86,27 @@
             </tr>
         </thead>
         <tbody>
-            {% for scan in recent_activity %}
+            {% for scan in recent_scans %}
             <tr>
-                <td>{{ scan.target }}</td>
+                <td>{{ scan.target_url }}</td>
                 <td>
-                    <span class="status status--{{ scan.status_class }}">
-                        {{ scan.status }}
+                    <span class="status status--{{ scan.status }}">
+                        {{ scan.status | capitalize }}
                     </span>
                 </td>
-                <td>{{ scan.vulns }}</td>
-                <td style="color: var(--text-muted);">{{ scan.time }}</td>
+                <td>{{ scan.total_vulnerabilities }}</td>
+                <td style="color: var(--text-muted);">
+                    {{ scan.started_at.strftime('%b %d, %H:%M') if scan.started_at else '—' }}
+                </td>
             </tr>
             {% endfor %}
+            {% if not recent_scans %}
+            <tr>
+                <td colspan="4" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                    No scans yet. Start a new scan to see activity here.
+                </td>
+            </tr>
+            {% endif %}
         </tbody>
     </table>
 </div>

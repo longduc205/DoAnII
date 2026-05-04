@@ -2,7 +2,7 @@
 {% block title %}AI-SCAN - Scan Results{% endblock %}
 {% block page_title %}Scan Results{% endblock %}
 {% block header_right %}
-<span class="header-badge">Target: {{ scan.target }}</span>
+<span class="header-badge">Target: {{ scan.target_url }}</span>
 {% endblock %}
 
 {% block content %}
@@ -10,15 +10,15 @@
 <div class="stat-row">
     <div class="stat-card">
         <span class="stat-label">Pages Crawled</span>
-        <span class="stat-value">{{ scan.pages_crawled }}</span>
+        <span class="stat-value">{{ scan.total_pages }}</span>
     </div>
     <div class="stat-card">
         <span class="stat-label">Forms Found</span>
-        <span class="stat-value">{{ scan.forms_found }}</span>
+        <span class="stat-value">{{ scan.total_forms }}</span>
     </div>
     <div class="stat-card stat-card--danger">
         <span class="stat-label stat-label--danger">Vulnerabilities</span>
-        <span class="stat-value stat-value--danger">{{ scan.vuln_count }}</span>
+        <span class="stat-value stat-value--danger">{{ scan.total_vulnerabilities }}</span>
     </div>
 </div>
 
@@ -45,18 +45,23 @@
 <h2 class="card-title" style="margin-bottom: -16px;">Vulnerability Findings</h2>
 
 {% for vuln in vulnerabilities %}
-<div class="vuln-card vuln-card--{{ vuln.type_class }}">
+<div class="vuln-card vuln-card--{{ vuln.vuln_type }}">
     <div class="vuln-card-header">
-        <span class="vuln-badge vuln-badge--{{ vuln.type_class }}">{{ vuln.type_label }}</span>
-        <span class="vuln-severity vuln-severity--{{ vuln.severity_class }}">{{ vuln.severity }}</span>
+        <span class="vuln-badge vuln-badge--{{ vuln.vuln_type }}">
+            {% if vuln.vuln_type == 'sqli' %}SQL Injection{% elif vuln.vuln_type == 'xss' %}XSS{% else %}{{ vuln.vuln_type }}{% endif %}
+        </span>
+        <span class="vuln-severity vuln-severity--{{ vuln.severity }}">{{ vuln.severity | upper }}</span>
     </div>
     <div class="vuln-detail">URL: <code>{{ vuln.url }}</code></div>
+    {% if vuln.parameter %}
+    <div class="vuln-detail">Parameter: <code>{{ vuln.parameter }}</code></div>
+    {% endif %}
+    {% if vuln.payload %}
     <div class="vuln-detail">Payload: <code>{{ vuln.payload }}</code></div>
+    {% endif %}
+    {% if vuln.evidence %}
     <div class="vuln-detail">Evidence: {{ vuln.evidence }}</div>
-    <div class="vuln-ai">
-        <span class="vuln-ai-label">AI: {{ vuln.ai_label }}</span>
-        <span class="vuln-ai-confidence">{{ vuln.ai_confidence }}% confidence</span>
-    </div>
+    {% endif %}
 </div>
 {% endfor %}
 

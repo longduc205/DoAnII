@@ -2,7 +2,10 @@
 History routes - Scan history management
 """
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, jsonify
+
+from app import db
+from app.models.scan import Scan
 
 history_bp = Blueprint('history', __name__)
 
@@ -10,22 +13,14 @@ history_bp = Blueprint('history', __name__)
 @history_bp.route('/')
 def scan_history():
     """Display all past scan sessions."""
-    # TODO: Replace mock data with actual database queries in Phase 3
-    scans = [
-        {
-            'id': 8924,
-            'target': 'target-website.com',
-            'date': 'Oct 24, 2026',
-            'critical_vulns': 1,
-            'vuln_summary': 'SQLi',
-        },
-        {
-            'id': 8923,
-            'target': 'internal-api.local',
-            'date': 'Oct 23, 2026',
-            'critical_vulns': 0,
-            'vuln_summary': '',
-        },
-    ]
-
+    scans = Scan.query.order_by(Scan.started_at.desc()).all()
     return render_template('history.html', scans=scans)
+
+
+@history_bp.route('/<int:scan_id>', methods=['DELETE'])
+def delete_scan(scan_id):
+    """Delete a scan and all its related data (cascade)."""
+    scan = Scan.query.get_or_404(scan_id)
+    db.session.delete(scan)
+    db.session.commit()
+    return jsonify({'success': True, 'message': f'Scan #{scan_id} deleted'})

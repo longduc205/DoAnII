@@ -2,7 +2,7 @@
 {% block title %}AI-SCAN - History{% endblock %}
 {% block page_title %}Scan History{% endblock %}
 {% block header_right %}
-<span class="header-badge">Active: 1</span>
+<span class="header-badge">Total: {{ scans | length }}</span>
 {% endblock %}
 
 {% block content %}
@@ -23,7 +23,8 @@
                 <th>ID</th>
                 <th>Target</th>
                 <th>Date</th>
-                <th>Critical Vulns</th>
+                <th>Status</th>
+                <th>Vulns</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -31,11 +32,18 @@
             {% for scan in scans %}
             <tr data-scan-id="{{ scan.id }}">
                 <td class="col-id">#{{ scan.id }}</td>
-                <td class="col-target">{{ scan.target }}</td>
-                <td style="color: var(--text-muted);">{{ scan.date }}</td>
+                <td class="col-target">{{ scan.target_url }}</td>
+                <td style="color: var(--text-muted);">
+                    {{ scan.started_at.strftime('%b %d, %Y') if scan.started_at else '—' }}
+                </td>
                 <td>
-                    {% if scan.critical_vulns > 0 %}
-                    <span style="color: var(--danger);">{{ scan.critical_vulns }} {{ scan.vuln_summary }}</span>
+                    <span class="status status--{{ scan.status }}">
+                        {{ scan.status | capitalize }}
+                    </span>
+                </td>
+                <td>
+                    {% if scan.total_vulnerabilities > 0 %}
+                    <span style="color: var(--danger);">{{ scan.total_vulnerabilities }}</span>
                     {% else %}
                     <span style="color: var(--text-muted);">0</span>
                     {% endif %}
@@ -51,7 +59,7 @@
 
             {% if not scans %}
             <tr>
-                <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
                     No scan history yet. Start a new scan to see results here.
                 </td>
             </tr>

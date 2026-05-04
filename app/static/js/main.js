@@ -146,15 +146,21 @@ function initHistorySearch() {
 function deleteScan(scanId) {
     if (!confirm(`Delete scan #${scanId}? This action cannot be undone.`)) return;
 
-    // TODO: Send DELETE request to server when route is implemented
-    // fetch(`/history/${scanId}`, { method: 'DELETE' })
-
-    // For now, remove the row from the table visually
-    const row = document.querySelector(`tr[data-scan-id="${scanId}"]`);
-    if (row) {
-        row.style.opacity = '0';
-        row.style.transform = 'translateX(-20px)';
-        row.style.transition = 'all 0.3s ease';
-        setTimeout(() => row.remove(), 300);
-    }
+    fetch(`/history/${scanId}`, { method: 'DELETE' })
+        .then(response => {
+            if (!response.ok) throw new Error('Delete failed');
+            return response.json();
+        })
+        .then(() => {
+            const row = document.querySelector(`tr[data-scan-id="${scanId}"]`);
+            if (row) {
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+                row.style.transition = 'all 0.3s ease';
+                setTimeout(() => row.remove(), 300);
+            }
+        })
+        .catch(err => {
+            alert(`Failed to delete scan: ${err.message}`);
+        });
 }

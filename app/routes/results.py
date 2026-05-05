@@ -19,6 +19,7 @@ def show_results(scan_id):
     ai_results = AIResult.query.filter_by(scan_id=scan_id).all()
 
     # Build AI summary
+    # TODO: Populate via AIAnalyzer once model is trained (Phase 4)
     suspicious_count = sum(1 for r in ai_results if r.classification == 'suspicious')
     ai_summary = {
         'model': 'RandomForest',

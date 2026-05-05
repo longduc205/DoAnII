@@ -191,51 +191,51 @@
 - [x] **📝 Code**: Viết tests trong `tests/test_crawler.py`
 
 ### Ngày 25-28: SQL Injection Detection
-- [ ] **🎯 Học**: SQLi detection methodology
+- [x] **🎯 Học**: SQLi detection methodology
   - Baseline response comparison
   - Error-based detection (SQL error keywords)
   - Response length anomaly detection
   - Status code change detection
-- [ ] **📝 Code**: Hoàn thiện `app/services/detector.py` - SQLi phần
+- [x] **📝 Code**: Hoàn thiện `app/services/detector.py` - SQLi phần
   - `test_sqli()` - Inject payloads vào form parameters
   - `_get_baseline_response()` - Lấy response bình thường
   - `_compare_responses()` - So sánh baseline vs test
   - Error keyword matching
-- [ ] **📝 Code**: Load payloads từ `data/payloads/sqli_payloads.txt`
-- [ ] **📝 Test**: Test SQLi detection trên DVWA
-- [ ] **📝 Code**: Viết tests trong `tests/test_detector.py`
-- [ ] **📝 Screenshot**: Chụp kết quả detection
+- [x] **📝 Code**: Load payloads từ `data/payloads/sqli_payloads.txt`
+- [x] **📝 Test**: Test SQLi detection trên DVWA
+- [x] **📝 Code**: Viết tests trong `tests/test_detector.py`
+- [x] **📝 Screenshot**: Chụp kết quả detection
 
 ### Ngày 29-32: XSS Detection
-- [ ] **🎯 Học**: XSS detection methodology
+- [x] **🎯 Học**: XSS detection methodology
   - Reflected payload detection
   - Response content analysis
   - Script tag detection in response
-- [ ] **📝 Code**: Hoàn thiện `app/services/detector.py` - XSS phần
+- [x] **📝 Code**: Hoàn thiện `app/services/detector.py` - XSS phần
   - `test_xss()` - Inject XSS payloads
   - Kiểm tra payload có bị reflect trong response không
   - Phát hiện script tags trong response
-- [ ] **📝 Code**: Load payloads từ `data/payloads/xss_payloads.txt`
-- [ ] **📝 Test**: Test XSS detection trên DVWA
-- [ ] **📝 Screenshot**: Chụp kết quả detection
+- [x] **📝 Code**: Load payloads từ `data/payloads/xss_payloads.txt`
+- [x] **📝 Test**: Test XSS detection trên DVWA
+- [x] **📝 Screenshot**: Chụp kết quả detection
 
 ### Ngày 33-35: Scanner Engine Integration
-- [ ] **📝 Code**: Hoàn thiện `app/services/scanner.py`
+- [x] **📝 Code**: Hoàn thiện `app/services/scanner.py`
   - Kết nối Crawler → Detector pipeline
   - Lưu kết quả vào database
   - Error handling và logging
-- [ ] **📝 Code**: Cập nhật routes để connect với Scanner Engine
+- [x] **📝 Code**: Cập nhật routes để connect với Scanner Engine
   - `app/routes/scan.py` - Start scan, check status
   - `app/routes/results.py` - Query & display results
   - `app/routes/history.py` - Query scan history
-- [ ] **📝 Test**: Full pipeline test: URL input → Crawl → Detect → Results
-- [ ] **📝 Screenshot**: Chụp full workflow cho report
+- [x] **📝 Test**: Full pipeline test: URL input → Crawl → Detect → Results
+- [x] **📝 Screenshot**: Chụp full workflow cho report
 
 ### 📌 Phase 3 Deliverables
-- [ ] Working prototype: Web UI + Crawler + SQLi/XSS Detection
-- [ ] Database storing scan results
-- [ ] Unit tests cho crawler & detector
-- [ ] Screenshots cho Chapter 4
+- [x] Working prototype: Web UI + Crawler + SQLi/XSS Detection
+- [x] Database storing scan results
+- [x] Unit tests cho crawler & detector
+- [x] Screenshots cho Chapter 4
 
 ---
 
@@ -414,11 +414,11 @@
 
 | Tuần | Phase | Trọng tâm | Status |
 |------|-------|-----------|--------|
-| 1-2  | Phase 1 | Literature Review & Theory | `[ ]` |
-| 3    | Phase 2 | Requirements & Design | `[ ]` |
-| 4-5  | Phase 3a | Web UI + Crawler | `[ ]` |
-| 6    | Phase 3b | SQLi/XSS Detection | `[ ]` |
-| 7    | Phase 4 | AI Module | `[ ]` |
+| 1-2  | Phase 1 | Literature Review & Theory | `[x]` |
+| 3    | Phase 2 | Requirements & Design | `[x]` |
+| 4-5  | Phase 3a | Web UI + Crawler | `[x]` |
+| 6    | Phase 3b | SQLi/XSS Detection | `[x]` |
+| 7    | Phase 4 | AI Module | `[/]` |
 | 8    | Phase 5 | Testing & Evaluation | `[ ]` |
 | 9    | Phase 6 | Report & Presentation | `[ ]` |
 

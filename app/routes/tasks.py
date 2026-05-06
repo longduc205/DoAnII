@@ -80,7 +80,13 @@ def delete_task(task_id):
 
 @tasks_bp.route('/api/tasks/reset', methods=['POST'])
 def reset_tasks():
-    """API: Reset all tasks to pending."""
+    """API: Reset all tasks to pending. Requires {"confirm": true} in body."""
+    data = request.get_json() or {}
+    if not data.get('confirm'):
+        return jsonify({
+            'success': False,
+            'warning': 'This will reset ALL tasks. Send {"confirm": true} to confirm.',
+        }), 400
     Task.query.update({'status': 'pending', 'completed_at': None})
     db.session.commit()
     return jsonify({'success': True, 'message': 'All tasks reset'})

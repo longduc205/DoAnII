@@ -13,8 +13,9 @@ import time
 from urllib.parse import urljoin, urlparse
 from collections import deque
 
-import requests
 from bs4 import BeautifulSoup
+
+from app.utils.http_client import HTTPClient
 
 logger = logging.getLogger(__name__)
 
@@ -30,15 +31,6 @@ SKIP_PATTERNS = frozenset([
     'logout', 'signout', 'sign-out', 'log-out',
     'mailto:', 'tel:', 'javascript:',
 ])
-
-DEFAULT_HEADERS = {
-    'User-Agent': (
-        'Mozilla/5.0 (compatible; AIVulnScanner/1.0; '
-        '+https://github.com/educational-scanner)'
-    ),
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-    'Accept-Language': 'en-US,en;q=0.5',
-}
 
 
 class CrawlerService:
@@ -56,8 +48,7 @@ class CrawlerService:
         self.discovered_pages = []
         self.discovered_forms = []
 
-        self.session = requests.Session()
-        self.session.headers.update(DEFAULT_HEADERS)
+        self.http = HTTPClient(timeout=self.timeout)
 
     def crawl(self):
         """Start BFS crawling from the base URL.
@@ -65,7 +56,7 @@ class CrawlerService:
         Returns a dict with discovered pages, forms, and counts.
         """
         logger.info("Starting crawl: %s (depth=%d, max_pages=%d)",
-                     self.base_url, self.max_depth, self.max_pages)
+                    self.base_url, self.max_depth, self.max_pages)
 
         queue = deque([(self.base_url, 0)])
 
@@ -123,32 +114,25 @@ class CrawlerService:
 
     def _fetch_page(self, url):
         """Fetch a page and return parsed content, or None on failure."""
-        try:
-            response = self.session.get(url, timeout=self.timeout)
+        resp = self.http.get(url)
 
-            # Only parse HTML responses
-            content_type = response.headers.get('Content-Type', '')
-            if 'text/html' not in content_type and 'application/xhtml' not in content_type:
-                logger.debug("Skipping non-HTML: %s (%s)", url, content_type)
-                return None
+        if not resp.get('success'):
+            logger.warning("Request failed: %s — %s", url, resp.get('error', 'unknown'))
+            return None
 
-            soup = BeautifulSoup(response.text, 'html.parser')
-            return {
-                'soup': soup,
-                'status_code': response.status_code,
-                'content': response.text,
-                'content_length': len(response.text),
-            }
+        # Only parse HTML responses
+        content_type = resp.get('headers', {}).get('Content-Type', '')
+        if 'text/html' not in content_type and 'application/xhtml' not in content_type:
+            logger.debug("Skipping non-HTML: %s (%s)", url, content_type)
+            return None
 
-        except requests.ConnectionError:
-            logger.warning("Connection error: %s", url)
-            return None
-        except requests.Timeout:
-            logger.warning("Timeout: %s", url)
-            return None
-        except requests.RequestException as exc:
-            logger.warning("Request failed for %s: %s", url, exc)
-            return None
+        soup = BeautifulSoup(resp['content'], 'html.parser')
+        return {
+            'soup': soup,
+            'status_code': resp.get('status_code', 0),
+            'content': resp.get('content', ''),
+            'content_length': resp.get('content_length', 0),
+        }
 
     def _extract_links(self, soup, current_url):
         """Extract all internal links from a page."""

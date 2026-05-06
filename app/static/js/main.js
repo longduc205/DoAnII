@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScanForm();
     initQuickScanForm();
     initHistorySearch();
+    initToastNotifications();
 });
 
 /* ============================================
@@ -163,4 +164,37 @@ function deleteScan(scanId) {
         .catch(err => {
             alert(`Failed to delete scan: ${err.message}`);
         });
+}
+
+/* ============================================
+   Toast Notifications
+   ============================================ */
+function initToastNotifications() {
+    const toasts = document.querySelectorAll('.toast');
+    if (!toasts.length) return;
+
+    toasts.forEach((toast) => {
+        // Re-initialize Lucide icons inside the toast (rendered after page load)
+        if (window.lucide) {
+            lucide.createIcons({ nodes: [toast] });
+        }
+
+        // Close button handler
+        const closeBtn = toast.querySelector('.toast-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => dismissToast(toast));
+        }
+
+        // Auto-dismiss after 5000ms
+        const delay = parseInt(toast.dataset.autoDismiss, 10) || 5000;
+        setTimeout(() => dismissToast(toast), delay);
+    });
+}
+
+function dismissToast(toast) {
+    if (!toast || toast.classList.contains('toast--dismissing')) return;
+    toast.classList.add('toast--dismissing');
+    toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+    // Fallback removal in case transitionend doesn't fire
+    setTimeout(() => toast.remove(), 400);
 }

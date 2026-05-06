@@ -155,6 +155,115 @@
     </div>
 </div>
 
+<!-- Previous Scan Progress Panel -->
+<div class="scan-config-section" style="padding-top: 0;">
+    <div class="scan-config-container">
+        {% if last_scan %}
+        <div class="progress-panel">
+            <div class="progress-panel-header">
+                <div class="progress-panel-icon">
+                    <i data-lucide="clock"></i>
+                </div>
+                <div>
+                    <h3 class="progress-panel-title">Previous Scan Summary</h3>
+                    <p class="progress-panel-subtitle">Most recent completed scan</p>
+                </div>
+            </div>
+
+            <div class="progress-panel-body">
+                <!-- Target URL -->
+                <div class="progress-panel-field">
+                    <span class="progress-panel-label">
+                        <i data-lucide="globe"></i>
+                        Target URL
+                    </span>
+                    <span class="progress-panel-value progress-panel-value--url">{{ last_scan.target_url }}</span>
+                </div>
+
+                <!-- Status -->
+                <div class="progress-panel-field">
+                    <span class="progress-panel-label">
+                        <i data-lucide="activity"></i>
+                        Status
+                    </span>
+                    <span class="progress-panel-value">
+                        {% if last_scan.status == 'completed' %}
+                            {% if last_scan.total_vulnerabilities > 0 %}
+                                <span class="panel-badge panel-badge--danger">
+                                    <i data-lucide="shield-alert"></i>
+                                    Completed — Vulnerabilities Found
+                                </span>
+                            {% else %}
+                                <span class="panel-badge panel-badge--success">
+                                    <i data-lucide="shield-check"></i>
+                                    Completed — Clean
+                                </span>
+                            {% endif %}
+                        {% elif last_scan.status == 'failed' %}
+                            <span class="panel-badge panel-badge--error">
+                                <i data-lucide="x-circle"></i>
+                                Scan Failed
+                            </span>
+                        {% else %}
+                            <span class="panel-badge">{{ last_scan.status | capitalize }}</span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="progress-panel-stats">
+                    <div class="progress-panel-stat">
+                        <span class="progress-panel-stat-value">{{ last_scan.total_pages }}</span>
+                        <span class="progress-panel-stat-label">Pages Crawled</span>
+                    </div>
+                    <div class="progress-panel-stat">
+                        <span class="progress-panel-stat-value">{{ last_scan.total_forms }}</span>
+                        <span class="progress-panel-stat-label">Forms Found</span>
+                    </div>
+                    <div class="progress-panel-stat {% if last_scan.total_vulnerabilities > 0 %}progress-panel-stat--danger{% endif %}">
+                        <span class="progress-panel-stat-value {% if last_scan.total_vulnerabilities > 0 %}progress-panel-stat-value--danger{% endif %}">
+                            {{ last_scan.total_vulnerabilities }}
+                        </span>
+                        <span class="progress-panel-stat-label">Vulnerabilities</span>
+                    </div>
+                </div>
+
+                <!-- Completed At -->
+                <div class="progress-panel-field">
+                    <span class="progress-panel-label">
+                        <i data-lucide="calendar"></i>
+                        Completed At
+                    </span>
+                    <span class="progress-panel-value">
+                        {{ last_scan.completed_at.strftime('%Y-%m-%d %H:%M:%S') if last_scan.completed_at else '—' }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Panel Footer Links -->
+            <div class="progress-panel-footer">
+                <a href="{{ url_for('results.show_results', scan_id=last_scan.id) }}" class="progress-panel-link progress-panel-link--primary">
+                    <i data-lucide="bar-chart-2"></i>
+                    View Full Results
+                </a>
+                <a href="{{ url_for('history.scan_history') }}" class="progress-panel-link">
+                    <i data-lucide="clock"></i>
+                    View All History
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="progress-panel progress-panel--empty">
+            <div class="progress-panel-empty-icon">
+                <i data-lucide="inbox"></i>
+            </div>
+            <p class="progress-panel-empty-title">No previous scans available</p>
+            <p class="progress-panel-empty-text">Run your first scan to see results here.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
 <!-- Scan Progress Modal -->
 <div class="scan-overlay" id="scan-overlay">
     <div class="scan-overlay-backdrop" id="scan-overlay-backdrop"></div>

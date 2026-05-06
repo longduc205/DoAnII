@@ -23,6 +23,7 @@ python-dotenv==1.0.1
 # Testing
 pytest==8.3.5
 pytest-cov==6.1.1
+hypothesis==6.131.15
 
 # Development
 flask-debugtoolbar==0.16.0

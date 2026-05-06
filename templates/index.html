@@ -26,26 +26,30 @@
         </div>
     </div>
     <div class="hero-visual">
-        <div class="hero-card hero-card-1">
-            <div class="hero-card-icon">
-                <i data-lucide="brain"></i>
+        <div class="hero-stats-card">
+            <div class="hero-stat-item hero-stat-item--accent">
+                <div class="hero-stat-icon">
+                    <i data-lucide="brain"></i>
+                </div>
+                <div class="hero-stat-label">AI Detection</div>
+                <div class="hero-stat-value">{{ stats.ai_detections }}</div>
             </div>
-            <div class="hero-card-label">AI Detection</div>
-            <div class="hero-card-value">{{ stats.ai_detections }}</div>
-        </div>
-        <div class="hero-card hero-card-2">
-            <div class="hero-card-icon">
-                <i data-lucide="alert-triangle"></i>
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat-item hero-stat-item--danger">
+                <div class="hero-stat-icon">
+                    <i data-lucide="alert-triangle"></i>
+                </div>
+                <div class="hero-stat-label">Vulnerabilities</div>
+                <div class="hero-stat-value">{{ stats.critical_vulns }}</div>
             </div>
-            <div class="hero-card-label">Vulnerabilities</div>
-            <div class="hero-card-value">{{ stats.critical_vulns }}</div>
-        </div>
-        <div class="hero-card hero-card-3">
-            <div class="hero-card-icon">
-                <i data-lucide="check-circle"></i>
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat-item hero-stat-item--success">
+                <div class="hero-stat-icon">
+                    <i data-lucide="check-circle"></i>
+                </div>
+                <div class="hero-stat-label">Total Scans</div>
+                <div class="hero-stat-value">{{ stats.total_scans }}</div>
             </div>
-            <div class="hero-card-label">Total Scans</div>
-            <div class="hero-card-value">{{ stats.total_scans }}</div>
         </div>
     </div>
 </div>
@@ -114,42 +118,19 @@
     </div>
 </div>
 
-<!-- Quick Scan Section -->
+<!-- CTA Section -->
 <div class="quick-scan-section">
     <div class="quick-scan-container">
         <div class="quick-scan-content">
-            <h2 class="quick-scan-title">Start Your Security Scan</h2>
+            <h2 class="quick-scan-title">Ready to Scan?</h2>
             <p class="quick-scan-description">
-                Enter your target URL and let our AI-powered scanner identify vulnerabilities
+                Detect SQL Injection, XSS, and other vulnerabilities with AI-powered analysis
             </p>
-            <form action="{{ url_for('scan.new_scan') }}" method="POST" class="quick-scan-form">
-                <div class="quick-scan-input-group">
-                    <input type="url" name="target_url" class="quick-scan-input"
-                           placeholder="https://your-website.com" required>
-                    <button type="submit" class="quick-scan-button">
-                        Scan Now
-                        <i data-lucide="arrow-right"></i>
-                    </button>
-                </div>
-                <input type="hidden" name="crawl_depth" value="2">
-                <input type="hidden" name="test_sqli" value="on">
-                <input type="hidden" name="test_xss" value="on">
-                <input type="hidden" name="use_ai" value="on">
-                <div class="quick-scan-features">
-                    <span class="quick-scan-feature">
-                        <i data-lucide="check"></i>
-                        SQL Injection
-                    </span>
-                    <span class="quick-scan-feature">
-                        <i data-lucide="check"></i>
-                        XSS Detection
-                    </span>
-                    <span class="quick-scan-feature">
-                        <i data-lucide="check"></i>
-                        AI Analysis
-                    </span>
-                </div>
-            </form>
+            <a href="{{ url_for('scan.new_scan') }}" class="cta-scan-btn">
+                <i data-lucide="shield-check"></i>
+                Start New Scan
+                <i data-lucide="arrow-right"></i>
+            </a>
         </div>
     </div>
 </div>

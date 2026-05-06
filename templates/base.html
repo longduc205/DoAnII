@@ -29,7 +29,7 @@
                 </li>
                 <li>
                     <a href="{{ url_for('scan.new_scan') }}"
-                       class="{% if request.endpoint and 'scan' in request.endpoint %}active{% endif %}">
+                       class="{% if request.endpoint == 'scan.new_scan' %}active{% endif %}">
                         <i data-lucide="scan"></i>
                         New Scan
                     </a>
@@ -101,6 +101,33 @@
         // Initialize Lucide icons
         lucide.createIcons();
     </script>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container" role="region" aria-live="polite" aria-label="Notifications">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          {% if category in ['scan_success', 'scan_error'] %}
+          <div class="toast toast--{{ 'success' if category == 'scan_success' else 'error' }}"
+               role="alert"
+               data-auto-dismiss="5000">
+            <div class="toast-icon">
+              <i data-lucide="{{ 'check-circle' if category == 'scan_success' else 'x-circle' }}"></i>
+            </div>
+            <div class="toast-body">
+              <p class="toast-title">
+                {{ 'Scan Complete' if category == 'scan_success' else 'Scan Failed' }}
+              </p>
+              <p class="toast-message">{{ message }}</p>
+            </div>
+            <button class="toast-close" aria-label="Dismiss notification" type="button">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+          {% endif %}
+        {% endfor %}
+      {% endwith %}
+    </div>
+
     {% block scripts %}{% endblock %}
 </body>
 </html>

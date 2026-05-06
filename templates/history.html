@@ -1,70 +1,170 @@
 {% extends "base.html" %}
-{% block title %}AI-SCAN - History{% endblock %}
-{% block page_title %}Scan History{% endblock %}
-{% block header_right %}
-<span class="header-badge">Total: {{ scans | length }}</span>
-{% endblock %}
+{% block title %}AI-SCAN - Scan History{% endblock %}
 
 {% block content %}
-<!-- Filter Bar -->
-<div class="filter-bar">
-    <input type="text" class="form-input" placeholder="Search URL or ID..."
-           id="history-search">
-    <button type="button" class="btn-ghost" id="btn-filter-severity">
-        Filter by Severity ▼
-    </button>
-</div>
+<!-- History Section -->
+<div class="history-section">
+    <div class="history-container">
+        <!-- Header -->
+        <div class="history-header">
+            <div class="history-breadcrumb">
+                <a href="{{ url_for('main.index') }}">
+                    <i data-lucide="home"></i>
+                    Home
+                </a>
+                <i data-lucide="chevron-right"></i>
+                <span>History</span>
+            </div>
+            <div class="history-header-content">
+                <div>
+                    <h1 class="history-title">Scan History</h1>
+                    <p class="history-description">
+                        View and manage all your previous security scans
+                    </p>
+                </div>
+                <a href="{{ url_for('scan.new_scan') }}" class="btn-primary-large">
+                    <i data-lucide="plus"></i>
+                    New Scan
+                </a>
+            </div>
+        </div>
 
-<!-- History Table -->
-<div class="card">
-    <table class="data-table" id="history-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Target</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Vulns</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
+        <!-- Stats Overview -->
+        <div class="history-stats">
+            <div class="history-stat-card">
+                <div class="history-stat-icon">
+                    <i data-lucide="activity"></i>
+                </div>
+                <div class="history-stat-content">
+                    <div class="history-stat-value">{{ scans | length }}</div>
+                    <div class="history-stat-label">Total Scans</div>
+                </div>
+            </div>
+            <div class="history-stat-card">
+                <div class="history-stat-icon history-stat-icon--danger">
+                    <i data-lucide="alert-triangle"></i>
+                </div>
+                <div class="history-stat-content">
+                    <div class="history-stat-value">
+                        {% set total_vulns = scans | sum(attribute='total_vulnerabilities') %}
+                        {{ total_vulns }}
+                    </div>
+                    <div class="history-stat-label">Vulnerabilities Found</div>
+                </div>
+            </div>
+            <div class="history-stat-card">
+                <div class="history-stat-icon history-stat-icon--success">
+                    <i data-lucide="check-circle"></i>
+                </div>
+                <div class="history-stat-content">
+                    <div class="history-stat-value">
+                        {% set completed = scans | selectattr('status', 'equalto', 'completed') | list | length %}
+                        {{ completed }}
+                    </div>
+                    <div class="history-stat-label">Completed</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="history-filter-bar">
+            <div class="history-search">
+                <i data-lucide="search"></i>
+                <input type="text" class="history-search-input" placeholder="Search by URL or ID..."
+                       id="history-search">
+            </div>
+            <div class="history-filters">
+                <button type="button" class="history-filter-btn" id="btn-filter-status">
+                    <i data-lucide="filter"></i>
+                    Filter by Status
+                    <i data-lucide="chevron-down"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Scans Grid -->
+        <div class="history-grid">
             {% for scan in scans %}
-            <tr data-scan-id="{{ scan.id }}">
-                <td class="col-id">#{{ scan.id }}</td>
-                <td class="col-target">{{ scan.target_url }}</td>
-                <td style="color: var(--text-muted);">
-                    {{ scan.started_at.strftime('%b %d, %Y') if scan.started_at else '—' }}
-                </td>
-                <td>
-                    <span class="status status--{{ scan.status }}">
+            <div class="history-card" data-scan-id="{{ scan.id }}">
+                <div class="history-card-header">
+                    <div class="history-card-id">#{{ scan.id }}</div>
+                    <span class="history-card-status history-card-status--{{ scan.status }}">
+                        {% if scan.status == 'completed' %}
+                            <i data-lucide="check-circle"></i>
+                        {% elif scan.status == 'running' %}
+                            <i data-lucide="loader"></i>
+                        {% else %}
+                            <i data-lucide="x-circle"></i>
+                        {% endif %}
                         {{ scan.status | capitalize }}
                     </span>
-                </td>
-                <td>
-                    {% if scan.total_vulnerabilities > 0 %}
-                    <span style="color: var(--danger);">{{ scan.total_vulnerabilities }}</span>
-                    {% else %}
-                    <span style="color: var(--text-muted);">0</span>
-                    {% endif %}
-                </td>
-                <td class="col-actions">
-                    <a href="{{ url_for('results.show_results', scan_id=scan.id) }}"
-                       class="action-link action-link--accent">View Report</a>
-                    <span class="action-link action-link--danger"
-                          onclick="deleteScan({{ scan.id }})">Delete</span>
-                </td>
-            </tr>
+                </div>
+                
+                <div class="history-card-body">
+                    <div class="history-card-url">
+                        <i data-lucide="globe"></i>
+                        {{ scan.target_url }}
+                    </div>
+                    
+                    <div class="history-card-meta">
+                        <div class="history-card-meta-item">
+                            <i data-lucide="calendar"></i>
+                            {{ scan.started_at.strftime('%b %d, %Y') if scan.started_at else '—' }}
+                        </div>
+                        <div class="history-card-meta-item">
+                            <i data-lucide="clock"></i>
+                            {{ scan.started_at.strftime('%H:%M') if scan.started_at else '—' }}
+                        </div>
+                    </div>
+                    
+                    <div class="history-card-stats">
+                        <div class="history-card-stat">
+                            <div class="history-card-stat-value {% if scan.total_vulnerabilities > 0 %}history-card-stat-value--danger{% endif %}">
+                                {{ scan.total_vulnerabilities }}
+                            </div>
+                            <div class="history-card-stat-label">Vulnerabilities</div>
+                        </div>
+                        <div class="history-card-stat">
+                            <div class="history-card-stat-value">{{ scan.total_pages or 0 }}</div>
+                            <div class="history-card-stat-label">Pages</div>
+                        </div>
+                        <div class="history-card-stat">
+                            <div class="history-card-stat-value">{{ scan.total_forms or 0 }}</div>
+                            <div class="history-card-stat-label">Forms</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="history-card-footer">
+                    <a href="{{ url_for('results.show_results', scan_id=scan.id) }}" class="history-card-action history-card-action--primary">
+                        <i data-lucide="file-text"></i>
+                        View Report
+                    </a>
+                    <button type="button" class="history-card-action history-card-action--danger"
+                            onclick="deleteScan({{ scan.id }})">
+                        <i data-lucide="trash-2"></i>
+                        Delete
+                    </button>
+                </div>
+            </div>
             {% endfor %}
 
             {% if not scans %}
-            <tr>
-                <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
-                    No scan history yet. Start a new scan to see results here.
-                </td>
-            </tr>
+            <div class="history-empty">
+                <div class="history-empty-icon">
+                    <i data-lucide="inbox"></i>
+                </div>
+                <h3 class="history-empty-title">No Scan History</h3>
+                <p class="history-empty-text">
+                    You haven't performed any scans yet. Start your first security scan to see results here.
+                </p>
+                <a href="{{ url_for('scan.new_scan') }}" class="btn-primary-large">
+                    <i data-lucide="plus"></i>
+                    Start First Scan
+                </a>
+            </div>
             {% endif %}
-        </tbody>
-    </table>
+        </div>
+    </div>
 </div>
 {% endblock %}

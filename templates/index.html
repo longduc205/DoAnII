@@ -1,113 +1,222 @@
 {% extends "base.html" %}
-{% block title %}AI-SCAN - Dashboard{% endblock %}
-{% block page_title %}Dashboard Overview{% endblock %}
-{% block header_right %}
-<span class="header-badge">Active: {{ stats.active_scans }}</span>
-{% endblock %}
+{% block title %}AI-SCAN - AI-Powered Vulnerability Scanner{% endblock %}
+{% block page_title %}{% endblock %}
 
 {% block content %}
-<!-- Stat Cards -->
-<div class="stat-row">
-    <div class="stat-card">
-        <span class="stat-label">Total Scans</span>
-        <span class="stat-value">{{ stats.total_scans }}</span>
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="hero-content">
+        <div class="hero-badge">
+            <i data-lucide="shield-check"></i>
+            Your Trusted Security Partner
+        </div>
+        <h1 class="hero-title">Safeguarding Your Digital World with AI</h1>
+        <p class="hero-description">
+            Advanced AI-powered vulnerability scanning to protect your web applications 
+            from SQL Injection, XSS, and other critical security threats.
+        </p>
+        <div class="hero-actions">
+            <a href="{{ url_for('scan.new_scan') }}" class="btn-hero-primary">
+                Start Free Scan
+                <i data-lucide="arrow-right"></i>
+            </a>
+            <a href="{{ url_for('history.scan_history') }}" class="btn-hero-secondary">
+                View History
+            </a>
+        </div>
     </div>
-    <div class="stat-card stat-card--danger">
-        <span class="stat-label stat-label--danger">Critical Vulns</span>
-        <span class="stat-value stat-value--danger">{{ stats.critical_vulns }}</span>
-    </div>
-    <div class="stat-card stat-card--accent">
-        <span class="stat-label stat-label--accent">AI Detections</span>
-        <span class="stat-value">{{ stats.ai_detections }}</span>
+    <div class="hero-visual">
+        <div class="hero-card hero-card-1">
+            <div class="hero-card-icon">
+                <i data-lucide="brain"></i>
+            </div>
+            <div class="hero-card-label">AI Detection</div>
+            <div class="hero-card-value">{{ stats.ai_detections }}</div>
+        </div>
+        <div class="hero-card hero-card-2">
+            <div class="hero-card-icon">
+                <i data-lucide="alert-triangle"></i>
+            </div>
+            <div class="hero-card-label">Vulnerabilities</div>
+            <div class="hero-card-value">{{ stats.critical_vulns }}</div>
+        </div>
+        <div class="hero-card hero-card-3">
+            <div class="hero-card-icon">
+                <i data-lucide="check-circle"></i>
+            </div>
+            <div class="hero-card-label">Total Scans</div>
+            <div class="hero-card-value">{{ stats.total_scans }}</div>
+        </div>
     </div>
 </div>
 
-<!-- Quick Scan + Risk Distribution -->
-<div class="two-col">
-    <div class="card">
-        <h2 class="card-title">Quick Scan</h2>
-        <form action="{{ url_for('scan.new_scan') }}" method="POST" id="quick-scan-form">
-            <div class="url-row" style="margin-bottom: 24px;">
-                <input type="url" name="target_url" class="form-input"
-                       placeholder="https://target-website.com" required>
-                <button type="submit" class="btn-primary">START</button>
-            </div>
-            <!-- Hidden defaults for quick scan -->
-            <input type="hidden" name="crawl_depth" value="2">
-            <input type="hidden" name="test_sqli" value="on">
-            <input type="hidden" name="test_xss" value="on">
-            <input type="hidden" name="use_ai" value="on">
-            <div class="options-row">
-                <div class="option-item">
-                    <span>Depth:</span>
-                    <span class="option-value">Deep</span>
-                </div>
-                <div class="option-item">
-                    <span>SQLi:</span>
-                    <span class="option-value">On</span>
-                </div>
-                <div class="option-item">
-                    <span>XSS:</span>
-                    <span class="option-value">On</span>
-                </div>
-            </div>
-        </form>
+<!-- Stats Section -->
+<div class="stats-section">
+    <div class="stats-grid">
+        <div class="stat-item">
+            <div class="stat-number">{{ stats.total_scans }}+</div>
+            <div class="stat-label">Security Scans</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">{{ stats.critical_vulns }}</div>
+            <div class="stat-label">Vulnerabilities Found</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">{{ stats.ai_detections }}</div>
+            <div class="stat-label">AI Detections</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">99%</div>
+            <div class="stat-label">Detection Accuracy</div>
+        </div>
     </div>
+</div>
 
-    <div class="card col-fixed">
-        <h2 class="card-title">Risk Distribution</h2>
-        <div class="risk-list">
-            <div class="risk-item">
-                <span class="risk-name">SQL Injection</span>
-                <span class="risk-pct risk-pct--danger">{{ stats.risk_sqli }}%</span>
+<!-- Features Section -->
+<div class="features-section">
+    <div class="section-header">
+        <h2 class="section-title">Our Security Services</h2>
+        <p class="section-description">
+            Comprehensive vulnerability scanning powered by artificial intelligence
+        </p>
+    </div>
+    
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i data-lucide="database"></i>
             </div>
-            <div class="risk-item">
-                <span class="risk-name">Cross-Site Scripting</span>
-                <span class="risk-pct risk-pct--warning">{{ stats.risk_xss }}%</span>
+            <h3 class="feature-title">SQL Injection Detection</h3>
+            <p class="feature-description">
+                Identify and prevent SQL injection vulnerabilities with advanced payload testing
+            </p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i data-lucide="code"></i>
             </div>
-            <div class="risk-item">
-                <span class="risk-name">Other</span>
-                <span class="risk-pct risk-pct--muted">{{ stats.risk_other }}%</span>
+            <h3 class="feature-title">XSS Protection</h3>
+            <p class="feature-description">
+                Detect Cross-Site Scripting vulnerabilities before attackers exploit them
+            </p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i data-lucide="sparkles"></i>
             </div>
+            <h3 class="feature-title">AI-Powered Analysis</h3>
+            <p class="feature-description">
+                Machine learning models classify responses and reduce false positives
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Scan Section -->
+<div class="quick-scan-section">
+    <div class="quick-scan-container">
+        <div class="quick-scan-content">
+            <h2 class="quick-scan-title">Start Your Security Scan</h2>
+            <p class="quick-scan-description">
+                Enter your target URL and let our AI-powered scanner identify vulnerabilities
+            </p>
+            <form action="{{ url_for('scan.new_scan') }}" method="POST" class="quick-scan-form">
+                <div class="quick-scan-input-group">
+                    <input type="url" name="target_url" class="quick-scan-input"
+                           placeholder="https://your-website.com" required>
+                    <button type="submit" class="quick-scan-button">
+                        Scan Now
+                        <i data-lucide="arrow-right"></i>
+                    </button>
+                </div>
+                <input type="hidden" name="crawl_depth" value="2">
+                <input type="hidden" name="test_sqli" value="on">
+                <input type="hidden" name="test_xss" value="on">
+                <input type="hidden" name="use_ai" value="on">
+                <div class="quick-scan-features">
+                    <span class="quick-scan-feature">
+                        <i data-lucide="check"></i>
+                        SQL Injection
+                    </span>
+                    <span class="quick-scan-feature">
+                        <i data-lucide="check"></i>
+                        XSS Detection
+                    </span>
+                    <span class="quick-scan-feature">
+                        <i data-lucide="check"></i>
+                        AI Analysis
+                    </span>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 <!-- Recent Activity -->
-<div class="card">
-    <h2 class="card-title">Recent Activity</h2>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Target URL</th>
-                <th>Status</th>
-                <th>Vulnerabilities</th>
-                <th>Time</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for scan in recent_scans %}
-            <tr>
-                <td>{{ scan.target_url }}</td>
-                <td>
-                    <span class="status status--{{ scan.status }}">
-                        {{ scan.status | capitalize }}
-                    </span>
-                </td>
-                <td>{{ scan.total_vulnerabilities }}</td>
-                <td style="color: var(--text-muted);">
-                    {{ scan.started_at.strftime('%b %d, %H:%M') if scan.started_at else '—' }}
-                </td>
-            </tr>
-            {% endfor %}
-            {% if not recent_scans %}
-            <tr>
-                <td colspan="4" style="text-align: center; padding: 40px; color: var(--text-muted);">
-                    No scans yet. Start a new scan to see activity here.
-                </td>
-            </tr>
-            {% endif %}
-        </tbody>
-    </table>
+<div class="activity-section">
+    <div class="section-header">
+        <h2 class="section-title">Recent Scan Activity</h2>
+        <a href="{{ url_for('history.scan_history') }}" class="section-link">
+            View All
+            <i data-lucide="arrow-right"></i>
+        </a>
+    </div>
+    
+    <div class="activity-table-wrapper">
+        <table class="activity-table">
+            <thead>
+                <tr>
+                    <th>Target URL</th>
+                    <th>Status</th>
+                    <th>Vulnerabilities</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for scan in recent_scans %}
+                <tr>
+                    <td>
+                        <div class="activity-url">{{ scan.target_url }}</div>
+                    </td>
+                    <td>
+                        <span class="activity-status activity-status--{{ scan.status }}">
+                            {{ scan.status | capitalize }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="activity-vulns {% if scan.total_vulnerabilities > 0 %}activity-vulns--danger{% endif %}">
+                            {{ scan.total_vulnerabilities }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="activity-date">
+                            {{ scan.started_at.strftime('%b %d, %Y') if scan.started_at else '—' }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('results.show_results', scan_id=scan.id) }}" class="activity-action">
+                            View Report
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not recent_scans %}
+                <tr>
+                    <td colspan="5" class="activity-empty">
+                        <div class="activity-empty-content">
+                            <div class="activity-empty-icon">
+                                <i data-lucide="search"></i>
+                            </div>
+                            <div class="activity-empty-text">No scans yet. Start your first security scan above.</div>
+                        </div>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

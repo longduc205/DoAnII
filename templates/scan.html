@@ -1,96 +1,206 @@
 {% extends "base.html" %}
 {% block title %}AI-SCAN - New Scan{% endblock %}
-{% block page_title %}Configure New Scan{% endblock %}
-{% block header_right %}
-<span class="header-badge">Active: 1</span>
-{% endblock %}
 
 {% block content %}
-<div style="display: flex; justify-content: center; align-items: flex-start; flex: 1;">
-    <form action="{{ url_for('scan.new_scan') }}" method="POST" id="scan-form" class="card" style="width: 800px;">
-        <h2 class="card-title">Target Setup</h2>
-
-        <!-- URL Input -->
-        <div class="form-group" style="margin-bottom: 32px;">
-            <label class="form-label" for="target_url">Target URL</label>
-            <input type="url" id="target_url" name="target_url" class="form-input"
-                   placeholder="https://" required>
+<!-- Scan Configuration Section -->
+<div class="scan-config-section">
+    <div class="scan-config-container">
+        <!-- Header -->
+        <div class="scan-config-header">
+            <div class="scan-config-breadcrumb">
+                <a href="{{ url_for('main.index') }}">
+                    <i data-lucide="home"></i>
+                    Home
+                </a>
+                <i data-lucide="chevron-right"></i>
+                <span>New Scan</span>
+            </div>
+            <h1 class="scan-config-title">Configure Security Scan</h1>
+            <p class="scan-config-description">
+                Set up your vulnerability scan parameters and let our AI-powered engine analyze your target
+            </p>
         </div>
 
-        <!-- Config Grid -->
-        <div class="form-row" style="margin-bottom: 32px;">
-            <!-- Crawl Config -->
-            <div class="form-col">
-                <label class="form-label">Crawl Config</label>
-                <select id="crawl_depth" name="crawl_depth" class="form-select">
-                    <option value="1">Depth Level 1</option>
-                    <option value="2" selected>Depth Level 2*</option>
-                    <option value="3">Depth Level 3</option>
-                </select>
+        <!-- Scan Form -->
+        <form action="{{ url_for('scan.new_scan') }}" method="POST" id="scan-form" class="scan-config-form">
+            <!-- Target URL Card -->
+            <div class="config-card">
+                <div class="config-card-header">
+                    <div class="config-card-icon">
+                        <i data-lucide="globe"></i>
+                    </div>
+                    <div>
+                        <h3 class="config-card-title">Target Configuration</h3>
+                        <p class="config-card-subtitle">Enter the URL you want to scan for vulnerabilities</p>
+                    </div>
+                </div>
+                <div class="config-card-body">
+                    <div class="form-group-modern">
+                        <label class="form-label-modern" for="target_url">
+                            <i data-lucide="link"></i>
+                            Target URL
+                        </label>
+                        <input type="url" id="target_url" name="target_url" class="form-input-modern"
+                               placeholder="https://example.com" required>
+                        <p class="form-hint">Enter a valid HTTP or HTTPS URL</p>
+                    </div>
+                </div>
             </div>
 
-            <!-- Security Checks -->
-            <div class="form-col">
-                <label class="form-label">Security Checks</label>
-                <label class="checkbox-item">
-                    <input type="checkbox" name="test_sqli" checked>
-                    SQL Injection
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" name="test_xss" checked>
-                    Cross-Site Scripting (XSS)
-                </label>
+            <!-- Scan Options Card -->
+            <div class="config-card">
+                <div class="config-card-header">
+                    <div class="config-card-icon">
+                        <i data-lucide="settings"></i>
+                    </div>
+                    <div>
+                        <h3 class="config-card-title">Scan Options</h3>
+                        <p class="config-card-subtitle">Customize your scan depth and detection methods</p>
+                    </div>
+                </div>
+                <div class="config-card-body">
+                    <div class="config-grid">
+                        <!-- Crawl Depth -->
+                        <div class="form-group-modern">
+                            <label class="form-label-modern" for="crawl_depth">
+                                <i data-lucide="layers"></i>
+                                Crawl Depth
+                            </label>
+                            <select id="crawl_depth" name="crawl_depth" class="form-select-modern">
+                                <option value="1">Level 1 - Quick Scan</option>
+                                <option value="2" selected>Level 2 - Standard Scan</option>
+                                <option value="3">Level 3 - Deep Scan</option>
+                            </select>
+                            <p class="form-hint">Higher depth = more pages scanned</p>
+                        </div>
+
+                        <!-- Vulnerability Tests -->
+                        <div class="form-group-modern">
+                            <label class="form-label-modern">
+                                <i data-lucide="shield-alert"></i>
+                                Vulnerability Tests
+                            </label>
+                            <div class="checkbox-group-modern">
+                                <label class="checkbox-modern">
+                                    <input type="checkbox" name="test_sqli" checked>
+                                    <span class="checkbox-modern-box">
+                                        <i data-lucide="check"></i>
+                                    </span>
+                                    <span class="checkbox-modern-label">
+                                        <span class="checkbox-modern-title">SQL Injection</span>
+                                        <span class="checkbox-modern-desc">Test for SQLi vulnerabilities</span>
+                                    </span>
+                                </label>
+                                <label class="checkbox-modern">
+                                    <input type="checkbox" name="test_xss" checked>
+                                    <span class="checkbox-modern-box">
+                                        <i data-lucide="check"></i>
+                                    </span>
+                                    <span class="checkbox-modern-label">
+                                        <span class="checkbox-modern-title">Cross-Site Scripting</span>
+                                        <span class="checkbox-modern-desc">Test for XSS vulnerabilities</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <div class="divider" style="margin-bottom: 32px;"></div>
+            <!-- AI Analysis Card -->
+            <div class="config-card config-card-accent">
+                <div class="config-card-header">
+                    <div class="config-card-icon">
+                        <i data-lucide="sparkles"></i>
+                    </div>
+                    <div>
+                        <h3 class="config-card-title">AI-Powered Analysis</h3>
+                        <p class="config-card-subtitle">Enable machine learning for enhanced detection accuracy</p>
+                    </div>
+                    <label class="toggle-switch-modern">
+                        <input type="checkbox" name="use_ai" checked>
+                        <span class="toggle-slider-modern"></span>
+                    </label>
+                </div>
+                <div class="config-card-body">
+                    <div class="ai-features">
+                        <div class="ai-feature-item">
+                            <i data-lucide="brain"></i>
+                            <span>Response Classification</span>
+                        </div>
+                        <div class="ai-feature-item">
+                            <i data-lucide="target"></i>
+                            <span>False Positive Reduction</span>
+                        </div>
+                        <div class="ai-feature-item">
+                            <i data-lucide="trending-up"></i>
+                            <span>Confidence Scoring</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <!-- AI Toggle -->
-        <div class="toggle-row" style="margin-bottom: 32px;">
-            <span class="toggle-label">Enable AI Analysis</span>
-            <label class="toggle-switch">
-                <input type="checkbox" name="use_ai" checked>
-                <span class="toggle-slider"></span>
-            </label>
-        </div>
-
-        <!-- Submit -->
-        <button type="submit" class="btn-primary" id="btn-launch-scan">
-            LAUNCH SCAN
-        </button>
-    </form>
+            <!-- Action Buttons -->
+            <div class="scan-config-actions">
+                <a href="{{ url_for('main.index') }}" class="btn-secondary-large">
+                    <i data-lucide="x"></i>
+                    Cancel
+                </a>
+                <button type="submit" class="btn-primary-large" id="btn-launch-scan">
+                    <i data-lucide="zap"></i>
+                    Launch Scan
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
-<!-- Scan Progress Overlay -->
+<!-- Scan Progress Modal -->
 <div class="scan-overlay" id="scan-overlay">
     <div class="scan-overlay-backdrop" id="scan-overlay-backdrop"></div>
     <div class="scan-modal">
-        <h2 class="scan-modal-title">Scanning in Progress...</h2>
-        <p class="scan-modal-target" id="scan-target-display">Target: —</p>
-        <div class="divider"></div>
+        <div class="scan-modal-header">
+            <div class="scan-modal-icon">
+                <i data-lucide="loader"></i>
+            </div>
+            <h2 class="scan-modal-title">Scanning in Progress</h2>
+            <p class="scan-modal-target" id="scan-target-display">Target: —</p>
+        </div>
+        
         <div class="scan-steps" id="scan-steps">
             <div class="scan-step scan-step--pending" data-step="crawl">
-                <span class="scan-step-icon">○</span>
-                <span>Crawling pages...</span>
+                <span class="scan-step-icon">
+                    <i data-lucide="globe"></i>
+                </span>
+                <span class="scan-step-label">Crawling pages...</span>
             </div>
             <div class="scan-step scan-step--pending" data-step="sqli">
-                <span class="scan-step-icon">○</span>
-                <span>Testing SQL Injection...</span>
+                <span class="scan-step-icon">
+                    <i data-lucide="database"></i>
+                </span>
+                <span class="scan-step-label">Testing SQL Injection...</span>
             </div>
             <div class="scan-step scan-step--pending" data-step="xss">
-                <span class="scan-step-icon">○</span>
-                <span>Testing XSS...</span>
+                <span class="scan-step-icon">
+                    <i data-lucide="code"></i>
+                </span>
+                <span class="scan-step-label">Testing XSS...</span>
             </div>
             <div class="scan-step scan-step--pending" data-step="ai">
-                <span class="scan-step-icon">○</span>
-                <span>AI Analysis...</span>
+                <span class="scan-step-icon">
+                    <i data-lucide="sparkles"></i>
+                </span>
+                <span class="scan-step-label">AI Analysis...</span>
             </div>
         </div>
+        
         <div class="progress-bar">
             <div class="progress-fill" id="scan-progress-fill"></div>
         </div>
+        
         <button type="button" class="btn-ghost" id="btn-cancel-scan">
-            CANCEL
+            <i data-lucide="x"></i>
+            Cancel Scan
         </button>
     </div>
 </div>

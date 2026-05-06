@@ -1,79 +1,221 @@
 {% extends "base.html" %}
 {% block title %}AI-SCAN - Scan Results{% endblock %}
-{% block page_title %}Scan Results{% endblock %}
-{% block header_right %}
-<span class="header-badge">Target: {{ scan.target_url }}</span>
-{% endblock %}
 
 {% block content %}
-<!-- Summary Stats -->
-<div class="stat-row">
-    <div class="stat-card">
-        <span class="stat-label">Pages Crawled</span>
-        <span class="stat-value">{{ scan.total_pages }}</span>
-    </div>
-    <div class="stat-card">
-        <span class="stat-label">Forms Found</span>
-        <span class="stat-value">{{ scan.total_forms }}</span>
-    </div>
-    <div class="stat-card stat-card--danger">
-        <span class="stat-label stat-label--danger">Vulnerabilities</span>
-        <span class="stat-value stat-value--danger">{{ scan.total_vulnerabilities }}</span>
-    </div>
-</div>
-
-<!-- AI Analysis Summary -->
-<div class="card card--accent">
-    <h2 class="card-title">AI Analysis Summary</h2>
-    <div class="ai-summary">
-        <div class="ai-stat">
-            <span class="ai-stat-label">MODEL</span>
-            <span class="ai-stat-value">{{ ai_summary.model }}</span>
+<!-- Results Section -->
+<div class="results-section">
+    <div class="results-container">
+        <!-- Header -->
+        <div class="results-header">
+            <div class="results-breadcrumb">
+                <a href="{{ url_for('main.index') }}">
+                    <i data-lucide="home"></i>
+                    Home
+                </a>
+                <i data-lucide="chevron-right"></i>
+                <a href="{{ url_for('history.scan_history') }}">
+                    <i data-lucide="clock"></i>
+                    History
+                </a>
+                <i data-lucide="chevron-right"></i>
+                <span>Scan #{{ scan.id }}</span>
+            </div>
+            
+            <div class="results-header-content">
+                <div class="results-header-left">
+                    <h1 class="results-title">Scan Report</h1>
+                    <div class="results-target">
+                        <i data-lucide="globe"></i>
+                        {{ scan.target_url }}
+                    </div>
+                    <div class="results-meta">
+                        <span class="results-meta-item">
+                            <i data-lucide="calendar"></i>
+                            {{ scan.started_at.strftime('%B %d, %Y') if scan.started_at else '—' }}
+                        </span>
+                        <span class="results-meta-item">
+                            <i data-lucide="clock"></i>
+                            {{ scan.started_at.strftime('%H:%M:%S') if scan.started_at else '—' }}
+                        </span>
+                        <span class="results-status results-status--{{ scan.status }}">
+                            {% if scan.status == 'completed' %}
+                                <i data-lucide="check-circle"></i>
+                            {% elif scan.status == 'running' %}
+                                <i data-lucide="loader"></i>
+                            {% else %}
+                                <i data-lucide="x-circle"></i>
+                            {% endif %}
+                            {{ scan.status | capitalize }}
+                        </span>
+                    </div>
+                </div>
+                <div class="results-header-actions">
+                    <button type="button" class="btn-secondary-large" id="btn-export-report">
+                        <i data-lucide="download"></i>
+                        Export Report
+                    </button>
+                    <a href="{{ url_for('history.scan_history') }}" class="btn-ghost-large">
+                        <i data-lucide="arrow-left"></i>
+                        Back to History
+                    </a>
+                </div>
+            </div>
         </div>
-        <div class="ai-stat">
-            <span class="ai-stat-label ai-stat-label--accent">ACCURACY</span>
-            <span class="ai-stat-value ai-stat-value--accent">{{ ai_summary.accuracy }}</span>
+
+        <!-- Summary Stats -->
+        <div class="results-stats">
+            <div class="results-stat-card">
+                <div class="results-stat-icon">
+                    <i data-lucide="file-text"></i>
+                </div>
+                <div class="results-stat-content">
+                    <div class="results-stat-value">{{ scan.total_pages or 0 }}</div>
+                    <div class="results-stat-label">Pages Crawled</div>
+                </div>
+            </div>
+            <div class="results-stat-card">
+                <div class="results-stat-icon">
+                    <i data-lucide="layout"></i>
+                </div>
+                <div class="results-stat-content">
+                    <div class="results-stat-value">{{ scan.total_forms or 0 }}</div>
+                    <div class="results-stat-label">Forms Found</div>
+                </div>
+            </div>
+            <div class="results-stat-card results-stat-card--danger">
+                <div class="results-stat-icon results-stat-icon--danger">
+                    <i data-lucide="alert-triangle"></i>
+                </div>
+                <div class="results-stat-content">
+                    <div class="results-stat-value results-stat-value--danger">{{ scan.total_vulnerabilities or 0 }}</div>
+                    <div class="results-stat-label">Vulnerabilities</div>
+                </div>
+            </div>
         </div>
-        <div class="ai-stat">
-            <span class="ai-stat-label ai-stat-label--danger">SUSPICIOUS</span>
-            <span class="ai-stat-value ai-stat-value--danger">{{ ai_summary.suspicious }}</span>
+
+        <!-- AI Analysis Summary -->
+        <div class="results-ai-card">
+            <div class="results-ai-header">
+                <div class="results-ai-icon">
+                    <i data-lucide="sparkles"></i>
+                </div>
+                <div>
+                    <h2 class="results-ai-title">AI Analysis Summary</h2>
+                    <p class="results-ai-subtitle">Machine learning powered vulnerability detection</p>
+                </div>
+            </div>
+            <div class="results-ai-stats">
+                <div class="results-ai-stat">
+                    <div class="results-ai-stat-label">Model</div>
+                    <div class="results-ai-stat-value">{{ ai_summary.model }}</div>
+                </div>
+                <div class="results-ai-stat">
+                    <div class="results-ai-stat-label">Accuracy</div>
+                    <div class="results-ai-stat-value results-ai-stat-value--accent">{{ ai_summary.accuracy }}</div>
+                </div>
+                <div class="results-ai-stat">
+                    <div class="results-ai-stat-label">Suspicious Responses</div>
+                    <div class="results-ai-stat-value results-ai-stat-value--danger">{{ ai_summary.suspicious }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vulnerability Findings -->
+        <div class="results-findings">
+            <div class="results-findings-header">
+                <h2 class="results-findings-title">
+                    <i data-lucide="shield-alert"></i>
+                    Vulnerability Findings
+                </h2>
+                {% if vulnerabilities %}
+                <span class="results-findings-count">{{ vulnerabilities | length }} found</span>
+                {% endif %}
+            </div>
+
+            {% if vulnerabilities %}
+            <div class="results-vulns-grid">
+                {% for vuln in vulnerabilities %}
+                <div class="results-vuln-card results-vuln-card--{{ vuln.vuln_type }}">
+                    <div class="results-vuln-header">
+                        <div class="results-vuln-type">
+                            {% if vuln.vuln_type == 'sqli' %}
+                                <i data-lucide="database"></i>
+                                SQL Injection
+                            {% elif vuln.vuln_type == 'xss' %}
+                                <i data-lucide="code"></i>
+                                Cross-Site Scripting
+                            {% else %}
+                                <i data-lucide="alert-circle"></i>
+                                {{ vuln.vuln_type | upper }}
+                            {% endif %}
+                        </div>
+                        <span class="results-vuln-severity results-vuln-severity--{{ vuln.severity }}">
+                            {{ vuln.severity | upper }}
+                        </span>
+                    </div>
+                    
+                    <div class="results-vuln-body">
+                        <div class="results-vuln-detail">
+                            <div class="results-vuln-detail-label">
+                                <i data-lucide="link"></i>
+                                URL
+                            </div>
+                            <div class="results-vuln-detail-value">
+                                <code>{{ vuln.url }}</code>
+                            </div>
+                        </div>
+                        
+                        {% if vuln.parameter %}
+                        <div class="results-vuln-detail">
+                            <div class="results-vuln-detail-label">
+                                <i data-lucide="tag"></i>
+                                Parameter
+                            </div>
+                            <div class="results-vuln-detail-value">
+                                <code>{{ vuln.parameter }}</code>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if vuln.payload %}
+                        <div class="results-vuln-detail">
+                            <div class="results-vuln-detail-label">
+                                <i data-lucide="terminal"></i>
+                                Payload
+                            </div>
+                            <div class="results-vuln-detail-value">
+                                <code>{{ vuln.payload }}</code>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if vuln.evidence %}
+                        <div class="results-vuln-detail">
+                            <div class="results-vuln-detail-label">
+                                <i data-lucide="file-search"></i>
+                                Evidence
+                            </div>
+                            <div class="results-vuln-detail-value">
+                                {{ vuln.evidence }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="results-empty">
+                <div class="results-empty-icon">
+                    <i data-lucide="shield-check"></i>
+                </div>
+                <h3 class="results-empty-title">No Vulnerabilities Found</h3>
+                <p class="results-empty-text">
+                    Great news! The target appears to be secure against SQL Injection and XSS attacks.
+                </p>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
-
-<!-- Vulnerability Findings -->
-<h2 class="card-title" style="margin-bottom: -16px;">Vulnerability Findings</h2>
-
-{% for vuln in vulnerabilities %}
-<div class="vuln-card vuln-card--{{ vuln.vuln_type }}">
-    <div class="vuln-card-header">
-        <span class="vuln-badge vuln-badge--{{ vuln.vuln_type }}">
-            {% if vuln.vuln_type == 'sqli' %}SQL Injection{% elif vuln.vuln_type == 'xss' %}XSS{% else %}{{ vuln.vuln_type }}{% endif %}
-        </span>
-        <span class="vuln-severity vuln-severity--{{ vuln.severity }}">{{ vuln.severity | upper }}</span>
-    </div>
-    <div class="vuln-detail">URL: <code>{{ vuln.url }}</code></div>
-    {% if vuln.parameter %}
-    <div class="vuln-detail">Parameter: <code>{{ vuln.parameter }}</code></div>
-    {% endif %}
-    {% if vuln.payload %}
-    <div class="vuln-detail">Payload: <code>{{ vuln.payload }}</code></div>
-    {% endif %}
-    {% if vuln.evidence %}
-    <div class="vuln-detail">Evidence: {{ vuln.evidence }}</div>
-    {% endif %}
-</div>
-{% endfor %}
-
-{% if not vulnerabilities %}
-<div class="card" style="text-align: center; padding: 60px;">
-    <p style="color: var(--accent); font-size: 18px; margin-bottom: 8px;">✅ No vulnerabilities found</p>
-    <p style="color: var(--text-muted); font-size: 14px;">The target appears to be secure against SQLi and XSS attacks.</p>
-</div>
-{% endif %}
-
-<!-- Export Button -->
-<button type="button" class="btn-primary" id="btn-export-report" style="align-self: flex-start;">
-    EXPORT REPORT
-</button>
 {% endblock %}

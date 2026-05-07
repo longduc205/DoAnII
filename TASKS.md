@@ -244,15 +244,16 @@
 > **Mục đích**: Tích hợp ML model để classify responses
 
 ### Ngày 36-37: Data Collection & Feature Engineering
-- [ ] **🎯 Học**: Feature engineering for security data
+- [x] **🎯 Học**: Feature engineering for security data
   - Features nào quan trọng để classify response?
   - Cách thu thập training data từ scan sessions
-- [ ] **📝 Code**: Hoàn thiện `ai/feature_extractor.py`
+- [x] **📝 Code**: Hoàn thiện `ai/feature_extractor.py`
   - Extract features từ HTTP responses
   - Features: response_length, status_code, keyword presence, reflection
-- [ ] **📝 Tạo**: Training dataset
-  - Chạy scanner trên DVWA (vulnerable pages → label "suspicious")
-  - Chạy scanner trên normal pages (→ label "normal")
+- [x] **📝 Tạo**: Training dataset
+  - Tạo synthetic data với 500 normal + 500 suspicious samples
+  - Script: `scripts/generate_training_data.py`
+  - Validation: `scripts/validate_training_data.py`
   - Lưu vào `data/raw/training_data.csv`
 
 ### Ngày 38-39: Model Training
@@ -438,6 +439,15 @@ pytest tests/ -v
 
 # Initialize database
 python -m app.utils.db_init
+
+# Generate training data (default 500+500)
+python scripts/generate_training_data.py
+
+# Generate custom sample counts
+python scripts/generate_training_data.py --normal 200 --suspicious 200
+
+# Validate training data
+python scripts/validate_training_data.py data/raw/training_data.csv
 
 # Train AI model
 python -m ai.trainer

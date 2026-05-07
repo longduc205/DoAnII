@@ -13,7 +13,13 @@ Usage:
 """
 
 import argparse
+import os
 import sys
+
+# Add project root to path so we can import ai modules
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from ai.data_collector import TrainingDataCollector
 
 
 def parse_arguments():
@@ -83,15 +89,84 @@ Examples:
     return args
 
 
+def generate_data(n_normal, n_suspicious, seed, output_path):
+    """Generate synthetic training data and save to CSV.
+    
+    Args:
+        n_normal (int): Number of normal samples
+        n_suspicious (int): Number of suspicious samples
+        seed (int): Random seed
+        output_path (str): Output CSV file path
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        print(f"[DataGenerator] Starting synthetic data generation...")
+        
+        # Initialize collector
+        collector = TrainingDataCollector()
+        
+        # Generate samples
+        print(f"[DataGenerator] Generating {n_normal} normal samples...")
+        print(f"[DataGenerator] Generating {n_suspicious} suspicious samples...")
+        collector.generate_synthetic(
+            n_normal=n_normal,
+            n_suspicious=n_suspicious,
+            seed=seed
+        )
+        
+        # Get sample counts for verification
+        n_normal_actual, n_suspicious_actual = collector.get_sample_count()
+        
+        # Save to CSV
+        print(f"[DataGenerator] Saving to {output_path}...")
+        collector.save_to_csv(output_path)
+        
+        # Get file size
+        file_size_bytes = os.path.getsize(output_path)
+        file_size_kb = file_size_bytes / 1024
+        
+        # Print success summary
+        print(f"[DataGenerator] ✓ Success!\n")
+        print(f"Summary:")
+        print(f"  Total samples: {n_normal_actual + n_suspicious_actual}")
+        print(f"  Normal (label=0): {n_normal_actual} ({n_normal_actual/(n_normal_actual+n_suspicious_actual)*100:.1f}%)")
+        print(f"  Suspicious (label=1): {n_suspicious_actual} ({n_suspicious_actual/(n_normal_actual+n_suspicious_actual)*100:.1f}%)")
+        print(f"  Output file: {output_path}")
+        print(f"  File size: ~{file_size_kb:.1f} KB")
+        
+        return True
+        
+    except ImportError as e:
+        print(f"[ERROR] Cannot import required modules: {e}", file=sys.stderr)
+        print(f"        Make sure you're running this script from the project root directory.", file=sys.stderr)
+        return False
+        
+    except OSError as e:
+        print(f"[ERROR] Cannot write to {output_path}", file=sys.stderr)
+        print(f"        {e}", file=sys.stderr)
+        return False
+        
+    except Exception as e:
+        print(f"[ERROR] Unexpected error: {e}", file=sys.stderr)
+        return False
+
+
 def main():
     """Main entry point."""
     args = parse_arguments()
     
-    print(f"[DataGenerator] Configuration:")
-    print(f"  Normal samples: {args.normal}")
-    print(f"  Suspicious samples: {args.suspicious}")
-    print(f"  Random seed: {args.seed}")
-    print(f"  Output path: {args.output}")
+    # Generate data
+    success = generate_data(
+        n_normal=args.normal,
+        n_suspicious=args.suspicious,
+        seed=args.seed,
+        output_path=args.output
+    )
+    
+    # Exit with appropriate code
+    sys.exit(0 if success else 1)
 
 
 if __name__ == '__main__':

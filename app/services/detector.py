@@ -96,6 +96,9 @@ class VulnerabilityDetector:
                 '+https://github.com/educational-scanner)'
             ),
         })
+        # --- THÊM COOKIE DVWA CHO DETECTOR ---
+        self.session.cookies.set('PHPSESSID', 'g4lf3381t4oikauihrv5k69t70')
+        self.session.cookies.set('security', 'low')
 
         # Load SQLi payloads from file or use defaults
         self.sqli_payloads = self._load_payloads(

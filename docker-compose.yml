@@ -15,3 +15,10 @@ services:
       - FLASK_ENV=development
       - FLASK_DEBUG=1
     restart: unless-stopped
+
+  dvwa:
+    image: vulnerables/web-dvwa
+    container_name: dvwa-target
+    ports:
+      - "8080:80"
+    restart: unless-stopped

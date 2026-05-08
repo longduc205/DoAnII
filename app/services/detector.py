@@ -246,7 +246,7 @@ class VulnerabilityDetector:
                     f"{test_response['content_length']} "
                     f"(Δ {ratio:.0%})"
                 )
-                score += 0.2
+                score += 0.3
 
         # Clamp score to [0, 1]
         score = min(score, 1.0)

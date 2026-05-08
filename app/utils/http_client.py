@@ -18,6 +18,9 @@ class HTTPClient:
             'User-Agent': 'AI-VulnScanner/1.0 (Educational Purpose)'
         })
 
+        self.session.cookies.set('PHPSESSID', 'g4lf3381t4oikauihrv5k69t70')
+        self.session.cookies.set('security', 'low')
+
     def get(self, url, params=None):
         """Send a GET request."""
         try:

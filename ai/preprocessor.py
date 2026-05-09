@@ -109,3 +109,47 @@ class Preprocessor:
     def load_scaler(self, path):
         """Load a previously saved scaler from disk."""
         self.scaler = joblib.load(path)
+
+    # ------------------------------------------------------------------
+    # Data loading
+    # ------------------------------------------------------------------
+
+    def load_csv(self, csv_path):
+        """Load training data from a CSV file.
+
+        The CSV must contain columns matching FEATURE_COLUMNS plus a
+        ``label`` column (0 = normal, 1 = suspicious).
+
+        Args:
+            csv_path (str): Path to the CSV file.
+
+        Returns:
+            tuple: (X, y) where X is a numpy array of shape
+                   (n_samples, n_features) and y is a 1-D numpy array
+                   of labels.
+        """
+        import pandas as pd
+
+        df = pd.read_csv(csv_path)
+
+        # Validate required columns
+        missing_cols = [c for c in self.FEATURE_COLUMNS if c not in df.columns]
+        if missing_cols:
+            raise ValueError(f"CSV is missing required feature columns: {missing_cols}")
+        if 'label' not in df.columns:
+            raise ValueError("CSV is missing the 'label' column")
+
+        X = df[self.FEATURE_COLUMNS].values.astype(float)
+        y = df['label'].values.astype(int)
+        return X, y
+
+    def handle_missing(self, X):
+        """Replace NaN / infinite values with 0.
+
+        Args:
+            X (np.ndarray): Feature array, possibly containing NaN.
+
+        Returns:
+            np.ndarray: Cleaned array with the same shape.
+        """
+        return np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)

@@ -97,8 +97,8 @@ class VulnerabilityDetector:
             ),
         })
         # --- THÊM COOKIE DVWA CHO DETECTOR ---
-        self.session.cookies.set('PHPSESSID', 'g4lf3381t4oikauihrv5k69t70')
-        self.session.cookies.set('security', 'low')
+        self.session.cookies.set('PHPSESSID', 'b7k7vqilcumponm5no8tmokvu5')
+        self.session.cookies.set('security', 'high')
 
         # Load SQLi payloads from file or use defaults
         self.sqli_payloads = self._load_payloads(
@@ -353,6 +353,12 @@ class VulnerabilityDetector:
                         'test_length': test_response['content_length'],
                         'baseline_status': baseline['status_code'],
                         'test_status': test_response['status_code'],
+                        # Response data for AI classification
+                        'response_data': {
+                            'status_code': test_response['status_code'],
+                            'content': test_response['content'],
+                            'headers': {'Content-Type': 'text/html'},
+                        },
                     }
                     form_findings.append(finding)
                     self.findings.append(finding)
@@ -513,6 +519,12 @@ class VulnerabilityDetector:
                         'evidence': '; '.join(reflection['reasons']),
                         'method': method,
                         'score': reflection['score'],
+                        # Response data for AI classification
+                        'response_data': {
+                            'status_code': test_response['status_code'],
+                            'content': test_response['content'],
+                            'headers': {'Content-Type': 'text/html'},
+                        },
                     }
                     form_findings.append(finding)
                     self.findings.append(finding)

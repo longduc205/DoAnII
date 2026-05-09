@@ -257,32 +257,32 @@
   - Lưu vào `data/raw/training_data.csv`
 
 ### Ngày 38-39: Model Training
-- [ ] **🎯 Học**: Scikit-learn classification pipeline
+- [x] **🎯 Học**: Scikit-learn classification pipeline
   - Train/test split
   - Model fitting
   - Evaluation metrics interpretation
-- [ ] **📝 Code**: Hoàn thiện `ai/preprocessor.py`
+- [x] **📝 Code**: Hoàn thiện `ai/preprocessor.py`
   - Normalize features
   - Handle missing values
-- [ ] **📝 Code**: Hoàn thiện `ai/trainer.py`
+- [x] **📝 Code**: Hoàn thiện `ai/trainer.py`
   - Fix import error (`sklearn.ensemble`)
   - Train LogisticRegression
   - Train RandomForest (so sánh)
   - Evaluate: accuracy, precision, recall, F1-score
   - Save best model → `ai/models/classifier.pkl`
-- [ ] **📝 Ghi lại**: Training results cho report
+- [x] **📝 Ghi lại**: Training results cho report
 
 ### Ngày 40-41: AI Integration into Pipeline
-- [ ] **📝 Code**: Hoàn thiện `ai/predictor.py`
+- [x] **📝 Code**: Hoàn thiện `ai/predictor.py`
   - Load trained model
   - Predict trên new responses
-- [ ] **📝 Code**: Hoàn thiện `app/services/ai_analyzer.py`
+- [x] **📝 Code**: Hoàn thiện `app/services/ai_analyzer.py`
   - Kết nối Predictor vào scanning pipeline
   - Classify mỗi response sau khi detect
-- [ ] **📝 Code**: Cập nhật `app/services/scanner.py`
+- [x] **📝 Code**: Cập nhật `app/services/scanner.py`
   - Thêm AI analysis step vào pipeline
   - Lưu AI results vào database
-- [ ] **📝 Code**: Cập nhật `templates/results.html`
+- [x] **📝 Code**: Cập nhật `templates/results.html`
   - Hiển thị AI classification bên cạnh rule-based results
   - Hiển thị confidence score
 

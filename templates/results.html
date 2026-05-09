@@ -200,6 +200,42 @@
                             </div>
                         </div>
                         {% endif %}
+
+                        {# --- AI Classification Badge --- #}
+                        {% set ai_data = ai_results_by_url.get(vuln.url) %}
+                        {% if ai_data %}
+                        <div class="results-vuln-detail results-vuln-ai">
+                            <div class="results-vuln-detail-label">
+                                <i data-lucide="sparkles"></i>
+                                AI Classification
+                            </div>
+                            <div class="results-vuln-detail-value">
+                                {% if ai_data.classification == 'suspicious' %}
+                                <span class="ai-badge ai-badge--suspicious">
+                                    <i data-lucide="alert-triangle"></i>
+                                    Suspicious — Confirmed
+                                </span>
+                                {% elif ai_data.classification == 'normal' %}
+                                <span class="ai-badge ai-badge--normal">
+                                    <i data-lucide="info"></i>
+                                    Normal — Possible False Positive
+                                </span>
+                                {% else %}
+                                <span class="ai-badge ai-badge--unknown">
+                                    <i data-lucide="help-circle"></i>
+                                    Unknown
+                                </span>
+                                {% endif %}
+                                <div class="ai-confidence">
+                                    <div class="ai-confidence-bar">
+                                        <div class="ai-confidence-fill {% if ai_data.classification == 'suspicious' %}ai-confidence-fill--suspicious{% else %}ai-confidence-fill--normal{% endif %}"
+                                             style="width: {{ (ai_data.confidence * 100)|round(1) }}%"></div>
+                                    </div>
+                                    <span class="ai-confidence-text">{{ (ai_data.confidence * 100)|round(1) }}% confidence</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}

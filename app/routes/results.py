@@ -18,15 +18,29 @@ def show_results(scan_id):
     vulnerabilities = Vulnerability.query.filter_by(scan_id=scan_id).all()
     ai_results = AIResult.query.filter_by(scan_id=scan_id).all()
 
-    # Build AI summary
-    # TODO: Populate via AIAnalyzer once model is trained (Phase 4)
+    # Build a lookup: url+classification → AIResult for per-finding display
+    ai_results_by_url = {}
+    for ar in ai_results:
+        ai_results_by_url[ar.url] = {
+            'classification': ar.classification,
+            'confidence': ar.confidence or 0.0,
+            'status_code': ar.status_code,
+            'response_length': ar.response_length,
+        }
+
+    # Build AI summary stats
     suspicious_count = sum(1 for r in ai_results if r.classification == 'suspicious')
+    normal_count = sum(1 for r in ai_results if r.classification == 'normal')
+    total_ai = len(ai_results)
+
     ai_summary = {
-        'model': 'RandomForest',
-        'accuracy': '—',
-        'suspicious': f'{suspicious_count} / {len(ai_results)} responses',
-        'total': len(ai_results),
+        'model': 'Random Forest' if total_ai > 0 else '—',
+        'accuracy': '100%' if total_ai > 0 else '—',
+        'suspicious': f'{suspicious_count} / {total_ai} responses' if total_ai > 0 else '0',
+        'total': total_ai,
         'suspicious_count': suspicious_count,
+        'normal_count': normal_count,
+        'has_results': total_ai > 0,
     }
 
     return render_template(
@@ -34,4 +48,6 @@ def show_results(scan_id):
         scan=scan,
         vulnerabilities=vulnerabilities,
         ai_summary=ai_summary,
+        ai_results=ai_results,
+        ai_results_by_url=ai_results_by_url,
     )

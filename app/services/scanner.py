@@ -7,8 +7,9 @@ Coordinates the scanning workflow:
 3. Save discovered pages to DB
 4. Run vulnerability detection (SQLi, XSS)
 5. Save vulnerability findings to DB
-6. Run AI analysis (Phase 4)
-7. Update scan record with final stats
+6. Run AI analysis on findings
+7. Save AI classification results to DB
+8. Update scan record with final stats
 """
 
 import logging
@@ -18,8 +19,10 @@ from app import db
 from app.models.scan import Scan
 from app.models.page import Page
 from app.models.vulnerability import Vulnerability
+from app.models.ai_result import AIResult
 from app.services.crawler import CrawlerService
 from app.services.detector import VulnerabilityDetector
+from app.services.ai_analyzer import AIAnalyzer
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +49,10 @@ class ScannerEngine:
             findings = self._run_detection(crawl_results)
             if findings:
                 self._save_vulnerabilities(findings)
+
+            # Run AI analysis if enabled and findings exist
+            if self.config.get('use_ai', True) and findings:
+                self._run_ai_analysis(findings)
 
             self._finalize_scan(crawl_results, len(findings))
             return self.scan
@@ -169,6 +176,57 @@ class ScannerEngine:
         db.session.commit()
         logger.info("Scan #%d: saved %d vulnerabilities to DB",
                      self.scan.id, len(findings))
+
+    def _run_ai_analysis(self, findings):
+        """Step 5: Run AI classification on vulnerability findings.
+
+        Uses the trained ML model to classify each finding's HTTP
+        response as normal or suspicious.  Results are saved as
+        AIResult records in the database.
+        """
+        analyzer = AIAnalyzer()
+
+        if not analyzer.is_available():
+            logger.warning(
+                "Scan #%d: AI model not available — skipping AI analysis. "
+                "Train a model with: python -m ai.trainer",
+                self.scan.id,
+            )
+            return
+
+        logger.info(
+            "Scan #%d: running AI analysis on %d findings ...",
+            self.scan.id, len(findings),
+        )
+
+        ai_classifications = analyzer.classify_findings(findings)
+
+        for finding, ai_result in zip(findings, ai_classifications):
+            features = ai_result.get('features', {})
+
+            record = AIResult(
+                scan_id=self.scan.id,
+                url=finding.get('url', ''),
+                classification=ai_result['classification'],
+                confidence=ai_result['confidence'],
+                response_length=features.get('response_length', 0),
+                status_code=features.get('status_code', 0),
+                has_reflection=bool(features.get('has_xss_reflection', False)),
+                has_error_keywords=bool(features.get('has_sql_keywords', False)),
+            )
+            db.session.add(record)
+
+        db.session.commit()
+
+        # Log summary
+        suspicious_count = sum(
+            1 for r in ai_classifications
+            if r['classification'] == 'suspicious'
+        )
+        logger.info(
+            "Scan #%d: AI analysis complete — %d/%d classified as suspicious",
+            self.scan.id, suspicious_count, len(ai_classifications),
+        )
 
     def _finalize_scan(self, crawl_results, vuln_count=0):
         """Step final: Update scan record with stats and mark completed."""

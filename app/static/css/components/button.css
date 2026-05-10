@@ -1,7 +1,7 @@
 /* Button system. Three variants: primary, secondary, ghost. */
 
 .btn {
-  --btn-bg: var(--surface-2);
+  --btn-bg: var(--surface-1);
   --btn-fg: var(--text-1);
   --btn-border: var(--border-1);
 
@@ -11,7 +11,7 @@
   gap: var(--sp-2);
   height: 36px;
   padding: 0 var(--sp-4);
-  border-radius: var(--r-4);
+  border-radius: var(--r-5); /* 10px radius per DESIGN.md */
   background: var(--btn-bg);
   color: var(--btn-fg);
   font-family: var(--font-sans);
@@ -21,14 +21,16 @@
   border: 1px solid var(--btn-border);
   cursor: pointer;
   white-space: nowrap;
-  transition: background var(--d-fast) var(--ease-quart),
-              border-color var(--d-fast) var(--ease-quart),
-              transform var(--d-fast) var(--ease-quart),
-              box-shadow var(--d-fast) var(--ease-quart);
+  transition: all 0.3s var(--ease-quart);
 }
 .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-.btn:hover { background: var(--surface-3); border-color: var(--border-2); }
+/* Secondary button hover effect based on Webflow reference */
+.btn:not(.btn--primary):not(.btn--ghost):not(.btn--danger):not(.btn--icon):hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 15px var(--accent-glow);
+  transform: translateY(-1px);
+}
 .btn:active { transform: translateY(1px); }
 .btn:disabled,
 .btn[aria-disabled="true"] {
@@ -37,18 +39,19 @@
   pointer-events: none;
 }
 
-/* Primary, the only place electric amethyst goes solid */
+/* Primary, Gradient-filled per DESIGN.md and Webflow reference */
 .btn--primary {
-  --btn-bg: var(--accent);
-  --btn-fg: oklch(15% 0.01 295);
-  --btn-border: var(--accent);
+  --btn-bg: linear-gradient(135deg, var(--accent-dark), var(--accent));
+  --btn-fg: var(--text-1);
+  --btn-border: transparent;
+  background: var(--btn-bg);
   font-weight: var(--fw-600);
-  box-shadow: 0 1px 0 oklch(100% 0 0 / 0.2) inset,
-              0 8px 24px var(--accent-glow);
+  box-shadow: 0 8px 24px var(--accent-glow);
 }
 .btn--primary:hover {
-  --btn-bg: var(--accent-bright);
-  --btn-border: var(--accent-bright);
+  filter: brightness(1.15);
+  box-shadow: 0 0 20px oklch(68% 0.22 305 / 0.5); /* Stronger purple glow */
+  transform: translateY(-2px); /* Satisfying lift */
 }
 
 .btn--ghost {

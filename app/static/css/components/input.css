@@ -77,12 +77,111 @@
 .select {
   appearance: none;
   -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23737380' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+  /* Thinner, more elegant chevron matching the reference site */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a3a3b3' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
-  padding-right: 36px;
+  background-position: right 14px center;
+  background-size: 14px;
+  padding-right: 40px;
   cursor: pointer;
+  border-radius: var(--r-5); /* 10px per DESIGN.md */
+  transition: all var(--d-fast) var(--ease-quart);
+}
+
+.select option {
+  background-color: var(--surface-1);
+  color: var(--text-1);
+  padding: var(--sp-2);
+}
+
+/* Custom Select (Sentinel's Ledger style) */
+.custom-select {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 40px;
+  padding: 0 var(--sp-4);
+  background: var(--surface-1);
+  border: 1px solid var(--border-1);
+  border-radius: var(--r-5);
+  color: var(--text-1);
+  font-size: var(--fs-14);
+  cursor: pointer;
+  transition: all var(--d-fast) var(--ease-quart);
+  user-select: none;
+}
+
+.custom-select-trigger:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+  background: var(--surface-2);
+}
+
+.custom-select-trigger svg {
+  width: 14px;
+  height: 14px;
+  color: var(--text-3);
+  transition: transform var(--d-fast) var(--ease-quart);
+}
+
+.custom-select.is-open .custom-select-trigger {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.custom-select.is-open .custom-select-trigger svg {
+  transform: rotate(180deg);
+}
+
+.custom-select-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--surface-1);
+  border: 1px solid var(--accent);
+  border-top: none;
+  border-radius: 0 0 var(--r-5) var(--r-5);
+  box-shadow: var(--elev-3);
+  padding: var(--sp-1) 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: all var(--d-fast) var(--ease-quart);
+}
+
+.custom-select.is-open .custom-select-list {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.custom-select-option {
+  padding: var(--sp-2) var(--sp-4);
+  font-size: var(--fs-14);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all var(--d-fast) var(--ease-quart);
+}
+
+.custom-select-option:hover {
+  background: var(--accent-soft);
+  color: var(--text-1);
+}
+
+.custom-select-option.is-selected {
+  color: var(--accent-bright);
+  font-weight: var(--fw-600);
+  background: oklch(68% 0.22 305 / 0.08);
 }
 
 /* Toggle switch */
@@ -137,8 +236,10 @@
   background: var(--surface-1);
   cursor: pointer;
   transition: border-color var(--d-fast) var(--ease-quart),
-              background var(--d-fast) var(--ease-quart);
+              background var(--d-fast) var(--ease-quart),
+              transform var(--d-fast) var(--ease-quart);
 }
+.checkcard:active { transform: translateY(1px); }
 .checkcard input { position: absolute; opacity: 0; pointer-events: none; }
 .checkcard:hover { border-color: var(--border-2); background: var(--surface-2); }
 .checkcard-box {
@@ -178,4 +279,16 @@
 .checkcard-desc {
   font-size: var(--fs-12);
   color: var(--text-4);
+  line-height: 1.4;
+}
+
+.checkcard--compact {
+  padding: var(--sp-2) var(--sp-3);
+  gap: var(--sp-2);
+}
+.checkcard--compact .checkcard-box {
+  margin-top: 1px;
+}
+.checkcard--compact .checkcard-title {
+  font-size: var(--fs-13);
 }

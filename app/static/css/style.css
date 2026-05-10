@@ -12,6 +12,7 @@
 /* Layouts */
 @import url('layouts/app-shell.css');
 @import url('layouts/page.css');
+@import url('layouts/home.css');
 
 /* Components */
 @import url('components/button.css');

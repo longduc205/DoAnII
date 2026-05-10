@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initToasts();
   initHistoryTable();
   initFindingExpand();
+  initCustomSelects();
   exposeDeleteScan();
 });
 
@@ -100,61 +101,17 @@ function dismissToast(toast) {
 }
 
 /* -------------------------------------------------------------------------
-   History table: client-side search + sort + status filter.
+   History table: Handle server-side filter form submission.
    -------------------------------------------------------------------------*/
 function initHistoryTable() {
-  const table = document.getElementById('hist-table');
-  if (!table) return;
+  const form = document.getElementById('history-filter-form');
+  if (!form) return;
 
-  const searchInput = document.getElementById('hist-search');
   const statusSelect = document.getElementById('hist-status');
-  const tbody = table.querySelector('tbody');
-  const allRows = Array.from(tbody.querySelectorAll('tr'));
 
-  function applyFilters() {
-    const q = (searchInput?.value || '').trim().toLowerCase();
-    const status = statusSelect?.value || 'all';
-    let visible = 0;
-
-    allRows.forEach(row => {
-      const target = row.dataset.target?.toLowerCase() || '';
-      const id = row.dataset.id || '';
-      const rowStatus = row.dataset.status || '';
-
-      const matchQuery = !q || target.includes(q) || id.includes(q);
-      const matchStatus = status === 'all' || rowStatus === status;
-      const show = matchQuery && matchStatus;
-      row.hidden = !show;
-      if (show) visible++;
-    });
-
-    const empty = document.getElementById('hist-empty-filtered');
-    if (empty) empty.hidden = visible !== 0;
-  }
-
-  searchInput?.addEventListener('input', applyFilters);
-  statusSelect?.addEventListener('change', applyFilters);
-
-  // Sort by clicking on a `<th data-sort="key">`.
-  table.querySelectorAll('th[data-sort]').forEach(th => {
-    th.addEventListener('click', () => {
-      const key = th.dataset.sort;
-      const current = th.getAttribute('aria-sort');
-      const next = current === 'ascending' ? 'descending' : 'ascending';
-
-      table.querySelectorAll('th[data-sort]').forEach(t => t.removeAttribute('aria-sort'));
-      th.setAttribute('aria-sort', next);
-
-      const dir = next === 'ascending' ? 1 : -1;
-      const sorted = allRows.slice().sort((a, b) => {
-        const av = a.dataset[key] ?? '';
-        const bv = b.dataset[key] ?? '';
-        const an = parseFloat(av), bn = parseFloat(bv);
-        const isNum = !Number.isNaN(an) && !Number.isNaN(bn);
-        return isNum ? (an - bn) * dir : av.localeCompare(bv) * dir;
-      });
-      sorted.forEach(r => tbody.appendChild(r));
-    });
+  // Auto-submit form when status changes
+  statusSelect?.addEventListener('change', () => {
+    form.submit();
   });
 }
 
@@ -168,6 +125,57 @@ function initFindingExpand() {
         lucide.createIcons({ nodes: [detail] });
       }
     });
+  });
+}
+
+/* -------------------------------------------------------------------------
+   Custom Selects: transform native `<select>` into a custom-styled dropdown.
+   Matches the "Sentinel's Ledger" theme with rounded corners and glows.
+   -------------------------------------------------------------------------*/
+function initCustomSelects() {
+  document.querySelectorAll('.custom-select').forEach(container => {
+    const nativeSelect = container.querySelector('select');
+    const trigger = container.querySelector('.custom-select-trigger');
+    const triggerText = trigger.querySelector('span');
+    const list = container.querySelector('.custom-select-list');
+    const options = Array.from(container.querySelectorAll('.custom-select-option'));
+
+    if (!nativeSelect || !trigger || !list) return;
+
+    // Toggle dropdown
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = container.classList.toggle('is-open');
+      
+      // Close other open selects
+      document.querySelectorAll('.custom-select').forEach(other => {
+        if (other !== container) other.classList.remove('is-open');
+      });
+    });
+
+    // Handle option selection
+    options.forEach(opt => {
+      opt.addEventListener('click', () => {
+        const value = opt.dataset.value;
+        const label = opt.textContent;
+
+        // Update native select
+        nativeSelect.value = value;
+        nativeSelect.dispatchEvent(new Event('change'));
+
+        // Update UI
+        triggerText.textContent = label;
+        options.forEach(o => o.classList.remove('is-selected'));
+        opt.classList.add('is-selected');
+
+        container.classList.remove('is-open');
+      });
+    });
+  });
+
+  // Close when clicking outside
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.custom-select').forEach(c => c.classList.remove('is-open'));
   });
 }
 

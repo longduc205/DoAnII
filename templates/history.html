@@ -4,64 +4,78 @@
 
 {% block content %}
 
-{% set total_findings = scans|sum(attribute='total_vulnerabilities') %}
-{% set completed = scans|selectattr('status', 'equalto', 'completed')|list|length %}
-
 <div class="page-head">
   <div class="page-head-meta">
     <span class="t-eyebrow">Archive</span>
     <h1 class="t-page-title">Every scan you have run.</h1>
     <p class="t-caption" style="margin-top: 4px;">
-      {{ scans|length }} total,
-      {{ completed }} completed,
+      {{ pagination.total }} total,
+      {{ total_completed }} completed,
       {{ total_findings }} finding{{ '' if total_findings == 1 else 's' }} recorded.
     </p>
   </div>
 </div>
 
 {# ---- Filter bar ---- #}
-<div class="dtable-toolbar">
+<form action="{{ url_for('history.scan_history') }}" method="GET" class="dtable-toolbar" id="history-filter-form">
   <div class="input-group">
     <i data-lucide="search" class="input-group-icon"></i>
     <input type="search"
+           name="q"
            id="hist-search"
            class="input"
            placeholder="Search by target URL or scan ID"
+           value="{{ q }}"
            autocomplete="off">
   </div>
-  <select id="hist-status" class="select" style="max-width: 180px;">
-    <option value="all">All statuses</option>
-    <option value="completed">Completed</option>
-    <option value="running">Running</option>
-    <option value="failed">Failed</option>
-  </select>
-</div>
+  
+  <div class="custom-select" style="max-width: 180px;">
+    <select id="hist-status" name="status" style="display: none;">
+      <option value="all" {{ 'selected' if status == 'all' }}>All statuses</option>
+      <option value="completed" {{ 'selected' if status == 'completed' }}>Completed</option>
+      <option value="running" {{ 'selected' if status == 'running' }}>Running</option>
+      <option value="failed" {{ 'selected' if status == 'failed' }}>Failed</option>
+    </select>
+    <div class="custom-select-trigger">
+      <span>
+        {% if status == 'completed' %}Completed
+        {% elif status == 'running' %}Running
+        {% elif status == 'failed' %}Failed
+        {% else %}All statuses
+        {% endif %}
+      </span>
+      <i data-lucide="chevron-down"></i>
+    </div>
+    <div class="custom-select-list">
+      <div class="custom-select-option {{ 'is-selected' if status == 'all' }}" data-value="all">All statuses</div>
+      <div class="custom-select-option {{ 'is-selected' if status == 'completed' }}" data-value="completed">Completed</div>
+      <div class="custom-select-option {{ 'is-selected' if status == 'running' }}" data-value="running">Running</div>
+      <div class="custom-select-option {{ 'is-selected' if status == 'failed' }}" data-value="failed">Failed</div>
+    </div>
+  </div>
+  
+  <button type="submit" class="btn btn--secondary" style="height: 40px;">Filter</button>
+</form>
 
 {# ---- Table ---- #}
-{% if scans %}
+{% if pagination.items %}
 <div class="dtable-wrap">
   <table class="dtable" id="hist-table">
     <thead>
       <tr>
-        <th data-sort="id" class="col-num">#</th>
-        <th data-sort="target">Target</th>
-        <th data-sort="status">Status</th>
-        <th data-sort="findings" style="text-align: right;">Findings</th>
-        <th data-sort="pages" style="text-align: right;">Pages</th>
-        <th data-sort="forms" style="text-align: right;">Forms</th>
-        <th data-sort="started">Started</th>
+        <th class="col-num">#</th>
+        <th>Target</th>
+        <th>Status</th>
+        <th style="text-align: right;">Findings</th>
+        <th style="text-align: right;">Pages</th>
+        <th style="text-align: right;">Forms</th>
+        <th>Started</th>
         <th class="col-actions">&nbsp;</th>
       </tr>
     </thead>
     <tbody>
-      {% for scan in scans %}
-      <tr data-id="{{ scan.id }}"
-          data-target="{{ scan.target_url }}"
-          data-status="{{ scan.status }}"
-          data-findings="{{ scan.total_vulnerabilities or 0 }}"
-          data-pages="{{ scan.total_pages or 0 }}"
-          data-forms="{{ scan.total_forms or 0 }}"
-          data-started="{{ scan.started_at.isoformat() if scan.started_at else '' }}">
+      {% for scan in pagination.items %}
+      <tr data-id="{{ scan.id }}">
         <td class="col-num">{{ scan.id }}</td>
         <td class="col-target">
           <div class="target-cell">
@@ -123,24 +137,58 @@
     </tbody>
   </table>
 </div>
-<p id="hist-empty-filtered" class="t-caption" hidden style="text-align: center; padding: var(--sp-6) 0;">
-  No scans match the current filter.
-</p>
+
+{# ---- Pagination Navigation ---- #}
+{% if pagination.pages > 1 %}
+<nav class="pagination" aria-label="Scan history pagination">
+  <a href="{{ url_for('history.scan_history', page=pagination.prev_num, q=q, status=status) if pagination.has_prev else '#' }}"
+     class="pagination-item {{ 'is-disabled' if not pagination.has_prev }}"
+     aria-label="Previous page">
+    <i data-lucide="chevron-left"></i>
+  </a>
+
+  {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+    {% if page_num %}
+      <a href="{{ url_for('history.scan_history', page=page_num, q=q, status=status) }}"
+         class="pagination-item {{ 'is-active' if page_num == pagination.page }}">
+        {{ page_num }}
+      </a>
+    {% else %}
+      <span class="pagination-ellipsis">&hellip;</span>
+    {% endif %}
+  {% endfor %}
+
+  <a href="{{ url_for('history.scan_history', page=pagination.next_num, q=q, status=status) if pagination.has_next else '#' }}"
+     class="pagination-item {{ 'is-disabled' if not pagination.has_next }}"
+     aria-label="Next page">
+    <i data-lucide="chevron-right"></i>
+  </a>
+</nav>
+{% endif %}
+
 {% else %}
 <div class="empty empty--center">
   <span class="empty-icon"><i data-lucide="archive"></i></span>
   <div>
-    <h3 class="empty-title">No scans recorded.</h3>
+    <h3 class="empty-title">
+      {% if q or status != 'all' %}No matching scans found.{% else %}No scans recorded.{% endif %}
+    </h3>
     <p class="empty-body">
-      Past scans, with full evidence and AI verification, will appear here once you run one.
+      {% if q or status != 'all' %}
+        Try adjusting your filters or search query.
+      {% else %}
+        Past scans, with full evidence and AI verification, will appear here once you run one.
+      {% endif %}
     </p>
   </div>
+  {% if not q and status == 'all' %}
   <div class="empty-actions">
     <a href="{{ url_for('scan.new_scan') }}" class="btn btn--primary btn--sm">
       <i data-lucide="zap"></i>
       Start your first scan
     </a>
   </div>
+  {% endif %}
 </div>
 {% endif %}
 

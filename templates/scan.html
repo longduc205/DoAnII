@@ -69,55 +69,59 @@
             <i data-lucide="layers"></i>
             Crawl depth
           </label>
-          <select id="crawl_depth" name="crawl_depth" class="select">
-            <option value="1">1, surface only</option>
-            <option value="2" selected>2, balanced</option>
-            <option value="3">3, exhaustive</option>
-          </select>
-          <p class="field-hint">Higher depth means longer scans and more pages.</p>
-
-          <div style="margin-top: var(--sp-5);">
-            <label class="field-label" style="margin-bottom: var(--sp-2);">
-              <i data-lucide="cpu"></i>
-              AI verification
-            </label>
-            <label class="checkcard">
-              <input type="checkbox" name="use_ai" checked {{ '' if ai_ready else 'disabled' }}>
-              <span class="checkcard-box"><i data-lucide="check"></i></span>
-              <span class="checkcard-body">
-                <span class="checkcard-title">Classify each response</span>
-                <span class="checkcard-desc">
-                  {% if ai_ready %}
-                    Random Forest model returns suspicious or normal with confidence.
-                  {% else %}
-                    No model. Train one: <code class="text-mono">python -m ai.trainer</code>
-                  {% endif %}
-                </span>
-              </span>
-            </label>
+          <div class="custom-select">
+            <select id="crawl_depth" name="crawl_depth" style="display: none;">
+              <option value="1">1, surface only</option>
+              <option value="2" selected>2, balanced</option>
+              <option value="3">3, exhaustive</option>
+            </select>
+            <div class="custom-select-trigger">
+              <span>2, balanced</span>
+              <i data-lucide="chevron-down"></i>
+            </div>
+            <div class="custom-select-list">
+              <div class="custom-select-option" data-value="1">1, surface only</div>
+              <div class="custom-select-option is-selected" data-value="2">2, balanced</div>
+              <div class="custom-select-option" data-value="3">3, exhaustive</div>
+            </div>
           </div>
+          <p class="field-hint">Higher depth means longer scans and more pages.</p>
         </div>
 
         <div class="field">
           <label class="field-label">
-            <i data-lucide="bug"></i>
-            Tests
+            <i data-lucide="shield-check"></i>
+            Analysis & Intelligence
           </label>
           <div class="stack" style="gap: var(--sp-2);">
-            <label class="checkcard">
+            <label class="checkcard checkcard--compact">
               <input type="checkbox" name="test_sqli" checked>
               <span class="checkcard-box"><i data-lucide="check"></i></span>
               <span class="checkcard-body">
                 <span class="checkcard-title">SQL Injection</span>
-                <span class="checkcard-desc">Error-based, anomaly, status code.</span>
+                <span class="checkcard-desc">Test for database vulnerabilities.</span>
               </span>
             </label>
-            <label class="checkcard">
+            <label class="checkcard checkcard--compact">
               <input type="checkbox" name="test_xss" checked>
               <span class="checkcard-box"><i data-lucide="check"></i></span>
               <span class="checkcard-body">
                 <span class="checkcard-title">Cross-Site Scripting</span>
-                <span class="checkcard-desc">Reflected payload, event handlers, dangerous tags.</span>
+                <span class="checkcard-desc">Test for script injection risks.</span>
+              </span>
+            </label>
+            <label class="checkcard checkcard--compact">
+              <input type="checkbox" name="use_ai" checked {{ '' if ai_ready else 'disabled' }}>
+              <span class="checkcard-box"><i data-lucide="check"></i></span>
+              <span class="checkcard-body">
+                <span class="checkcard-title">AI Classification</span>
+                <span class="checkcard-desc">
+                  {% if ai_ready %}
+                    Verify results with ML models.
+                  {% else %}
+                    Model missing: <code class="text-mono" style="font-size: 10px;">python -m ai.trainer</code>
+                  {% endif %}
+                </span>
               </span>
             </label>
           </div>

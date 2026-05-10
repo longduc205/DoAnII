@@ -35,6 +35,15 @@ def create_app(config_name=None):
     app.register_blueprint(history_bp, url_prefix='/history')
     app.register_blueprint(tasks_bp, url_prefix='/tasks')
 
+    # Global template context: AI model availability, used by base.html sidebar.
+    @app.context_processor
+    def inject_globals():
+        import os
+        model_path = app.config.get('AI_MODEL_PATH', 'ai/models/classifier.pkl')
+        return {
+            'ai_ready': os.path.isfile(model_path),
+        }
+
     # Create database tables
     with app.app_context():
         from app import models  # noqa: F401

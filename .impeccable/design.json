@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-10T12:45:00Z",
+  "title": "Design System: AI Web Vulnerability Scanner",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Electric Amethyst",
+        "canonical": "oklch(67.14% 0.224 301.1)",
+        "tonalRamp": ["#3b0764", "#581c87", "#7e22ce", "#a855f7", "#c084fc", "#d8b4fe", "#f3e8ff", "#faf5ff"]
+      },
+      "neutral-bg": {
+        "role": "background",
+        "displayName": "Midnight Carbon",
+        "canonical": "oklch(14.5% 0.005 301.1)",
+        "tonalRamp": ["#000000", "#0d0d0d", "#1a1a1a", "#262626", "#404040", "#525252", "#a3a3a3", "#e5e5e5"]
+      }
+    },
+    "typographyMeta": {
+      "body": { "displayName": "Inter", "purpose": "General UI and descriptive text." },
+      "mono": { "displayName": "Geist Mono", "purpose": "URLs, code, and AI classification output." }
+    },
+    "shadows": [
+      { "name": "accent-glow", "value": "0 8px 32px rgba(168, 85, 247, 0.25)", "purpose": "Ambient elevation for primary elements." },
+      { "name": "structural", "value": "0 8px 32px rgba(0, 0, 0, 0.6)", "purpose": "Core component separation." }
+    ],
+    "motion": [
+      { "name": "transition-normal", "value": "250ms cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Standard state transitions." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary action for scan initiation and confirmation.",
+      "html": "<button class=\"ds-btn-primary\">START SCAN</button>",
+      "css": ".ds-btn-primary { background: linear-gradient(135deg, #7c3aed, #a855f7); color: #ffffff; padding: 14px 28px; border-radius: 10px; font-weight: 600; font-size: 15px; border: none; cursor: pointer; transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 8px 32px rgba(168, 85, 247, 0.25); } .ds-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(168, 85, 247, 0.35); }"
+    },
+    {
+      "name": "Feature Card",
+      "kind": "card",
+      "refersTo": "card-feature",
+      "description": "Information container for vulnerability findings.",
+      "html": "<div class=\"ds-card\"> <h3 class=\"ds-card-title\">SQL Injection</h3> <p class=\"ds-card-desc\">Potential vulnerability detected on /search endpoint.</p> </div>",
+      "css": ".ds-card { background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 16px; padding: 28px; transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-card:hover { border-color: #a855f7; transform: translateY(-4px); box-shadow: 0 8px 32px rgba(168, 85, 247, 0.25); } .ds-card-title { color: #ffffff; font-size: 20px; font-weight: 700; margin-bottom: 10px; } .ds-card-desc { color: #a3a3a3; font-size: 14px; line-height: 1.6; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Sentinel's Ledger",
+    "overview": "The Sentinel's Ledger represents a design philosophy where security assessment is treated with the gravity and precision of a master record. It priorities readability and trust through refined darkness.",
+    "keyCharacteristics": [
+      "Refined Darkness",
+      "Electric Precision",
+      "Typographic Authority",
+      "Satisfying Tactility"
+    ],
+    "rules": [
+      { "name": "The Rare Accent Rule", "body": "The primary 'Electric Amethyst' color should be used on ≤10% of any given screen.", "section": "colors" },
+      { "name": "The Clarity Rule", "body": "Never use a font size smaller than 12px for critical security data.", "section": "typography" }
+    ],
+    "dos": [
+      "Do use Geist Mono for all technical strings.",
+      "Do maintain a minimum padding of 24px in major containers.",
+      "Do use OKLCH for dynamic color tints."
+    ],
+    "donts": [
+      "Don't use neon-green or 'Matrix' style fonts.",
+      "Don't use pure #000000 for backgrounds.",
+      "Don't use side-stripe borders as color accents."
+    ]
+  }
+}

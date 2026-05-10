@@ -1,0 +1,181 @@
+/* Form controls. Default, focus, disabled, error. */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.field-label {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-500);
+  color: var(--text-2);
+}
+.field-label svg { width: 13px; height: 13px; color: var(--text-3); }
+
+.field-hint {
+  font-size: var(--fs-12);
+  color: var(--text-4);
+  line-height: var(--lh-snug);
+}
+
+.field-error {
+  font-size: var(--fs-12);
+  color: var(--danger);
+}
+
+.input,
+.select {
+  height: 40px;
+  padding: 0 var(--sp-4);
+  background: var(--surface-1);
+  border: 1px solid var(--border-1);
+  border-radius: var(--r-4);
+  color: var(--text-1);
+  font-size: var(--fs-14);
+  width: 100%;
+  transition: border-color var(--d-fast) var(--ease-quart),
+              box-shadow var(--d-fast) var(--ease-quart),
+              background var(--d-fast) var(--ease-quart);
+}
+
+.input::placeholder { color: var(--text-4); }
+
+.input:hover,
+.select:hover { border-color: var(--border-2); }
+
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  background: var(--surface-1);
+}
+
+.input--mono { font-family: var(--font-mono); font-size: var(--fs-13); }
+
+.input--lg { height: 48px; font-size: var(--fs-15); padding: 0 var(--sp-5); }
+
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.input-group .input { padding-left: 40px; }
+.input-group-icon {
+  position: absolute;
+  left: 14px;
+  width: 14px;
+  height: 14px;
+  color: var(--text-3);
+  pointer-events: none;
+}
+
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23737380' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+/* Toggle switch */
+.toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  cursor: pointer;
+  user-select: none;
+}
+.toggle input { position: absolute; opacity: 0; pointer-events: none; }
+.toggle-track {
+  width: 36px;
+  height: 20px;
+  background: var(--surface-3);
+  border-radius: var(--r-pill);
+  position: relative;
+  transition: background var(--d-fast) var(--ease-quart);
+}
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: var(--text-2);
+  border-radius: 50%;
+  transition: transform var(--d-base) var(--ease-quart),
+              background var(--d-fast) var(--ease-quart);
+}
+.toggle input:checked + .toggle-track {
+  background: var(--accent);
+}
+.toggle input:checked + .toggle-track::after {
+  transform: translateX(16px);
+  background: oklch(98% 0.005 295);
+}
+.toggle input:focus-visible + .toggle-track {
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* Checkbox card */
+.checkcard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--border-1);
+  border-radius: var(--r-4);
+  background: var(--surface-1);
+  cursor: pointer;
+  transition: border-color var(--d-fast) var(--ease-quart),
+              background var(--d-fast) var(--ease-quart);
+}
+.checkcard input { position: absolute; opacity: 0; pointer-events: none; }
+.checkcard:hover { border-color: var(--border-2); background: var(--surface-2); }
+.checkcard-box {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--r-2);
+  border: 1.5px solid var(--border-2);
+  display: grid;
+  place-items: center;
+  margin-top: 2px;
+  transition: background var(--d-fast) var(--ease-quart),
+              border-color var(--d-fast) var(--ease-quart);
+  flex-shrink: 0;
+}
+.checkcard-box svg {
+  width: 11px;
+  height: 11px;
+  opacity: 0;
+  color: oklch(15% 0 0);
+  transition: opacity var(--d-fast);
+}
+.checkcard input:checked ~ .checkcard-box {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.checkcard input:checked ~ .checkcard-box svg { opacity: 1; }
+.checkcard input:checked ~ .checkcard-body .checkcard-title { color: var(--text-1); }
+.checkcard input:focus-visible ~ .checkcard-box {
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.checkcard-body { display: flex; flex-direction: column; gap: 2px; }
+.checkcard-title {
+  font-size: var(--fs-14);
+  font-weight: var(--fw-500);
+  color: var(--text-2);
+}
+.checkcard-desc {
+  font-size: var(--fs-12);
+  color: var(--text-4);
+}

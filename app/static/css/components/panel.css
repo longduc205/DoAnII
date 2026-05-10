@@ -1,0 +1,197 @@
+/* Panel: a flat surface used sparingly. Cards are the lazy answer; this is when
+   we genuinely need to group content with a clear edge. */
+
+.panel {
+  background: var(--surface-1);
+  border: 1px solid var(--border-1);
+  border-radius: var(--r-5);
+  overflow: hidden;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5);
+  border-bottom: 1px solid var(--border-1);
+}
+.panel-head-title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: var(--fs-15);
+  font-weight: var(--fw-600);
+  color: var(--text-1);
+}
+.panel-head-title svg { width: 14px; height: 14px; color: var(--text-3); }
+.panel-head-meta { font-size: var(--fs-12); color: var(--text-3); }
+
+.panel-body { padding: var(--sp-5); }
+.panel-body--flush { padding: 0; }
+
+.panel-foot {
+  padding: var(--sp-3) var(--sp-5);
+  border-top: 1px solid var(--border-1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--fs-13);
+  color: var(--text-3);
+}
+
+/* Stat strip, single-line metric row used on Results / History */
+.stat-strip {
+  display: flex;
+  align-items: stretch;
+  background: var(--surface-1);
+  border: 1px solid var(--border-1);
+  border-radius: var(--r-5);
+  overflow: hidden;
+}
+.stat-strip-cell {
+  flex: 1;
+  padding: var(--sp-4) var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-right: 1px solid var(--border-1);
+}
+.stat-strip-cell:last-child { border-right: none; }
+.stat-strip-label {
+  font-size: var(--fs-12);
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: var(--fw-500);
+}
+.stat-strip-value {
+  font-size: var(--fs-24);
+  font-weight: var(--fw-600);
+  color: var(--text-1);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-sans);
+  line-height: 1;
+}
+.stat-strip-value--danger  { color: var(--danger); }
+.stat-strip-value--accent  { color: var(--accent-bright); }
+.stat-strip-value--success { color: var(--success); }
+.stat-strip-sub {
+  font-size: var(--fs-12);
+  color: var(--text-4);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 720px) {
+  .stat-strip { flex-direction: column; }
+  .stat-strip-cell { border-right: none; border-bottom: 1px solid var(--border-1); }
+  .stat-strip-cell:last-child { border-bottom: none; }
+}
+
+/* Inline progress strip (replaces modal during a running scan) */
+.progress-strip {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--surface-1);
+  border: 1px solid var(--accent);
+  border-radius: var(--r-5);
+  box-shadow: var(--elev-accent);
+}
+.progress-strip-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-4);
+  background: var(--accent-soft);
+  color: var(--accent-bright);
+  display: grid;
+  place-items: center;
+}
+.progress-strip-icon svg { animation: spin 1.4s linear infinite; }
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress-strip-icon svg { animation: none; }
+}
+
+.progress-strip-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+.progress-strip-title {
+  font-size: var(--fs-14);
+  font-weight: var(--fw-600);
+  color: var(--text-1);
+}
+.progress-strip-sub {
+  font-size: var(--fs-12);
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.progress-bar {
+  height: 4px;
+  width: 100%;
+  background: var(--surface-3);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--r-pill);
+  transition: width var(--d-slow) var(--ease-quart);
+}
+
+/* Step indicator, used inside scan progress */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.step {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) 0;
+  font-size: var(--fs-13);
+  color: var(--text-3);
+}
+.step-marker {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-2);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.step-marker svg { width: 9px; height: 9px; opacity: 0; }
+.step--done .step-marker {
+  background: var(--success);
+  border-color: var(--success);
+  color: oklch(15% 0 0);
+}
+.step--done .step-marker svg { opacity: 1; }
+.step--active .step-marker {
+  border-color: var(--accent);
+  background: transparent;
+  position: relative;
+}
+.step--active .step-marker::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 1.6s var(--ease-quart) infinite;
+}
+.step--done, .step--active { color: var(--text-1); }

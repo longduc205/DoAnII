@@ -1,0 +1,48 @@
+/* Typographic primitives. Hierarchy via scale + weight, not decoration. */
+
+.t-eyebrow {
+  font: var(--fw-600) var(--fs-12)/var(--lh-tight) var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+}
+
+.t-page-title {
+  font: var(--fw-600) var(--fs-24)/var(--lh-tight) var(--font-sans);
+  color: var(--text-1);
+  letter-spacing: -0.01em;
+}
+
+.t-section {
+  font: var(--fw-600) var(--fs-17)/var(--lh-snug) var(--font-sans);
+  color: var(--text-1);
+  letter-spacing: -0.005em;
+}
+
+.t-body { font-size: var(--fs-15); color: var(--text-2); }
+
+.t-caption {
+  font-size: var(--fs-13);
+  color: var(--text-3);
+  line-height: var(--lh-snug);
+}
+
+.t-mono {
+  font-family: var(--font-mono);
+  font-size: var(--fs-14);
+  font-feature-settings: 'liga' off, 'calt' off;
+}
+
+.t-mono-sm {
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+}
+
+.t-numeric {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* Strong inline emphasis without color tricks. */
+strong, b { font-weight: var(--fw-600); color: var(--text-1); }
+em, i     { font-style: italic; }

@@ -1,0 +1,136 @@
+/* Vulnerability finding row, progressive depth: collapse → expand */
+
+.findings { display: flex; flex-direction: column; gap: var(--sp-2); }
+
+.finding {
+  background: var(--surface-1);
+  border: 1px solid var(--border-1);
+  border-radius: var(--r-5);
+  overflow: hidden;
+  transition: border-color var(--d-fast) var(--ease-quart);
+}
+
+.finding:hover { border-color: var(--border-2); }
+
+.finding[open] { border-color: var(--border-2); }
+
+.finding > summary {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto auto;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+  cursor: pointer;
+  list-style: none;
+}
+.finding > summary::-webkit-details-marker { display: none; }
+
+.finding-chevron {
+  width: 14px;
+  height: 14px;
+  color: var(--text-3);
+  transition: transform var(--d-base) var(--ease-quart);
+}
+.finding[open] .finding-chevron { transform: rotate(90deg); }
+
+.finding-target {
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+  color: var(--text-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.finding-target-param {
+  color: var(--accent-bright);
+  margin-left: var(--sp-2);
+}
+
+.finding-ai {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-12);
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.finding-body {
+  padding: 0 var(--sp-5) var(--sp-5);
+  border-top: 1px solid var(--border-1);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-5);
+  padding-top: var(--sp-5);
+}
+@media (max-width: 800px) {
+  .finding-body { grid-template-columns: 1fr; }
+  .finding > summary { grid-template-columns: auto 1fr auto; }
+  .finding > summary .finding-ai-tag,
+  .finding > summary .finding-type-tag { display: none; }
+}
+
+.finding-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.finding-detail-label {
+  font-size: var(--fs-12);
+  font-weight: var(--fw-500);
+  color: var(--text-4);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.finding-detail-value {
+  font-size: var(--fs-13);
+  color: var(--text-2);
+  line-height: var(--lh-snug);
+  word-break: break-word;
+}
+
+.code-block {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+  background: var(--surface-0);
+  color: var(--text-1);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--border-1);
+  border-radius: var(--r-4);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* AI confidence bar, inline */
+.confidence {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.confidence-meter {
+  height: 4px;
+  background: var(--surface-3);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+.confidence-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--r-pill);
+  transition: width var(--d-slow) var(--ease-quart);
+}
+.confidence-fill[data-class="normal"] { background: var(--text-3); }
+.confidence-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-12);
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+}
+.confidence-text strong { color: var(--text-1); font-weight: var(--fw-500); }

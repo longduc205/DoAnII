@@ -33,10 +33,10 @@ def show_results(scan_id):
     normal_count = sum(1 for r in ai_results if r.classification == 'normal')
     total_ai = len(ai_results)
 
+    # AI summary used by results.html. Numbers are real, sourced from AIResult
+    # rows; we do not fake an "accuracy" figure since per-scan accuracy is not
+    # measurable without ground truth.
     ai_summary = {
-        'model': 'Random Forest' if total_ai > 0 else '—',
-        'accuracy': '100%' if total_ai > 0 else '—',
-        'suspicious': f'{suspicious_count} / {total_ai} responses' if total_ai > 0 else '0',
         'total': total_ai,
         'suspicious_count': suspicious_count,
         'normal_count': normal_count,

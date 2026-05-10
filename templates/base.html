@@ -1,133 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AI-integrated Web Vulnerability Scanner - Educational Prototype">
-    <title>{% block title %}AI-SCAN{% endblock %}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script src="https://unpkg.com/lucide@latest"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sentinel, an AI-assisted web vulnerability scanner.">
+  <meta name="color-scheme" content="dark">
+  <title>{% block title %}Sentinel Scanner{% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-    <!-- Top Navigation -->
-    <nav class="top-nav">
-        <div class="top-nav-container">
-            <a href="{{ url_for('main.index') }}" class="nav-logo">
-                <img src="{{ url_for('static', filename='icons/logo.svg') }}" alt="AI-SCAN Logo" class="nav-logo-img">
-                <span>AI-SCAN</span>
+  <div class="shell">
+
+    {# ---- Sidebar ---- #}
+    <aside class="shell-sidebar" aria-label="Primary">
+      <a href="{{ url_for('main.index') }}" class="shell-brand" aria-label="Sentinel home">
+        <span class="shell-brand-mark">
+          <i data-lucide="shield-check"></i>
+        </span>
+        <span>SENTINEL</span>
+        <span class="shell-brand-tag">v1.0</span>
+      </a>
+
+      <nav class="shell-nav-group" aria-label="Workspace">
+        <span class="shell-nav-label">Workspace</span>
+        <a href="{{ url_for('main.index') }}"
+           class="shell-nav-link"
+           {% if request.endpoint == 'main.index' %}aria-current="page"{% endif %}>
+          <i data-lucide="layout-dashboard"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="{{ url_for('scan.new_scan') }}"
+           class="shell-nav-link"
+           {% if request.endpoint == 'scan.new_scan' %}aria-current="page"{% endif %}>
+          <i data-lucide="zap"></i>
+          <span>New scan</span>
+        </a>
+        <a href="{{ url_for('history.scan_history') }}"
+           class="shell-nav-link"
+           {% if request.endpoint in ['history.scan_history', 'results.show_results'] %}aria-current="page"{% endif %}>
+          <i data-lucide="history"></i>
+          <span>Scan history</span>
+        </a>
+      </nav>
+
+      <nav class="shell-nav-group" style="margin-top: var(--sp-5);" aria-label="Project">
+        <span class="shell-nav-label">Project</span>
+        <a href="{{ url_for('tasks.task_list') }}"
+           class="shell-nav-link"
+           {% if request.endpoint and request.endpoint.startswith('tasks.') %}aria-current="page"{% endif %}>
+          <i data-lucide="check-square"></i>
+          <span>Tasks</span>
+        </a>
+      </nav>
+
+      <div class="shell-sidebar-foot">
+        <span>Đồ án II</span>
+        <span class="ai-pill" data-state="{{ 'ready' if ai_ready else 'missing' }}"
+              title="{{ 'AI classifier loaded' if ai_ready else 'No model trained yet, run: python -m ai.trainer' }}">
+          {{ 'AI ready' if ai_ready else 'No model' }}
+        </span>
+      </div>
+    </aside>
+
+    {# ---- Main ---- #}
+    <div class="shell-main">
+
+      <header class="shell-header">
+        <div class="shell-header-title">
+          {% block crumb %}
+            <a href="{{ url_for('main.index') }}" style="color: var(--text-3);">Workspace</a>
+            <span aria-hidden="true" style="color: var(--text-4);">/</span>
+            <strong>{% block crumb_label %}—{% endblock %}</strong>
+          {% endblock %}
+        </div>
+        <div class="shell-header-actions">
+          {% block header_actions %}
+            <a href="{{ url_for('scan.new_scan') }}" class="btn btn--primary btn--sm">
+              <i data-lucide="zap"></i>
+              <span>New scan</span>
             </a>
-            <ul class="nav-menu">
-                <li>
-                    <a href="{{ url_for('main.index') }}"
-                       class="{% if request.endpoint == 'main.index' %}active{% endif %}">
-                        <i data-lucide="home"></i>
-                        Home
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ url_for('scan.new_scan') }}"
-                       class="{% if request.endpoint == 'scan.new_scan' %}active{% endif %}">
-                        <i data-lucide="scan"></i>
-                        New Scan
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ url_for('history.scan_history') }}"
-                       class="{% if request.endpoint in ['history.scan_history', 'results.show_results'] %}active{% endif %}">
-                        <i data-lucide="clock"></i>
-                        History
-                    </a>
-                </li>
-            </ul>
-            <div class="nav-actions">
-                <a href="{{ url_for('scan.new_scan') }}" class="nav-btn">
-                    <i data-lucide="zap"></i>
-                    Start Scan
-                </a>
-            </div>
+          {% endblock %}
         </div>
-    </nav>
+      </header>
 
-    <!-- Main Content -->
-    <main class="main-wrapper">
+      <main class="shell-content" id="main">
         {% block content %}{% endblock %}
-    </main>
+      </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="footer-logo">
-                        <img src="{{ url_for('static', filename='icons/logo.svg') }}" alt="AI-SCAN Logo" class="footer-logo-img">
-                        AI-SCAN
-                    </div>
-                    <p class="footer-tagline">
-                        AI-powered vulnerability scanning for modern web applications
-                    </p>
-                </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4 class="footer-title">Product</h4>
-                        <ul class="footer-list">
-                            <li><a href="{{ url_for('main.index') }}">Home</a></li>
-                            <li><a href="{{ url_for('scan.new_scan') }}">New Scan</a></li>
-                            <li><a href="{{ url_for('history.scan_history') }}">History</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-title">Resources</h4>
-                        <ul class="footer-list">
-                            <li><a href="#">Documentation</a></li>
-                            <li><a href="#">API Reference</a></li>
-                            <li><a href="#">GitHub</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p class="footer-copyright">
-                    © 2024 AI-SCAN. Educational Project - Do An II
-                </p>
-            </div>
-        </div>
-    </footer>
-
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script>
-        // Initialize Lucide icons
-        lucide.createIcons();
-    </script>
-
-    <!-- Toast Notification Container -->
-    <div id="toast-container" class="toast-container" role="region" aria-live="polite" aria-label="Notifications">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-          {% if category in ['scan_success', 'scan_error'] %}
-          <div class="toast toast--{{ 'success' if category == 'scan_success' else 'error' }}"
-               role="alert"
-               data-auto-dismiss="5000">
-            <div class="toast-icon">
-              <i data-lucide="{{ 'check-circle' if category == 'scan_success' else 'x-circle' }}"></i>
-            </div>
-            <div class="toast-body">
-              <p class="toast-title">
-                {{ 'Scan Complete' if category == 'scan_success' else 'Scan Failed' }}
-              </p>
-              <p class="toast-message">{{ message }}</p>
-            </div>
-            <button class="toast-close" aria-label="Dismiss notification" type="button">
-              <i data-lucide="x"></i>
-            </button>
-          </div>
-          {% endif %}
-        {% endfor %}
-      {% endwith %}
     </div>
+  </div>
 
-    {% block scripts %}{% endblock %}
+  {# Toast stack, server-rendered via flash messages #}
+  <div class="toast-stack" role="region" aria-live="polite" aria-label="Notifications">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        {% if category in ['scan_success', 'scan_error'] %}
+        <div class="toast toast--{{ 'success' if category == 'scan_success' else 'error' }}"
+             role="alert"
+             data-auto-dismiss="5000">
+          <span class="toast-icon">
+            <i data-lucide="{{ 'check' if category == 'scan_success' else 'alert-triangle' }}"></i>
+          </span>
+          <div class="toast-body">
+            <p class="toast-title">
+              {{ 'Scan complete' if category == 'scan_success' else 'Scan failed' }}
+            </p>
+            <p class="toast-message">{{ message }}</p>
+          </div>
+          <button class="toast-close" aria-label="Dismiss" type="button">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        {% endif %}
+      {% endfor %}
+    {% endwith %}
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script>
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons({
+        attrs: { 'stroke-width': 1.6 }
+      });
+    }
+  </script>
+  {% block scripts %}{% endblock %}
 </body>
 </html>

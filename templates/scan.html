@@ -1,316 +1,240 @@
 {% extends "base.html" %}
-{% block title %}AI-SCAN - New Scan{% endblock %}
+{% block title %}New scan, Sentinel Scanner{% endblock %}
+{% block crumb_label %}New scan{% endblock %}
+
+{% block header_actions %}
+  <a href="{{ url_for('history.scan_history') }}" class="btn btn--ghost btn--sm">
+    <i data-lucide="history"></i>
+    History
+  </a>
+{% endblock %}
 
 {% block content %}
-<!-- Scan Configuration Section -->
-<div class="scan-config-section">
-    <div class="scan-config-container">
-        <!-- Header -->
-        <div class="scan-config-header">
-            <div class="scan-config-breadcrumb">
-                <a href="{{ url_for('main.index') }}">
-                    <i data-lucide="home"></i>
-                    Home
-                </a>
-                <i data-lucide="chevron-right"></i>
-                <span>New Scan</span>
-            </div>
-            <h1 class="scan-config-title">Configure Security Scan</h1>
-            <p class="scan-config-description">
-                Set up your vulnerability scan parameters and let our AI-powered engine analyze your target
-            </p>
-        </div>
 
-        <!-- Scan Form -->
-        <form action="{{ url_for('scan.new_scan') }}" method="POST" id="scan-form" class="scan-config-form">
-            <!-- Target URL Card -->
-            <div class="config-card">
-                <div class="config-card-header">
-                    <div class="config-card-icon">
-                        <i data-lucide="globe"></i>
-                    </div>
-                    <div>
-                        <h3 class="config-card-title">Target Configuration</h3>
-                        <p class="config-card-subtitle">Enter the URL you want to scan for vulnerabilities</p>
-                    </div>
-                </div>
-                <div class="config-card-body">
-                    <div class="form-group-modern">
-                        <label class="form-label-modern" for="target_url">
-                            <i data-lucide="link"></i>
-                            Target URL
-                        </label>
-                        <input type="url" id="target_url" name="target_url" class="form-input-modern"
-                               placeholder="https://example.com" required>
-                        <p class="form-hint">Enter a valid HTTP or HTTPS URL</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Scan Options Card -->
-            <div class="config-card">
-                <div class="config-card-header">
-                    <div class="config-card-icon">
-                        <i data-lucide="settings"></i>
-                    </div>
-                    <div>
-                        <h3 class="config-card-title">Scan Options</h3>
-                        <p class="config-card-subtitle">Customize your scan depth and detection methods</p>
-                    </div>
-                </div>
-                <div class="config-card-body">
-                    <div class="config-grid">
-                        <!-- Crawl Depth -->
-                        <div class="form-group-modern">
-                            <label class="form-label-modern" for="crawl_depth">
-                                <i data-lucide="layers"></i>
-                                Crawl Depth
-                            </label>
-                            <select id="crawl_depth" name="crawl_depth" class="form-select-modern">
-                                <option value="1">Level 1 - Quick Scan</option>
-                                <option value="2" selected>Level 2 - Standard Scan</option>
-                                <option value="3">Level 3 - Deep Scan</option>
-                            </select>
-                            <p class="form-hint">Higher depth = more pages scanned</p>
-                        </div>
-
-                        <!-- Vulnerability Tests -->
-                        <div class="form-group-modern">
-                            <label class="form-label-modern">
-                                <i data-lucide="shield-alert"></i>
-                                Vulnerability Tests
-                            </label>
-                            <div class="checkbox-group-modern">
-                                <label class="checkbox-modern">
-                                    <input type="checkbox" name="test_sqli" checked>
-                                    <span class="checkbox-modern-box">
-                                        <i data-lucide="check"></i>
-                                    </span>
-                                    <span class="checkbox-modern-label">
-                                        <span class="checkbox-modern-title">SQL Injection</span>
-                                        <span class="checkbox-modern-desc">Test for SQLi vulnerabilities</span>
-                                    </span>
-                                </label>
-                                <label class="checkbox-modern">
-                                    <input type="checkbox" name="test_xss" checked>
-                                    <span class="checkbox-modern-box">
-                                        <i data-lucide="check"></i>
-                                    </span>
-                                    <span class="checkbox-modern-label">
-                                        <span class="checkbox-modern-title">Cross-Site Scripting</span>
-                                        <span class="checkbox-modern-desc">Test for XSS vulnerabilities</span>
-                                    </span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- AI Analysis Card -->
-            <div class="config-card config-card-accent">
-                <div class="config-card-header">
-                    <div class="config-card-icon">
-                        <i data-lucide="sparkles"></i>
-                    </div>
-                    <div>
-                        <h3 class="config-card-title">AI-Powered Analysis</h3>
-                        <p class="config-card-subtitle">Enable machine learning for enhanced detection accuracy</p>
-                    </div>
-                    <label class="toggle-switch-modern">
-                        <input type="checkbox" name="use_ai" checked>
-                        <span class="toggle-slider-modern"></span>
-                    </label>
-                </div>
-                <div class="config-card-body">
-                    <div class="ai-features">
-                        <div class="ai-feature-item">
-                            <i data-lucide="brain"></i>
-                            <span>Response Classification</span>
-                        </div>
-                        <div class="ai-feature-item">
-                            <i data-lucide="target"></i>
-                            <span>False Positive Reduction</span>
-                        </div>
-                        <div class="ai-feature-item">
-                            <i data-lucide="trending-up"></i>
-                            <span>Confidence Scoring</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="scan-config-actions">
-                <a href="{{ url_for('main.index') }}" class="btn-secondary-large">
-                    <i data-lucide="x"></i>
-                    Cancel
-                </a>
-                <button type="submit" class="btn-primary-large" id="btn-launch-scan">
-                    <i data-lucide="zap"></i>
-                    Launch Scan
-                </button>
-            </div>
-        </form>
-    </div>
+<div class="page-head">
+  <div class="page-head-meta">
+    <span class="t-eyebrow">Configure</span>
+    <h1 class="t-page-title">Set up a new scan.</h1>
+    <p class="t-caption" style="margin-top: 4px;">
+      Pick a target, choose tests, then start. Results land in your scan history.
+    </p>
+  </div>
 </div>
 
-<!-- Previous Scan Progress Panel -->
-<div class="scan-config-section" style="padding-top: 0;">
-    <div class="scan-config-container">
-        {% if last_scan %}
-        <div class="progress-panel">
-            <div class="progress-panel-header">
-                <div class="progress-panel-icon">
-                    <i data-lucide="clock"></i>
-                </div>
-                <div>
-                    <h3 class="progress-panel-title">Previous Scan Summary</h3>
-                    <p class="progress-panel-subtitle">Most recent completed scan</p>
-                </div>
-            </div>
-
-            <div class="progress-panel-body">
-                <!-- Target URL -->
-                <div class="progress-panel-field">
-                    <span class="progress-panel-label">
-                        <i data-lucide="globe"></i>
-                        Target URL
-                    </span>
-                    <span class="progress-panel-value progress-panel-value--url">{{ last_scan.target_url }}</span>
-                </div>
-
-                <!-- Status -->
-                <div class="progress-panel-field">
-                    <span class="progress-panel-label">
-                        <i data-lucide="activity"></i>
-                        Status
-                    </span>
-                    <span class="progress-panel-value">
-                        {% if last_scan.status == 'completed' %}
-                            {% if last_scan.total_vulnerabilities > 0 %}
-                                <span class="panel-badge panel-badge--danger">
-                                    <i data-lucide="shield-alert"></i>
-                                    Completed — Vulnerabilities Found
-                                </span>
-                            {% else %}
-                                <span class="panel-badge panel-badge--success">
-                                    <i data-lucide="shield-check"></i>
-                                    Completed — Clean
-                                </span>
-                            {% endif %}
-                        {% elif last_scan.status == 'failed' %}
-                            <span class="panel-badge panel-badge--error">
-                                <i data-lucide="x-circle"></i>
-                                Scan Failed
-                            </span>
-                        {% else %}
-                            <span class="panel-badge">{{ last_scan.status | capitalize }}</span>
-                        {% endif %}
-                    </span>
-                </div>
-
-                <!-- Stats Row -->
-                <div class="progress-panel-stats">
-                    <div class="progress-panel-stat">
-                        <span class="progress-panel-stat-value">{{ last_scan.total_pages }}</span>
-                        <span class="progress-panel-stat-label">Pages Crawled</span>
-                    </div>
-                    <div class="progress-panel-stat">
-                        <span class="progress-panel-stat-value">{{ last_scan.total_forms }}</span>
-                        <span class="progress-panel-stat-label">Forms Found</span>
-                    </div>
-                    <div class="progress-panel-stat {% if last_scan.total_vulnerabilities > 0 %}progress-panel-stat--danger{% endif %}">
-                        <span class="progress-panel-stat-value {% if last_scan.total_vulnerabilities > 0 %}progress-panel-stat-value--danger{% endif %}">
-                            {{ last_scan.total_vulnerabilities }}
-                        </span>
-                        <span class="progress-panel-stat-label">Vulnerabilities</span>
-                    </div>
-                </div>
-
-                <!-- Completed At -->
-                <div class="progress-panel-field">
-                    <span class="progress-panel-label">
-                        <i data-lucide="calendar"></i>
-                        Completed At
-                    </span>
-                    <span class="progress-panel-value">
-                        {{ last_scan.completed_at.strftime('%Y-%m-%d %H:%M:%S') if last_scan.completed_at else '—' }}
-                    </span>
-                </div>
-            </div>
-
-            <!-- Panel Footer Links -->
-            <div class="progress-panel-footer">
-                <a href="{{ url_for('results.show_results', scan_id=last_scan.id) }}" class="progress-panel-link progress-panel-link--primary">
-                    <i data-lucide="bar-chart-2"></i>
-                    View Full Results
-                </a>
-                <a href="{{ url_for('history.scan_history') }}" class="progress-panel-link">
-                    <i data-lucide="clock"></i>
-                    View All History
-                </a>
-            </div>
-        </div>
-        {% else %}
-        <div class="progress-panel progress-panel--empty">
-            <div class="progress-panel-empty-icon">
-                <i data-lucide="inbox"></i>
-            </div>
-            <p class="progress-panel-empty-title">No previous scans available</p>
-            <p class="progress-panel-empty-text">Run your first scan to see results here.</p>
-        </div>
-        {% endif %}
+{% if error %}
+<div class="panel" style="border-color: var(--danger); margin-bottom: var(--sp-5);">
+  <div class="panel-body row row--gap-3" style="color: var(--text-1);">
+    <i data-lucide="alert-triangle" style="color: var(--danger); width: 18px; height: 18px;"></i>
+    <div>
+      <strong>Could not start scan.</strong>
+      <p class="t-caption" style="margin-top: 4px;">{{ error }}</p>
     </div>
+  </div>
 </div>
+{% endif %}
 
-<!-- Scan Progress Modal -->
-<div class="scan-overlay" id="scan-overlay">
-    <div class="scan-overlay-backdrop" id="scan-overlay-backdrop"></div>
-    <div class="scan-modal">
-        <div class="scan-modal-header">
-            <div class="scan-modal-icon">
-                <i data-lucide="loader"></i>
-            </div>
-            <h2 class="scan-modal-title">Scanning in Progress</h2>
-            <p class="scan-modal-target" id="scan-target-display">Target: —</p>
+<div class="scan-grid">
+
+  {# ---- Left: configuration form ---- #}
+  <form action="{{ url_for('scan.new_scan') }}" method="POST" id="scan-form" class="panel">
+    <div class="panel-head">
+      <span class="panel-head-title">
+        <i data-lucide="sliders-horizontal"></i>
+        Configuration
+      </span>
+      <span class="panel-head-meta">All fields required.</span>
+    </div>
+
+    <div class="panel-body scan-form-group">
+
+      <div class="field">
+        <label class="field-label" for="target_url">
+          <i data-lucide="link"></i>
+          Target URL
+        </label>
+        <input type="url"
+               id="target_url"
+               name="target_url"
+               class="input input--mono input--lg"
+               placeholder="https://target.example/login"
+               autocomplete="url"
+               autofocus
+               required>
+        <p class="field-hint">Only scan applications you own or have permission to test.</p>
+      </div>
+
+      <div class="scan-row">
+        <div class="field">
+          <label class="field-label" for="crawl_depth">
+            <i data-lucide="layers"></i>
+            Crawl depth
+          </label>
+          <select id="crawl_depth" name="crawl_depth" class="select">
+            <option value="1">1, surface only</option>
+            <option value="2" selected>2, balanced</option>
+            <option value="3">3, exhaustive</option>
+          </select>
+          <p class="field-hint">Higher depth means longer scans and more pages.</p>
+
+          <div style="margin-top: var(--sp-5);">
+            <label class="field-label" style="margin-bottom: var(--sp-2);">
+              <i data-lucide="cpu"></i>
+              AI verification
+            </label>
+            <label class="checkcard">
+              <input type="checkbox" name="use_ai" checked {{ '' if ai_ready else 'disabled' }}>
+              <span class="checkcard-box"><i data-lucide="check"></i></span>
+              <span class="checkcard-body">
+                <span class="checkcard-title">Classify each response</span>
+                <span class="checkcard-desc">
+                  {% if ai_ready %}
+                    Random Forest model returns suspicious or normal with confidence.
+                  {% else %}
+                    No model. Train one: <code class="text-mono">python -m ai.trainer</code>
+                  {% endif %}
+                </span>
+              </span>
+            </label>
+          </div>
         </div>
-        
-        <div class="scan-steps" id="scan-steps">
-            <div class="scan-step scan-step--pending" data-step="crawl">
-                <span class="scan-step-icon">
-                    <i data-lucide="globe"></i>
-                </span>
-                <span class="scan-step-label">Crawling pages...</span>
-            </div>
-            <div class="scan-step scan-step--pending" data-step="sqli">
-                <span class="scan-step-icon">
-                    <i data-lucide="database"></i>
-                </span>
-                <span class="scan-step-label">Testing SQL Injection...</span>
-            </div>
-            <div class="scan-step scan-step--pending" data-step="xss">
-                <span class="scan-step-icon">
-                    <i data-lucide="code"></i>
-                </span>
-                <span class="scan-step-label">Testing XSS...</span>
-            </div>
-            <div class="scan-step scan-step--pending" data-step="ai">
-                <span class="scan-step-icon">
-                    <i data-lucide="sparkles"></i>
-                </span>
-                <span class="scan-step-label">AI Analysis...</span>
-            </div>
+
+        <div class="field">
+          <label class="field-label">
+            <i data-lucide="bug"></i>
+            Tests
+          </label>
+          <div class="stack" style="gap: var(--sp-2);">
+            <label class="checkcard">
+              <input type="checkbox" name="test_sqli" checked>
+              <span class="checkcard-box"><i data-lucide="check"></i></span>
+              <span class="checkcard-body">
+                <span class="checkcard-title">SQL Injection</span>
+                <span class="checkcard-desc">Error-based, anomaly, status code.</span>
+              </span>
+            </label>
+            <label class="checkcard">
+              <input type="checkbox" name="test_xss" checked>
+              <span class="checkcard-box"><i data-lucide="check"></i></span>
+              <span class="checkcard-body">
+                <span class="checkcard-title">Cross-Site Scripting</span>
+                <span class="checkcard-desc">Reflected payload, event handlers, dangerous tags.</span>
+              </span>
+            </label>
+          </div>
         </div>
-        
-        <div class="progress-bar">
-            <div class="progress-fill" id="scan-progress-fill"></div>
-        </div>
-        
-        <button type="button" class="btn-ghost" id="btn-cancel-scan">
-            <i data-lucide="x"></i>
-            Cancel Scan
+      </div>
+
+    </div>
+
+    <div class="scan-foot">
+      <span class="scan-foot-hint">
+        <i data-lucide="info" style="width: 12px; height: 12px;"></i>
+        Reloads when complete.
+      </span>
+      <div class="scan-foot-actions">
+        <a href="{{ url_for('main.index') }}" class="btn btn--ghost">Cancel</a>
+        <button type="submit" class="btn btn--primary" id="btn-launch-scan">
+          <i data-lucide="play"></i>
+          Start scan
         </button>
+      </div>
     </div>
+  </form>
+
+  {# ---- Right: contextual info ---- #}
+  <aside class="stack" style="gap: var(--sp-5);">
+
+    {% if last_scan %}
+    <section class="panel">
+      <div class="panel-head">
+        <span class="panel-head-title">
+          <i data-lucide="clock"></i>
+          Previous scan
+        </span>
+      </div>
+      <div class="panel-body" style="display: flex; flex-direction: column; gap: var(--sp-3);">
+        <div class="last-scan-target" title="{{ last_scan.target_url }}">{{ last_scan.target_url }}</div>
+        <div class="row row--gap-3">
+          {% if last_scan.status == 'completed' and last_scan.total_vulnerabilities > 0 %}
+            <span class="badge badge--danger">{{ last_scan.total_vulnerabilities }} finding{{ '' if last_scan.total_vulnerabilities == 1 else 's' }}</span>
+          {% elif last_scan.status == 'completed' %}
+            <span class="badge badge--success">Clean</span>
+          {% elif last_scan.status == 'failed' %}
+            <span class="badge badge--warning">Failed</span>
+          {% else %}
+            <span class="badge">{{ last_scan.status|capitalize }}</span>
+          {% endif %}
+          <span class="t-caption">{{ last_scan.completed_at.strftime('%b %d, %H:%M') if last_scan.completed_at else '—' }}</span>
+        </div>
+        <hr class="divider" style="margin: var(--sp-2) 0;">
+        <div class="last-scan-stats">
+          <span><strong class="text-tnum">{{ last_scan.total_pages or 0 }}</strong>pages</span>
+          <span><strong class="text-tnum">{{ last_scan.total_forms or 0 }}</strong>forms</span>
+          <span><strong class="text-tnum">{{ last_scan.total_vulnerabilities or 0 }}</strong>findings</span>
+        </div>
+      </div>
+      <div class="panel-foot">
+        <a href="{{ url_for('results.show_results', scan_id=last_scan.id) }}" style="color: var(--accent-bright);">
+          View report
+        </a>
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="empty" style="background: var(--surface-1); border-style: solid; border-color: var(--border-1);">
+      <span class="empty-icon"><i data-lucide="shield-alert"></i></span>
+      <div>
+        <h3 class="empty-title" style="font-size: var(--fs-15);">Scan responsibly.</h3>
+        <p class="empty-body">
+          This scanner sends real attack payloads to the target. Use it only on systems you own
+          or where you have written authorization.
+        </p>
+      </div>
+    </section>
+
+  </aside>
 </div>
+
+{# ---- Inline progress overlay, shown while scan request is in-flight ---- #}
+<div class="scan-progress" id="scan-progress" hidden
+     role="status"
+     aria-live="polite"
+     style="margin-top: var(--sp-7);">
+  <div class="progress-strip">
+    <span class="progress-strip-icon">
+      <i data-lucide="loader-2"></i>
+    </span>
+    <div class="progress-strip-body">
+      <span class="progress-strip-title">Scanning in progress</span>
+      <span class="progress-strip-sub" id="scan-progress-target">Target:</span>
+      <div class="progress-bar" aria-hidden="true">
+        <div class="progress-bar-fill" id="scan-progress-fill" style="width: 0%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top: var(--sp-3);">
+    <div class="panel-body">
+      <ol class="steps" id="scan-steps">
+        <li class="step" data-step="crawl">
+          <span class="step-marker"><i data-lucide="check"></i></span>
+          <span>Crawling target, discovering pages and forms.</span>
+        </li>
+        <li class="step" data-step="sqli">
+          <span class="step-marker"><i data-lucide="check"></i></span>
+          <span>Testing SQL Injection vectors.</span>
+        </li>
+        <li class="step" data-step="xss">
+          <span class="step-marker"><i data-lucide="check"></i></span>
+          <span>Testing Cross-Site Scripting payloads.</span>
+        </li>
+        <li class="step" data-step="ai">
+          <span class="step-marker"><i data-lucide="check"></i></span>
+          <span>Classifying responses with AI.</span>
+        </li>
+      </ol>
+    </div>
+  </div>
+</div>
+
 {% endblock %}

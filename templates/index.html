@@ -1,203 +1,213 @@
 {% extends "base.html" %}
-{% block title %}AI-SCAN - AI-Powered Vulnerability Scanner{% endblock %}
-{% block page_title %}{% endblock %}
+{% block title %}Dashboard, Sentinel Scanner{% endblock %}
+{% block crumb_label %}Dashboard{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<div class="hero-section">
-    <div class="hero-content">
-        <div class="hero-badge">
-            <i data-lucide="shield-check"></i>
-            Your Trusted Security Partner
-        </div>
-        <h1 class="hero-title">Safeguarding Your Digital World with AI</h1>
-        <p class="hero-description">
-            Advanced AI-powered vulnerability scanning to protect your web applications 
-            from SQL Injection, XSS, and other critical security threats.
-        </p>
-        <div class="hero-actions">
-            <a href="{{ url_for('scan.new_scan') }}" class="btn-hero-primary">
-                Start Free Scan
-                <i data-lucide="arrow-right"></i>
-            </a>
-            <a href="{{ url_for('history.scan_history') }}" class="btn-hero-secondary">
-                View History
-            </a>
-        </div>
-    </div>
-    <div class="hero-visual">
-        <div class="hero-stats-card">
-            <div class="hero-stat-item hero-stat-item--accent">
-                <div class="hero-stat-icon">
-                    <i data-lucide="brain"></i>
-                </div>
-                <div class="hero-stat-label">AI Detection</div>
-                <div class="hero-stat-value">{{ stats.ai_detections }}</div>
-            </div>
-            <div class="hero-stat-divider"></div>
-            <div class="hero-stat-item hero-stat-item--danger">
-                <div class="hero-stat-icon">
-                    <i data-lucide="alert-triangle"></i>
-                </div>
-                <div class="hero-stat-label">Vulnerabilities</div>
-                <div class="hero-stat-value">{{ stats.critical_vulns }}</div>
-            </div>
-            <div class="hero-stat-divider"></div>
-            <div class="hero-stat-item hero-stat-item--success">
-                <div class="hero-stat-icon">
-                    <i data-lucide="check-circle"></i>
-                </div>
-                <div class="hero-stat-label">Total Scans</div>
-                <div class="hero-stat-value">{{ stats.total_scans }}</div>
-            </div>
-        </div>
-    </div>
+<div class="page-head">
+  <div class="page-head-meta">
+    <span class="t-eyebrow">Workspace</span>
+    <h1 class="t-page-title">Welcome back.</h1>
+    <p class="t-caption" style="margin-top: 4px;">
+      {{ stats.total_scans }} scan{{ '' if stats.total_scans == 1 else 's' }} on record,
+      {{ stats.critical_vulns }} confirmed finding{{ '' if stats.critical_vulns == 1 else 's' }}.
+    </p>
+  </div>
+  <a href="{{ url_for('history.scan_history') }}" class="btn btn--ghost btn--sm">
+    All scans
+    <i data-lucide="arrow-right"></i>
+  </a>
 </div>
 
-<!-- Stats Section -->
-<div class="stats-section">
-    <div class="stats-grid">
-        <div class="stat-item">
-            <div class="stat-number">{{ stats.total_scans }}+</div>
-            <div class="stat-label">Security Scans</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number">{{ stats.critical_vulns }}</div>
-            <div class="stat-label">Vulnerabilities Found</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number">{{ stats.ai_detections }}</div>
-            <div class="stat-label">AI Detections</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number">99%</div>
-            <div class="stat-label">Detection Accuracy</div>
-        </div>
-    </div>
-</div>
+<div class="dash">
 
-<!-- Features Section -->
-<div class="features-section">
-    <div class="section-header">
-        <h2 class="section-title">Our Security Services</h2>
-        <p class="section-description">
-            Comprehensive vulnerability scanning powered by artificial intelligence
-        </p>
-    </div>
-    
-    <div class="features-grid">
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i data-lucide="database"></i>
-            </div>
-            <h3 class="feature-title">SQL Injection Detection</h3>
-            <p class="feature-description">
-                Identify and prevent SQL injection vulnerabilities with advanced payload testing
-            </p>
-        </div>
-        
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i data-lucide="code"></i>
-            </div>
-            <h3 class="feature-title">XSS Protection</h3>
-            <p class="feature-description">
-                Detect Cross-Site Scripting vulnerabilities before attackers exploit them
-            </p>
-        </div>
-        
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i data-lucide="sparkles"></i>
-            </div>
-            <h3 class="feature-title">AI-Powered Analysis</h3>
-            <p class="feature-description">
-                Machine learning models classify responses and reduce false positives
-            </p>
-        </div>
-    </div>
-</div>
+  {# ---- Left column: workspace ---- #}
+  <div class="dash-col">
 
-<!-- CTA Section -->
-<div class="quick-scan-section">
-    <div class="quick-scan-container">
-        <div class="quick-scan-content">
-            <h2 class="quick-scan-title">Ready to Scan?</h2>
-            <p class="quick-scan-description">
-                Detect SQL Injection, XSS, and other vulnerabilities with AI-powered analysis
-            </p>
-            <a href="{{ url_for('scan.new_scan') }}" class="cta-scan-btn">
-                <i data-lucide="shield-check"></i>
-                Start New Scan
-                <i data-lucide="arrow-right"></i>
-            </a>
-        </div>
-    </div>
-</div>
+    {# Quick scan, the primary action on this surface #}
+    <section class="quick-scan" aria-labelledby="quick-scan-title">
+      <span class="quick-scan-eyebrow">
+        <i data-lucide="zap"></i>
+        Quick scan
+      </span>
+      <h2 id="quick-scan-title" class="quick-scan-title">
+        Scan a target.
+      </h2>
+      <p class="t-caption" style="margin-top: -4px; max-width: 56ch;">
+        Paste a URL. The scanner tests it for SQL Injection and XSS; the AI module verifies each response.
+      </p>
 
-<!-- Recent Activity -->
-<div class="activity-section">
-    <div class="section-header">
-        <h2 class="section-title">Recent Scan Activity</h2>
-        <a href="{{ url_for('history.scan_history') }}" class="section-link">
-            View All
-            <i data-lucide="arrow-right"></i>
+      <form action="{{ url_for('scan.new_scan') }}" method="POST" class="quick-scan-form" id="quick-scan-form">
+        <input type="url"
+               name="target_url"
+               class="input input--mono"
+               placeholder="https://target.example"
+               autocomplete="url"
+               required>
+        <button type="submit" class="btn btn--primary">
+          <i data-lucide="play"></i>
+          Start scan
+        </button>
+        <input type="hidden" name="crawl_depth" value="2">
+        <input type="hidden" name="test_sqli" value="on">
+        <input type="hidden" name="test_xss"  value="on">
+        <input type="hidden" name="use_ai"    value="on">
+      </form>
+
+      <div class="quick-scan-options">
+        <span class="t-caption">Defaults: crawl depth 2, SQLi + XSS, AI verification on.</span>
+        <a href="{{ url_for('scan.new_scan') }}" class="t-caption" style="color: var(--accent-bright); margin-left: auto;">
+          Configure manually
         </a>
-    </div>
-    
-    <div class="activity-table-wrapper">
-        <table class="activity-table">
-            <thead>
-                <tr>
-                    <th>Target URL</th>
-                    <th>Status</th>
-                    <th>Vulnerabilities</th>
-                    <th>Date</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for scan in recent_scans %}
-                <tr>
-                    <td>
-                        <div class="activity-url">{{ scan.target_url }}</div>
-                    </td>
-                    <td>
-                        <span class="activity-status activity-status--{{ scan.status }}">
-                            {{ scan.status | capitalize }}
-                        </span>
-                    </td>
-                    <td>
-                        <span class="activity-vulns {% if scan.total_vulnerabilities > 0 %}activity-vulns--danger{% endif %}">
-                            {{ scan.total_vulnerabilities }}
-                        </span>
-                    </td>
-                    <td>
-                        <span class="activity-date">
-                            {{ scan.started_at.strftime('%b %d, %Y') if scan.started_at else '—' }}
-                        </span>
-                    </td>
-                    <td>
-                        <a href="{{ url_for('results.show_results', scan_id=scan.id) }}" class="activity-action">
-                            View Report
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-                {% if not recent_scans %}
-                <tr>
-                    <td colspan="5" class="activity-empty">
-                        <div class="activity-empty-content">
-                            <div class="activity-empty-icon">
-                                <i data-lucide="search"></i>
-                            </div>
-                            <div class="activity-empty-text">No scans yet. Start your first security scan above.</div>
-                        </div>
-                    </td>
-                </tr>
-                {% endif %}
-            </tbody>
-        </table>
-    </div>
+      </div>
+    </section>
+
+    {# Last scan summary, lives only when there is real data #}
+    {% set last_scan = recent_scans[0] if recent_scans else none %}
+    {% if last_scan %}
+    <section aria-labelledby="last-scan-title">
+      <div class="row row--between row--gap-3" style="margin-bottom: var(--sp-3);">
+        <h2 id="last-scan-title" class="t-section">Last scan</h2>
+        <a href="{{ url_for('results.show_results', scan_id=last_scan.id) }}" class="btn btn--ghost btn--sm">
+          View report
+          <i data-lucide="arrow-up-right"></i>
+        </a>
+      </div>
+
+      <div class="last-scan">
+        <div class="last-scan-meta">
+          <div class="row row--gap-3">
+            {% if last_scan.status == 'completed' and last_scan.total_vulnerabilities > 0 %}
+              <span class="status-dot status-dot--danger" aria-hidden="true"></span>
+              <span class="badge badge--danger">{{ last_scan.total_vulnerabilities }} finding{{ '' if last_scan.total_vulnerabilities == 1 else 's' }}</span>
+            {% elif last_scan.status == 'completed' %}
+              <span class="status-dot status-dot--success" aria-hidden="true"></span>
+              <span class="badge badge--success">Clean</span>
+            {% elif last_scan.status == 'running' %}
+              <span class="status-dot status-dot--accent" aria-hidden="true"></span>
+              <span class="badge badge--accent">Running</span>
+            {% else %}
+              <span class="status-dot status-dot--warning" aria-hidden="true"></span>
+              <span class="badge">{{ last_scan.status|capitalize }}</span>
+            {% endif %}
+            <span class="t-caption">
+              {{ last_scan.started_at.strftime('%b %d, %H:%M') if last_scan.started_at else '—' }}
+            </span>
+          </div>
+          <div class="last-scan-target" title="{{ last_scan.target_url }}">{{ last_scan.target_url }}</div>
+          <div class="last-scan-stats">
+            <span><strong class="text-tnum">{{ last_scan.total_pages or 0 }}</strong>pages</span>
+            <span><strong class="text-tnum">{{ last_scan.total_forms or 0 }}</strong>forms</span>
+            <span>
+              <strong class="text-tnum {% if last_scan.total_vulnerabilities > 0 %}is-danger{% endif %}">{{ last_scan.total_vulnerabilities or 0 }}</strong>findings
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+    {% else %}
+    <section class="empty">
+      <span class="empty-icon empty-icon--accent"><i data-lucide="compass"></i></span>
+      <div>
+        <h2 class="empty-title">No scans yet.</h2>
+        <p class="empty-body">
+          Start with a known target. The local DVWA container is great for the first run; paste its URL above.
+        </p>
+      </div>
+      <div class="empty-actions">
+        <span class="empty-hint">http://dvwa-target/vulnerabilities/sqli/</span>
+      </div>
+    </section>
+    {% endif %}
+
+  </div>
+
+  {# ---- Right column: recent activity, dense ---- #}
+  <div class="dash-col">
+
+    <section aria-labelledby="recent-title">
+      <div class="row row--between row--gap-3" style="margin-bottom: var(--sp-3);">
+        <h2 id="recent-title" class="t-section">Recent scans</h2>
+        <span class="t-caption text-mono text-tnum">{{ stats.total_scans }} total</span>
+      </div>
+
+      {% if recent_scans %}
+      <div class="panel" style="padding: 0;">
+        <div class="list" role="list">
+          {% for scan in recent_scans %}
+          <a class="list-row"
+             role="listitem"
+             href="{{ url_for('results.show_results', scan_id=scan.id) }}"
+             aria-label="Open report for {{ scan.target_url }}">
+            {% if scan.status == 'completed' and scan.total_vulnerabilities > 0 %}
+              <span class="status-dot status-dot--danger" aria-hidden="true"></span>
+            {% elif scan.status == 'completed' %}
+              <span class="status-dot status-dot--success" aria-hidden="true"></span>
+            {% elif scan.status == 'running' %}
+              <span class="status-dot status-dot--accent" aria-hidden="true"></span>
+            {% elif scan.status == 'failed' %}
+              <span class="status-dot status-dot--warning" aria-hidden="true"></span>
+            {% else %}
+              <span class="status-dot" aria-hidden="true"></span>
+            {% endif %}
+            <span class="list-row-target" title="{{ scan.target_url }}">{{ scan.target_url }}</span>
+            <span class="list-row-meta">
+              {% if scan.total_vulnerabilities > 0 %}
+                <span style="color: var(--danger);">{{ scan.total_vulnerabilities }}</span>
+              {% else %}
+                <span>0</span>
+              {% endif %}
+              <span aria-hidden="true">·</span>
+              <span>{{ scan.started_at.strftime('%b %d') if scan.started_at else '—' }}</span>
+            </span>
+          </a>
+          {% endfor %}
+        </div>
+        <div class="panel-foot">
+          <span>Showing {{ recent_scans|length }} of {{ stats.total_scans }}</span>
+          <a href="{{ url_for('history.scan_history') }}" style="color: var(--accent-bright);">
+            View all
+          </a>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty">
+        <span class="empty-icon"><i data-lucide="inbox"></i></span>
+        <div>
+          <h3 class="empty-title">Nothing here.</h3>
+          <p class="empty-body">Run your first scan and it will show up in this list.</p>
+        </div>
+      </div>
+      {% endif %}
+    </section>
+
+    {# Surface AI status only if there is signal #}
+    {% if stats.ai_detections > 0 %}
+    <section aria-labelledby="ai-title">
+      <div class="row row--between row--gap-3" style="margin-bottom: var(--sp-3);">
+        <h2 id="ai-title" class="t-section">AI verification</h2>
+      </div>
+      <div class="panel">
+        <div class="panel-body">
+          <div class="row row--between row--gap-3">
+            <div>
+              <p class="t-caption" style="margin-bottom: 4px;">Suspicious responses flagged</p>
+              <p style="font-size: var(--fs-24); font-weight: var(--fw-600); font-variant-numeric: tabular-nums;">
+                {{ stats.ai_detections }}
+              </p>
+            </div>
+            <div style="text-align: right;">
+              <p class="t-caption" style="margin-bottom: 4px;">Findings reviewed</p>
+              <p class="text-mono text-tnum" style="font-size: var(--fs-15); color: var(--text-1);">
+                {{ stats.critical_vulns + stats.ai_detections }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    {% endif %}
+
+  </div>
+
 </div>
 {% endblock %}

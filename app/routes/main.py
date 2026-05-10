@@ -45,8 +45,8 @@ def index():
         'risk_other': risk_other,
     }
 
-    # Recent activity — last 5 scans
-    recent_scans = Scan.query.order_by(Scan.started_at.desc()).limit(5).all()
+    # Recent activity, last 8 scans for the dashboard list.
+    recent_scans = Scan.query.order_by(Scan.started_at.desc()).limit(8).all()
 
     return render_template(
         'index.html',

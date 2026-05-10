@@ -1,200 +1,193 @@
 /**
- * AI Web Vulnerability Scanner — Frontend Logic
- * Handles: scan form submission, progress overlay, history search, delete
+ * Sentinel Scanner, frontend behavior.
+ * Scoped, dependency-free. Only wires up what server-rendered HTML needs.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    initScanForm();
-    initQuickScanForm();
-    initHistorySearch();
-    initToastNotifications();
+  initScanForm();
+  initToasts();
+  initHistoryTable();
+  initFindingExpand();
+  exposeDeleteScan();
 });
 
-/* ============================================
-   Scan Form + Progress Overlay
-   ============================================ */
+/* -------------------------------------------------------------------------
+   Scan form: show inline progress, then let the form submit normally so
+   Flask can run the scan and redirect to /results.
+   -------------------------------------------------------------------------*/
 function initScanForm() {
-    const form = document.getElementById('scan-form');
-    if (!form) return;
+  const form = document.getElementById('scan-form');
+  if (!form) return;
 
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const targetUrl = document.getElementById('target_url').value;
-        if (!targetUrl) return;
+  const progress = document.getElementById('scan-progress');
+  const progressFill = document.getElementById('scan-progress-fill');
+  const progressTarget = document.getElementById('scan-progress-target');
+  const submitBtn = document.getElementById('btn-launch-scan');
+  const stepEls = Array.from(document.querySelectorAll('#scan-steps .step'));
 
-        showScanOverlay(targetUrl);
-        simulateScanProgress(form);
-    });
-
-    const cancelBtn = document.getElementById('btn-cancel-scan');
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', hideScanOverlay);
-    }
-}
-
-function showScanOverlay(targetUrl) {
-    const overlay = document.getElementById('scan-overlay');
-    const targetDisplay = document.getElementById('scan-target-display');
-    if (!overlay) return;
-
-    targetDisplay.textContent = `Target: ${targetUrl}`;
-    overlay.classList.add('active');
-
-    // Reset steps
-    document.querySelectorAll('.scan-step').forEach(step => {
-        step.className = 'scan-step scan-step--pending';
-        step.querySelector('.scan-step-icon').textContent = '○';
-    });
-
-    // Reset progress
-    const progressFill = document.getElementById('scan-progress-fill');
-    if (progressFill) progressFill.style.width = '0%';
-}
-
-function hideScanOverlay() {
-    const overlay = document.getElementById('scan-overlay');
-    if (overlay) overlay.classList.remove('active');
-}
-
-function simulateScanProgress(form) {
-    const steps = ['crawl', 'sqli', 'xss', 'ai'];
-    const progressFill = document.getElementById('scan-progress-fill');
-    let currentStep = 0;
-
-    function advanceStep() {
-        if (currentStep > 0) {
-            const prevStep = document.querySelector(`[data-step="${steps[currentStep - 1]}"]`);
-            if (prevStep) {
-                prevStep.className = 'scan-step scan-step--done';
-                prevStep.querySelector('.scan-step-icon').textContent = '✅';
-            }
-        }
-
-        if (currentStep < steps.length) {
-            const step = document.querySelector(`[data-step="${steps[currentStep]}"]`);
-            if (step) {
-                step.className = 'scan-step scan-step--active';
-                step.querySelector('.scan-step-icon').textContent = '🔄';
-            }
-            const pct = ((currentStep + 1) / steps.length) * 100;
-            if (progressFill) progressFill.style.width = `${pct}%`;
-
-            currentStep++;
-            setTimeout(advanceStep, 800 + Math.random() * 600);
-        } else {
-            // All steps done — submit the form normally
-            setTimeout(() => {
-                hideScanOverlay();
-                form.submit();
-            }, 500);
-        }
+  form.addEventListener('submit', () => {
+    // Don't preventDefault; we want the browser to actually POST and let
+    // Flask's synchronous scanner run, then 302 to results.
+    if (progress) {
+      progress.hidden = false;
+      progress.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    setTimeout(advanceStep, 300);
+    if (progressTarget) {
+      const url = form.elements['target_url']?.value || '';
+      progressTarget.textContent = 'Target: ' + url;
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.setAttribute('aria-disabled', 'true');
+    }
+
+    animateSteps(stepEls, progressFill);
+  });
 }
 
-/* ============================================
-   Quick Scan (Dashboard)
-   ============================================ */
-function initQuickScanForm() {
-    const form = document.getElementById('quick-scan-form');
-    if (!form) return;
+/* Animate steps as a *visual estimate* while the synchronous scan runs. */
+function animateSteps(stepEls, progressFill) {
+  if (!stepEls.length) return;
 
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const targetUrl = form.querySelector('input[name="target_url"]').value;
-        if (!targetUrl) return;
+  let idx = 0;
+  const total = stepEls.length;
 
-        // Redirect to scan page with URL pre-filled, then auto-submit
-        const scanUrl = new URL(form.action);
-        const formData = new FormData(form);
-        fetch(form.action, {
-            method: 'POST',
-            body: formData
-        }).then(response => {
-            if (response.redirected) {
-                window.location.href = response.url;
-            } else {
-                window.location.href = response.url;
-            }
-        }).catch(() => {
-            form.submit();
-        });
-    });
+  function tick() {
+    if (idx > 0) stepEls[idx - 1].classList.replace('step--active', 'step--done');
+    if (idx < total) {
+      stepEls[idx].classList.add('step--active');
+      const pct = ((idx + 0.7) / total) * 100;
+      if (progressFill) progressFill.style.width = pct + '%';
+      idx++;
+      // Steps don't all take the same time; bias toward crawl + SQLi.
+      const delays = [1100, 1800, 1400, 900];
+      setTimeout(tick, delays[Math.min(idx - 1, delays.length - 1)]);
+    } else {
+      // Hold near 100% until the server response arrives (page navigates away).
+      if (progressFill) progressFill.style.width = '95%';
+    }
+  }
+  tick();
 }
 
-/* ============================================
-   History Search Filter
-   ============================================ */
-function initHistorySearch() {
-    const searchInput = document.getElementById('history-search');
-    if (!searchInput) return;
+/* -------------------------------------------------------------------------
+   Toasts, server-rendered. Wire up close button + auto-dismiss.
+   -------------------------------------------------------------------------*/
+function initToasts() {
+  const toasts = document.querySelectorAll('.toast');
+  if (!toasts.length) return;
 
-    searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll('#history-table tbody tr');
+  toasts.forEach((toast) => {
+    if (window.lucide) lucide.createIcons({ nodes: [toast] });
 
-        rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(query) ? '' : 'none';
-        });
-    });
-}
+    const closeBtn = toast.querySelector('.toast-close');
+    if (closeBtn) closeBtn.addEventListener('click', () => dismissToast(toast));
 
-/* ============================================
-   Delete Scan
-   ============================================ */
-function deleteScan(scanId) {
-    if (!confirm(`Delete scan #${scanId}? This action cannot be undone.`)) return;
-
-    fetch(`/history/${scanId}`, { method: 'DELETE' })
-        .then(response => {
-            if (!response.ok) throw new Error('Delete failed');
-            return response.json();
-        })
-        .then(() => {
-            const row = document.querySelector(`tr[data-scan-id="${scanId}"]`);
-            if (row) {
-                row.style.opacity = '0';
-                row.style.transform = 'translateX(-20px)';
-                row.style.transition = 'all 0.3s ease';
-                setTimeout(() => row.remove(), 300);
-            }
-        })
-        .catch(err => {
-            alert(`Failed to delete scan: ${err.message}`);
-        });
-}
-
-/* ============================================
-   Toast Notifications
-   ============================================ */
-function initToastNotifications() {
-    const toasts = document.querySelectorAll('.toast');
-    if (!toasts.length) return;
-
-    toasts.forEach((toast) => {
-        // Re-initialize Lucide icons inside the toast (rendered after page load)
-        if (window.lucide) {
-            lucide.createIcons({ nodes: [toast] });
-        }
-
-        // Close button handler
-        const closeBtn = toast.querySelector('.toast-close');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => dismissToast(toast));
-        }
-
-        // Auto-dismiss after 5000ms
-        const delay = parseInt(toast.dataset.autoDismiss, 10) || 5000;
-        setTimeout(() => dismissToast(toast), delay);
-    });
+    const delay = parseInt(toast.dataset.autoDismiss, 10) || 5000;
+    setTimeout(() => dismissToast(toast), delay);
+  });
 }
 
 function dismissToast(toast) {
-    if (!toast || toast.classList.contains('toast--dismissing')) return;
-    toast.classList.add('toast--dismissing');
-    toast.addEventListener('transitionend', () => toast.remove(), { once: true });
-    // Fallback removal in case transitionend doesn't fire
-    setTimeout(() => toast.remove(), 400);
+  if (!toast || toast.dataset.dismissing === '1') return;
+  toast.dataset.dismissing = '1';
+  toast.style.transition = 'opacity 200ms, transform 200ms';
+  toast.style.opacity = '0';
+  toast.style.transform = 'translateY(8px)';
+  setTimeout(() => toast.remove(), 220);
+}
+
+/* -------------------------------------------------------------------------
+   History table: client-side search + sort + status filter.
+   -------------------------------------------------------------------------*/
+function initHistoryTable() {
+  const table = document.getElementById('hist-table');
+  if (!table) return;
+
+  const searchInput = document.getElementById('hist-search');
+  const statusSelect = document.getElementById('hist-status');
+  const tbody = table.querySelector('tbody');
+  const allRows = Array.from(tbody.querySelectorAll('tr'));
+
+  function applyFilters() {
+    const q = (searchInput?.value || '').trim().toLowerCase();
+    const status = statusSelect?.value || 'all';
+    let visible = 0;
+
+    allRows.forEach(row => {
+      const target = row.dataset.target?.toLowerCase() || '';
+      const id = row.dataset.id || '';
+      const rowStatus = row.dataset.status || '';
+
+      const matchQuery = !q || target.includes(q) || id.includes(q);
+      const matchStatus = status === 'all' || rowStatus === status;
+      const show = matchQuery && matchStatus;
+      row.hidden = !show;
+      if (show) visible++;
+    });
+
+    const empty = document.getElementById('hist-empty-filtered');
+    if (empty) empty.hidden = visible !== 0;
+  }
+
+  searchInput?.addEventListener('input', applyFilters);
+  statusSelect?.addEventListener('change', applyFilters);
+
+  // Sort by clicking on a `<th data-sort="key">`.
+  table.querySelectorAll('th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.sort;
+      const current = th.getAttribute('aria-sort');
+      const next = current === 'ascending' ? 'descending' : 'ascending';
+
+      table.querySelectorAll('th[data-sort]').forEach(t => t.removeAttribute('aria-sort'));
+      th.setAttribute('aria-sort', next);
+
+      const dir = next === 'ascending' ? 1 : -1;
+      const sorted = allRows.slice().sort((a, b) => {
+        const av = a.dataset[key] ?? '';
+        const bv = b.dataset[key] ?? '';
+        const an = parseFloat(av), bn = parseFloat(bv);
+        const isNum = !Number.isNaN(an) && !Number.isNaN(bn);
+        return isNum ? (an - bn) * dir : av.localeCompare(bv) * dir;
+      });
+      sorted.forEach(r => tbody.appendChild(r));
+    });
+  });
+}
+
+/* -------------------------------------------------------------------------
+   Findings <details> rows: re-render Lucide icons inside body when opened.
+   -------------------------------------------------------------------------*/
+function initFindingExpand() {
+  document.querySelectorAll('.finding').forEach(detail => {
+    detail.addEventListener('toggle', () => {
+      if (detail.open && window.lucide) {
+        lucide.createIcons({ nodes: [detail] });
+      }
+    });
+  });
+}
+
+/* -------------------------------------------------------------------------
+   Delete scan, exposed globally so onclick="deleteScan(N)" still works.
+   -------------------------------------------------------------------------*/
+function exposeDeleteScan() {
+  window.deleteScan = function (scanId, btn) {
+    if (!confirm('Delete scan #' + scanId + '? This cannot be undone.')) return;
+    fetch('/history/' + scanId, { method: 'DELETE' })
+      .then(r => { if (!r.ok) throw new Error('Delete failed'); return r.json(); })
+      .then(() => {
+        const row = document.querySelector('tr[data-id="' + scanId + '"]');
+        if (row) {
+          row.style.transition = 'opacity 200ms, transform 200ms';
+          row.style.opacity = '0';
+          row.style.transform = 'translateX(-12px)';
+          setTimeout(() => row.remove(), 220);
+        }
+      })
+      .catch(err => alert('Failed to delete scan: ' + err.message));
+  };
 }

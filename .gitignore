@@ -59,3 +59,15 @@ htmlcov/
 
 #cursor
 .cursor/
+.blackboxcli/
+
+#gemini
+.gemini
+
+#agents
+.agents/
+.agents/docs/
+
+#kiro
+.kiro/
+.kiro/docs/

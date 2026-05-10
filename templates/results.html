@@ -1,257 +1,235 @@
 {% extends "base.html" %}
-{% block title %}AI-SCAN - Scan Results{% endblock %}
+{% block title %}Scan #{{ scan.id }}, Sentinel Scanner{% endblock %}
+{% block crumb %}
+  <a href="{{ url_for('history.scan_history') }}" style="color: var(--text-3);">Scan history</a>
+  <span aria-hidden="true" style="color: var(--text-4);">/</span>
+  <strong>Scan #{{ scan.id }}</strong>
+{% endblock %}
+
+{% block header_actions %}
+  <a href="{{ url_for('scan.new_scan') }}" class="btn btn--primary btn--sm">
+    <i data-lucide="zap"></i>
+    New scan
+  </a>
+{% endblock %}
 
 {% block content %}
-<!-- Results Section -->
-<div class="results-section">
-    <div class="results-container">
-        <!-- Header -->
-        <div class="results-header">
-            <div class="results-breadcrumb">
-                <a href="{{ url_for('main.index') }}">
-                    <i data-lucide="home"></i>
-                    Home
-                </a>
-                <i data-lucide="chevron-right"></i>
-                <a href="{{ url_for('history.scan_history') }}">
-                    <i data-lucide="clock"></i>
-                    History
-                </a>
-                <i data-lucide="chevron-right"></i>
-                <span>Scan #{{ scan.id }}</span>
-            </div>
-            
-            <div class="results-header-content">
-                <div class="results-header-left">
-                    <h1 class="results-title">Scan Report</h1>
-                    <div class="results-target">
-                        <i data-lucide="globe"></i>
-                        {{ scan.target_url }}
-                    </div>
-                    <div class="results-meta">
-                        <span class="results-meta-item">
-                            <i data-lucide="calendar"></i>
-                            {{ scan.started_at.strftime('%B %d, %Y') if scan.started_at else '—' }}
-                        </span>
-                        <span class="results-meta-item">
-                            <i data-lucide="clock"></i>
-                            {{ scan.started_at.strftime('%H:%M:%S') if scan.started_at else '—' }}
-                        </span>
-                        <span class="results-status results-status--{{ scan.status }}">
-                            {% if scan.status == 'completed' %}
-                                <i data-lucide="check-circle"></i>
-                            {% elif scan.status == 'running' %}
-                                <i data-lucide="loader"></i>
-                            {% else %}
-                                <i data-lucide="x-circle"></i>
-                            {% endif %}
-                            {{ scan.status | capitalize }}
-                        </span>
-                    </div>
-                </div>
-                <div class="results-header-actions">
-                    <button type="button" class="btn-secondary-large" id="btn-export-report">
-                        <i data-lucide="download"></i>
-                        Export Report
-                    </button>
-                    <a href="{{ url_for('history.scan_history') }}" class="btn-ghost-large">
-                        <i data-lucide="arrow-left"></i>
-                        Back to History
-                    </a>
-                </div>
-            </div>
-        </div>
 
-        <!-- Summary Stats -->
-        <div class="results-stats">
-            <div class="results-stat-card">
-                <div class="results-stat-icon">
-                    <i data-lucide="file-text"></i>
-                </div>
-                <div class="results-stat-content">
-                    <div class="results-stat-value">{{ scan.total_pages or 0 }}</div>
-                    <div class="results-stat-label">Pages Crawled</div>
-                </div>
-            </div>
-            <div class="results-stat-card">
-                <div class="results-stat-icon">
-                    <i data-lucide="layout"></i>
-                </div>
-                <div class="results-stat-content">
-                    <div class="results-stat-value">{{ scan.total_forms or 0 }}</div>
-                    <div class="results-stat-label">Forms Found</div>
-                </div>
-            </div>
-            <div class="results-stat-card results-stat-card--danger">
-                <div class="results-stat-icon results-stat-icon--danger">
-                    <i data-lucide="alert-triangle"></i>
-                </div>
-                <div class="results-stat-content">
-                    <div class="results-stat-value results-stat-value--danger">{{ scan.total_vulnerabilities or 0 }}</div>
-                    <div class="results-stat-label">Vulnerabilities</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- AI Analysis Summary -->
-        <div class="results-ai-card">
-            <div class="results-ai-header">
-                <div class="results-ai-icon">
-                    <i data-lucide="sparkles"></i>
-                </div>
-                <div>
-                    <h2 class="results-ai-title">AI Analysis Summary</h2>
-                    <p class="results-ai-subtitle">Machine learning powered vulnerability detection</p>
-                </div>
-            </div>
-            <div class="results-ai-stats">
-                <div class="results-ai-stat">
-                    <div class="results-ai-stat-label">Model</div>
-                    <div class="results-ai-stat-value">{{ ai_summary.model }}</div>
-                </div>
-                <div class="results-ai-stat">
-                    <div class="results-ai-stat-label">Accuracy</div>
-                    <div class="results-ai-stat-value results-ai-stat-value--accent">{{ ai_summary.accuracy }}</div>
-                </div>
-                <div class="results-ai-stat">
-                    <div class="results-ai-stat-label">Suspicious Responses</div>
-                    <div class="results-ai-stat-value results-ai-stat-value--danger">{{ ai_summary.suspicious }}</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Vulnerability Findings -->
-        <div class="results-findings">
-            <div class="results-findings-header">
-                <h2 class="results-findings-title">
-                    <i data-lucide="shield-alert"></i>
-                    Vulnerability Findings
-                </h2>
-                {% if vulnerabilities %}
-                <span class="results-findings-count">{{ vulnerabilities | length }} found</span>
-                {% endif %}
-            </div>
-
-            {% if vulnerabilities %}
-            <div class="results-vulns-grid">
-                {% for vuln in vulnerabilities %}
-                <div class="results-vuln-card results-vuln-card--{{ vuln.vuln_type }}">
-                    <div class="results-vuln-header">
-                        <div class="results-vuln-type">
-                            {% if vuln.vuln_type == 'sqli' %}
-                                <i data-lucide="database"></i>
-                                SQL Injection
-                            {% elif vuln.vuln_type == 'xss' %}
-                                <i data-lucide="code"></i>
-                                Cross-Site Scripting
-                            {% else %}
-                                <i data-lucide="alert-circle"></i>
-                                {{ vuln.vuln_type | upper }}
-                            {% endif %}
-                        </div>
-                        <span class="results-vuln-severity results-vuln-severity--{{ vuln.severity }}">
-                            {{ vuln.severity | upper }}
-                        </span>
-                    </div>
-                    
-                    <div class="results-vuln-body">
-                        <div class="results-vuln-detail">
-                            <div class="results-vuln-detail-label">
-                                <i data-lucide="link"></i>
-                                URL
-                            </div>
-                            <div class="results-vuln-detail-value">
-                                <code>{{ vuln.url }}</code>
-                            </div>
-                        </div>
-                        
-                        {% if vuln.parameter %}
-                        <div class="results-vuln-detail">
-                            <div class="results-vuln-detail-label">
-                                <i data-lucide="tag"></i>
-                                Parameter
-                            </div>
-                            <div class="results-vuln-detail-value">
-                                <code>{{ vuln.parameter }}</code>
-                            </div>
-                        </div>
-                        {% endif %}
-                        
-                        {% if vuln.payload %}
-                        <div class="results-vuln-detail">
-                            <div class="results-vuln-detail-label">
-                                <i data-lucide="terminal"></i>
-                                Payload
-                            </div>
-                            <div class="results-vuln-detail-value">
-                                <code>{{ vuln.payload }}</code>
-                            </div>
-                        </div>
-                        {% endif %}
-                        
-                        {% if vuln.evidence %}
-                        <div class="results-vuln-detail">
-                            <div class="results-vuln-detail-label">
-                                <i data-lucide="file-search"></i>
-                                Evidence
-                            </div>
-                            <div class="results-vuln-detail-value">
-                                {{ vuln.evidence }}
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        {# --- AI Classification Badge --- #}
-                        {% set ai_data = ai_results_by_url.get(vuln.url) %}
-                        {% if ai_data %}
-                        <div class="results-vuln-detail results-vuln-ai">
-                            <div class="results-vuln-detail-label">
-                                <i data-lucide="sparkles"></i>
-                                AI Classification
-                            </div>
-                            <div class="results-vuln-detail-value">
-                                {% if ai_data.classification == 'suspicious' %}
-                                <span class="ai-badge ai-badge--suspicious">
-                                    <i data-lucide="alert-triangle"></i>
-                                    Suspicious — Confirmed
-                                </span>
-                                {% elif ai_data.classification == 'normal' %}
-                                <span class="ai-badge ai-badge--normal">
-                                    <i data-lucide="info"></i>
-                                    Normal — Possible False Positive
-                                </span>
-                                {% else %}
-                                <span class="ai-badge ai-badge--unknown">
-                                    <i data-lucide="help-circle"></i>
-                                    Unknown
-                                </span>
-                                {% endif %}
-                                <div class="ai-confidence">
-                                    <div class="ai-confidence-bar">
-                                        <div class="ai-confidence-fill {% if ai_data.classification == 'suspicious' %}ai-confidence-fill--suspicious{% else %}ai-confidence-fill--normal{% endif %}"
-                                             style="width: {{ (ai_data.confidence * 100)|round(1) }}%"></div>
-                                    </div>
-                                    <span class="ai-confidence-text">{{ (ai_data.confidence * 100)|round(1) }}% confidence</span>
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="results-empty">
-                <div class="results-empty-icon">
-                    <i data-lucide="shield-check"></i>
-                </div>
-                <h3 class="results-empty-title">No Vulnerabilities Found</h3>
-                <p class="results-empty-text">
-                    Great news! The target appears to be secure against SQL Injection and XSS attacks.
-                </p>
-            </div>
-            {% endif %}
-        </div>
+<div class="results-head">
+  <div class="results-head-row">
+    <div class="results-head-target">
+      <i data-lucide="globe" style="color: var(--text-3); width: 14px; height: 14px;"></i>
+      <span title="{{ scan.target_url }}">{{ scan.target_url }}</span>
     </div>
+
+    <div class="results-head-meta">
+      {% if scan.status == 'completed' %}
+        <span class="badge badge--success">
+          <i data-lucide="check"></i>
+          Completed
+        </span>
+      {% elif scan.status == 'running' %}
+        <span class="badge badge--accent">
+          <span class="status-dot status-dot--accent" aria-hidden="true"></span>
+          Running
+        </span>
+      {% else %}
+        <span class="badge badge--warning">
+          <i data-lucide="alert-triangle"></i>
+          {{ scan.status|capitalize }}
+        </span>
+      {% endif %}
+      <span>{{ scan.started_at.strftime('%b %d, %Y, %H:%M') if scan.started_at else '—' }}</span>
+      {% if scan.completed_at and scan.started_at %}
+        {% set duration = (scan.completed_at - scan.started_at).total_seconds() %}
+        <span class="text-mono text-tnum">{{ '%.1f'|format(duration) }}s</span>
+      {% endif %}
+    </div>
+  </div>
 </div>
+
+{# ---- Stat strip, single line, no card grid ---- #}
+<div class="stat-strip" style="margin-bottom: var(--sp-6);">
+  <div class="stat-strip-cell">
+    <span class="stat-strip-label">Pages crawled</span>
+    <span class="stat-strip-value">{{ scan.total_pages or 0 }}</span>
+  </div>
+  <div class="stat-strip-cell">
+    <span class="stat-strip-label">Forms found</span>
+    <span class="stat-strip-value">{{ scan.total_forms or 0 }}</span>
+  </div>
+  <div class="stat-strip-cell">
+    <span class="stat-strip-label">Findings</span>
+    <span class="stat-strip-value {% if (scan.total_vulnerabilities or 0) > 0 %}stat-strip-value--danger{% endif %}">
+      {{ scan.total_vulnerabilities or 0 }}
+    </span>
+  </div>
+  {% if ai_summary.has_results %}
+  <div class="stat-strip-cell">
+    <span class="stat-strip-label">AI suspicious</span>
+    <span class="stat-strip-value stat-strip-value--accent">{{ ai_summary.suspicious_count }}</span>
+    <span class="stat-strip-sub">of {{ ai_summary.total }} classified</span>
+  </div>
+  {% endif %}
+</div>
+
+{# ---- Findings ---- #}
+<section aria-labelledby="findings-title">
+  <div class="row row--between row--gap-3" style="margin-bottom: var(--sp-4);">
+    <h2 id="findings-title" class="t-section">
+      Findings
+      {% if vulnerabilities %}
+      <span class="text-muted" style="font-weight: var(--fw-400); margin-left: 8px;">
+        {{ vulnerabilities|length }}
+      </span>
+      {% endif %}
+    </h2>
+    {% if vulnerabilities %}
+    <span class="t-caption">
+      Click a row to expand evidence and payload.
+    </span>
+    {% endif %}
+  </div>
+
+  {% if vulnerabilities %}
+  <div class="findings">
+    {% for vuln in vulnerabilities %}
+    {% set ai_data = ai_results_by_url.get(vuln.url) %}
+    <details class="finding">
+      <summary>
+        <i data-lucide="chevron-right" class="finding-chevron"></i>
+        <span class="sev sev--{{ vuln.severity or 'medium' }}">{{ (vuln.severity or 'medium')|upper }}</span>
+        <span class="finding-target">
+          <span class="type-tag finding-type-tag">
+            {% if vuln.vuln_type == 'sqli' %}SQLi
+            {% elif vuln.vuln_type == 'xss' %}XSS
+            {% else %}{{ vuln.vuln_type|upper }}{% endif %}
+          </span>
+          {{ vuln.url }}
+          {% if vuln.parameter %}
+          <span class="finding-target-param">?{{ vuln.parameter }}</span>
+          {% endif %}
+        </span>
+        {% if ai_data %}
+        <span class="finding-ai finding-ai-tag">
+          <i data-lucide="cpu" style="width: 11px; height: 11px;"></i>
+          {{ ai_data.classification }}
+          <span style="color: var(--text-1);">{{ (ai_data.confidence * 100)|round }}%</span>
+        </span>
+        {% endif %}
+      </summary>
+
+      <div class="finding-body">
+        <div class="stack" style="gap: var(--sp-4);">
+          <div class="finding-detail">
+            <span class="finding-detail-label">Endpoint</span>
+            <code class="code-block">{{ vuln.url }}</code>
+          </div>
+
+          {% if vuln.parameter %}
+          <div class="finding-detail">
+            <span class="finding-detail-label">Vulnerable parameter</span>
+            <code class="code-block">{{ vuln.parameter }}</code>
+          </div>
+          {% endif %}
+
+          {% if vuln.payload %}
+          <div class="finding-detail">
+            <span class="finding-detail-label">Payload</span>
+            <code class="code-block">{{ vuln.payload }}</code>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="stack" style="gap: var(--sp-4);">
+          {% if vuln.evidence %}
+          <div class="finding-detail">
+            <span class="finding-detail-label">Evidence</span>
+            <span class="finding-detail-value">{{ vuln.evidence }}</span>
+          </div>
+          {% endif %}
+
+          {% if ai_data %}
+          <div class="finding-detail">
+            <span class="finding-detail-label">AI verification</span>
+            <div class="confidence">
+              <div class="confidence-meter">
+                <div class="confidence-fill"
+                     data-class="{{ ai_data.classification }}"
+                     style="width: {{ (ai_data.confidence * 100)|round(1) }}%;"></div>
+              </div>
+              <div class="confidence-text">
+                <span>
+                  {% if ai_data.classification == 'suspicious' %}Suspicious response
+                  {% elif ai_data.classification == 'normal' %}Looks normal
+                  {% else %}{{ ai_data.classification|capitalize }}{% endif %}
+                </span>
+                <strong>{{ (ai_data.confidence * 100)|round(1) }}% confidence</strong>
+              </div>
+            </div>
+            <span class="t-caption" style="margin-top: var(--sp-2);">
+              Status code {{ ai_data.status_code or '—' }}, response length {{ ai_data.response_length or 0 }} bytes.
+            </span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </details>
+    {% endfor %}
+  </div>
+  {% elif scan.status == 'running' %}
+  <div class="empty empty--center" style="background: var(--surface-1); border-style: solid;">
+    <span class="empty-icon empty-icon--accent"><i data-lucide="loader-2"></i></span>
+    <div>
+      <h3 class="empty-title">Scan in progress.</h3>
+      <p class="empty-body">
+        The scanner is still working through this target. Refresh the page to see new findings as they are recorded.
+      </p>
+    </div>
+    <div class="empty-actions">
+      <a href="{{ url_for('history.scan_history') }}" class="btn btn--sm">
+        Scan history
+      </a>
+    </div>
+  </div>
+  {% elif scan.status == 'failed' %}
+  <div class="empty empty--center" style="background: var(--surface-1); border-style: solid; border-color: var(--danger);">
+    <span class="empty-icon" style="background: var(--danger-soft); color: var(--danger);"><i data-lucide="alert-triangle"></i></span>
+    <div>
+      <h3 class="empty-title">Scan failed.</h3>
+      <p class="empty-body">
+        The scanner could not finish this run. Check that the target URL is reachable and try again.
+      </p>
+    </div>
+    <div class="empty-actions">
+      <a href="{{ url_for('scan.new_scan') }}" class="btn btn--primary btn--sm">
+        <i data-lucide="zap"></i>
+        Try another scan
+      </a>
+    </div>
+  </div>
+  {% else %}
+  <div class="empty empty--center" style="background: var(--surface-1); border-style: solid;">
+    <span class="empty-icon empty-icon--success"><i data-lucide="shield-check"></i></span>
+    <div>
+      <h3 class="empty-title">No vulnerabilities detected.</h3>
+      <p class="empty-body">
+        Tested {{ scan.total_forms or 0 }} form{{ '' if scan.total_forms == 1 else 's' }}
+        across {{ scan.total_pages or 0 }} page{{ '' if scan.total_pages == 1 else 's' }}.
+        Re-run with greater crawl depth to widen coverage.
+      </p>
+    </div>
+    <div class="empty-actions">
+      <a href="{{ url_for('scan.new_scan') }}" class="btn btn--primary btn--sm">
+        <i data-lucide="zap"></i>
+        Run another scan
+      </a>
+      <a href="{{ url_for('history.scan_history') }}" class="btn btn--sm">
+        Scan history
+      </a>
+    </div>
+  </div>
+  {% endif %}
+</section>
+
 {% endblock %}

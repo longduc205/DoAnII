@@ -3,9 +3,11 @@ AI Web Vulnerability Scanner - Flask Application Factory
 """
 
 from flask import Flask
+from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
+login_manager = LoginManager()
 
 
 def create_app(config_name=None):
@@ -21,6 +23,9 @@ def create_app(config_name=None):
 
     # Initialize extensions
     db.init_app(app)
+    login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'
+    login_manager.login_message = 'Vui lòng đăng nhập để tiếp tục.'
 
     # Register blueprints
     from app.routes.main import main_bp
@@ -28,8 +33,15 @@ def create_app(config_name=None):
     from app.routes.results import results_bp
     from app.routes.history import history_bp
     from app.routes.tasks import tasks_bp
+    from app.routes.auth import auth_bp
+    from app.models.user import User
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
 
     app.register_blueprint(main_bp)
+    app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(scan_bp, url_prefix='/scan')
     app.register_blueprint(results_bp, url_prefix='/results')
     app.register_blueprint(history_bp, url_prefix='/history')

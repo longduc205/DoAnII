@@ -30,9 +30,10 @@ logger = logging.getLogger(__name__)
 class ScannerEngine:
     """Orchestrates the complete scanning pipeline."""
 
-    def __init__(self, target_url, scan_config=None):
+    def __init__(self, target_url, scan_config=None, user_id=None):
         self.target_url = target_url
         self.config = scan_config or {}
+        self.user_id = user_id
         self.scan = None
 
     def run(self):
@@ -64,7 +65,11 @@ class ScannerEngine:
 
     def _create_scan_record(self):
         """Step 0: Create a new scan record in the database."""
+        if not self.user_id:
+            raise ValueError("user_id is required to create a scan record")
+
         self.scan = Scan(
+            user_id=self.user_id,
             target_url=self.target_url,
             status='running',
             started_at=datetime.now(timezone.utc),

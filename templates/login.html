@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Đăng nhập - Sentinel{% endblock %}
+{% block crumb_label %}Đăng nhập{% endblock %}
+
+{% block content %}
+<section class="panel" style="max-width: 480px; margin: 0 auto;">
+  <header class="panel-head">
+    <h2 class="panel-title">Đăng nhập</h2>
+    <p class="panel-subtitle">Đăng nhập để thực hiện scan và xem lịch sử riêng.</p>
+  </header>
+
+  {% if error %}
+  <div class="empty-state" style="border-color: var(--danger-500); margin-bottom: 12px;">
+    <p style="color: var(--danger-300);">{{ error }}</p>
+  </div>
+  {% endif %}
+
+  <form method="post" class="stack" style="gap: 12px;">
+    <label>
+      <span class="label">Username hoặc Email</span>
+      <input class="input" type="text" name="identifier" required>
+    </label>
+
+    <label>
+      <span class="label">Mật khẩu</span>
+      <input class="input" type="password" name="password" required>
+    </label>
+
+    <button class="btn btn-primary" type="submit">Đăng nhập</button>
+  </form>
+
+  <p style="margin-top: 12px; color: var(--text-3);">
+    Chưa có tài khoản?
+    <a href="{{ url_for('auth.register') }}">Tạo tài khoản</a>
+  </p>
+</section>
+{% endblock %}

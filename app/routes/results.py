@@ -2,7 +2,8 @@
 Results routes - Display scan results
 """
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, abort
+from flask_login import login_required, current_user
 
 from app.models.scan import Scan
 from app.models.vulnerability import Vulnerability
@@ -12,9 +13,12 @@ results_bp = Blueprint('results', __name__)
 
 
 @results_bp.route('/<int:scan_id>')
+@login_required
 def show_results(scan_id):
     """Display results for a specific scan session."""
     scan = Scan.query.get_or_404(scan_id)
+    if scan.user_id != current_user.id:
+        abort(403)
     vulnerabilities = Vulnerability.query.filter_by(scan_id=scan_id).all()
     ai_results = AIResult.query.filter_by(scan_id=scan_id).all()
 

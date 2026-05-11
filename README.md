@@ -1,165 +1,231 @@
 # 🛡️ AI Web Vulnerability Scanner
 
-> An AI-integrated web vulnerability scanner that combines rule-based testing with machine-learning-assisted response classification. Built as an academic prototype for Project 2.
+An AI-integrated web vulnerability scanner that combines rule-based security testing (SQL Injection, XSS) with machine-learning-assisted HTTP response classification.
 
-## 📋 Overview
+This project is built as an academic cybersecurity prototype (Project 2 / Đồ án II) and is intended for educational and authorized security testing use only.
 
-This project implements a web vulnerability scanner with artificial intelligence support for response classification. The scanner crawls target web applications, identifies forms and input parameters, performs automated vulnerability tests (SQL Injection, XSS), and uses a trained ML model to classify server responses as normal or suspicious.
+---
 
-## 🏗️ Architecture
+## 1) What this project does
 
+The scanner performs an end-to-end workflow:
+
+1. Crawl a target website and collect links/forms.
+2. Inject SQLi/XSS payloads into discovered inputs.
+3. Analyze HTTP responses using rule-based detectors.
+4. Classify responses with an ML model (normal vs suspicious).
+5. Store and display findings in a web dashboard.
+
+---
+
+## 2) Core features
+
+- Flask web UI for launching scans and reviewing results
+- Automated crawling and form/input discovery
+- SQL Injection and XSS payload-based testing
+- AI response analysis module (scikit-learn)
+- Scan history and result persistence (SQLAlchemy ORM)
+- Dockerized development workflow (with optional DVWA target)
+
+---
+
+## 3) Tech stack
+
+- **Language:** Python 3.9+
+- **Backend:** Flask, Jinja2
+- **Database ORM:** Flask-SQLAlchemy
+- **HTTP & Parsing:** requests, beautifulsoup4, lxml
+- **AI/ML:** scikit-learn, numpy, pandas, joblib
+- **Testing:** pytest, pytest-cov, hypothesis
+- **Containerization:** Docker, Docker Compose
+
+---
+
+## 4) Project structure
+
+```text
+DoAnII/
+├── app/                        # Flask application package
+│   ├── __init__.py             # App factory (create_app)
+│   ├── config.py               # Configuration
+│   ├── models/                 # SQLAlchemy models
+│   ├── routes/                 # Web routes (main, scan, results, history, tasks)
+│   ├── services/               # crawler, scanner, detector, ai_analyzer
+│   ├── static/                 # CSS/JS/icons
+│   └── utils/                  # db init, logger, helpers, http client
+├── ai/                         # Feature extraction, preprocessing, trainer, predictor
+├── data/                       # payloads + raw/processed datasets
+├── docs/                       # diagrams, screenshots, references
+├── scripts/                    # training-data, model training, validation, utilities
+├── templates/                  # Jinja templates
+├── tests/                      # test suite
+├── docker-compose.yml
+├── Dockerfile
+├── requirements.txt
+├── run.py                      # app entrypoint
+└── README.md
 ```
-┌─────────────────────────────────────────────────────┐
-│                   Web Interface                      │
-│              (Flask + Jinja2 Templates)              │
-├─────────────────────────────────────────────────────┤
-│                    Flask Routes                      │
-│         /scan  /results  /history  /report           │
-├──────────┬──────────┬───────────┬───────────────────┤
-│ Crawler  │ Scanner  │ AI Module │ Report Generator  │
-│ Service  │ Engine   │           │                   │
-├──────────┴──────────┴───────────┴───────────────────┤
-│                  Database Layer                       │
-│               (SQLite / MySQL)                       │
-└─────────────────────────────────────────────────────┘
-```
 
-## 🚀 Quick Start
+---
+
+## 5) Quick start (Docker recommended)
 
 ### Prerequisites
-- Docker & Docker Compose (recommended)
-- Or: Python 3.9+ with pip (manual setup)
 
-### Installation (Docker - Recommended)
+- Docker
+- Docker Compose (v2+)
+
+### Run services
 
 ```bash
-# Clone the repository
-git clone <repo-url>
-cd DoAnII
-
-# Copy environment file
-cp .env.example .env
-
-# Build and run with Docker
 docker compose up --build
 ```
 
-That's it! Open `http://localhost:5000` in your browser.
+This starts:
 
-> **Live reload**: Source code is mounted as a volume — any changes you make will reflect immediately without rebuilding.
+- **web app** at `http://localhost:5000`
+- **DVWA target** at `http://localhost:8080`
 
-### Installation (Manual - Alternative)
+Stop services:
 
 ```bash
-# Requires Python 3.9+
-python3 -m venv venv
-source venv/bin/activate
+docker compose down
+```
 
+---
+
+## 6) Local development setup (without Docker)
+
+### Prerequisites
+
+- Python 3.9+
+- pip
+
+### Setup
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
 python3 run.py
 ```
 
-### Access
-Open your browser and navigate to `http://localhost:5000`
+Open: `http://localhost:5000`
 
-## 📁 Project Structure
+### Optional: initialize database explicitly
 
-```
-DoAnII/
-├── app/                        # Main application package
-│   ├── __init__.py             # Flask app factory
-│   ├── config.py               # Configuration settings
-│   ├── routes/                 # Route handlers (Blueprints)
-│   │   ├── __init__.py
-│   │   ├── main.py             # Home page routes
-│   │   ├── scan.py             # Scan initiation & management
-│   │   ├── results.py          # Results display
-│   │   └── history.py          # Scan history
-│   ├── services/               # Business logic layer
-│   │   ├── __init__.py
-│   │   ├── crawler.py          # Web crawler service
-│   │   ├── scanner.py          # Scanner engine (orchestrator)
-│   │   ├── detector.py         # Vulnerability detection logic
-│   │   └── ai_analyzer.py      # AI classification service
-│   ├── models/                 # Database models
-│   │   ├── __init__.py
-│   │   ├── scan.py             # Scan session model
-│   │   ├── page.py             # Discovered page model
-│   │   ├── vulnerability.py    # Vulnerability finding model
-│   │   └── ai_result.py        # AI classification result model
-│   ├── utils/                  # Utility functions
-│   │   ├── __init__.py
-│   │   ├── db_init.py          # Database initialization
-│   │   ├── http_client.py      # HTTP request wrapper
-│   │   ├── logger.py           # Logging configuration
-│   │   └── helpers.py          # General helper functions
-│   └── static/                 # Static assets
-│       ├── css/
-│       │   └── style.css
-│       ├── js/
-│       │   └── main.js
-│       └── icons/
-├── templates/                  # Jinja2 HTML templates
-│   ├── base.html               # Base layout template
-│   ├── index.html              # Home page
-│   ├── scan.html               # Scan page
-│   ├── results.html            # Results page
-│   └── history.html            # History page
-├── ai/                         # AI/ML module
-│   ├── __init__.py
-│   ├── feature_extractor.py    # Feature extraction from responses
-│   ├── preprocessor.py         # Data preprocessing pipeline
-│   ├── trainer.py              # Model training script
-│   ├── predictor.py            # Prediction/inference logic
-│   └── models/                 # Saved ML models
-│       └── .gitkeep
-├── data/                       # Training data & datasets
-│   ├── raw/                    # Raw collected data
-│   │   └── .gitkeep
-│   ├── processed/              # Processed/cleaned data
-│   │   └── .gitkeep
-│   └── payloads/               # Attack payload collections
-│       ├── sqli_payloads.txt
-│       └── xss_payloads.txt
-├── tests/                      # Test suite
-│   ├── __init__.py
-│   ├── test_crawler.py
-│   ├── test_detector.py
-│   ├── test_scanner.py
-│   └── test_ai_analyzer.py
-├── docs/                       # Documentation & report materials
-│   ├── diagrams/               # UML & architecture diagrams
-│   │   └── .gitkeep
-│   ├── screenshots/            # UI screenshots for report
-│   │   └── .gitkeep
-│   └── references/             # Reference materials
-│       └── .gitkeep
-├── .gitignore
-├── .env.example                # Environment variable template
-├── requirements.txt            # Python dependencies
-├── run.py                      # Application entry point
-├── README.md                   # This file
-└── TASKS.md                    # Development task breakdown
+```bash
+python3 -m app.utils.db_init
 ```
 
-## 🔧 Tech Stack
+---
 
-| Component | Technology |
-|-----------|-----------|
-| Language | Python 3.9+ |
-| Web Framework | Flask |
-| Template Engine | Jinja2 |
-| HTTP Client | Requests |
-| HTML Parser | BeautifulSoup4 |
-| AI/ML | Scikit-learn |
-| Database | SQLite (dev) / MySQL (prod) |
-| ORM | SQLAlchemy |
+## 7) Configuration notes
 
-## ⚠️ Ethical Notice
+Configuration is defined in `app/config.py` and environment variables.
 
-This tool is designed for **educational purposes only**. Only scan web applications that you own or have explicit authorization to test. Unauthorized scanning is illegal and unethical.
+Common variables used by the app include:
 
-## 📄 License
+- `SECRET_KEY`
+- `DATABASE_URL` (default SQLite)
+- `AI_MODEL_PATH` (default: `ai/models/classifier.pkl`)
+- `AI_CONFIDENCE_THRESHOLD`
 
-Academic Use - Project 2
+For Docker, `docker-compose.yml` loads variables from `.env` if present.  
+If you do not provide `.env`, defaults from config are used where applicable.
+
+---
+
+## 8) Usage guide (onboarding flow)
+
+1. Start the app (`docker compose up --build` or `python3 run.py`).
+2. Open the UI at `http://localhost:5000`.
+3. Go to the scan page.
+4. Enter a target URL (for local testing, you can use DVWA at `http://dvwa` from inside Docker network, or `http://localhost:8080` from host-side workflows as applicable).
+5. Launch scan and wait for processing.
+6. Review findings in the results page.
+7. Browse previous sessions in history/tasks pages.
+
+---
+
+## 9) AI model workflow
+
+If model artifacts are missing or you want retraining:
+
+### Generate synthetic training data
+
+```bash
+python3 scripts/generate_training_data.py
+```
+
+### (Optional) Collect real data from DB
+
+```bash
+python3 scripts/collect_db_data.py
+```
+
+### Merge datasets
+
+```bash
+python3 scripts/merge_datasets.py
+```
+
+### Train model
+
+```bash
+python3 scripts/train_model.py
+```
+
+Expected output artifacts are saved under `ai/models/` (for example `classifier.pkl`, scaler files depending on trainer config).
+
+---
+
+## 10) Running tests
+
+```bash
+pytest tests/ -v
+```
+
+With coverage:
+
+```bash
+pytest --cov=app --cov=ai tests/ -v
+```
+
+---
+
+## 11) Troubleshooting
+
+- **Port 5000 already in use**  
+  Stop conflicting process or map a different host port in `docker-compose.yml`.
+
+- **Model not found / AI not ready**  
+  Run training scripts and ensure `AI_MODEL_PATH` points to an existing model file.
+
+- **Dependency installation issues**  
+  Recreate virtual env:
+  ```bash
+  rm -rf .venv
+  python3 -m venv .venv
+  source .venv/bin/activate
+  pip install -r requirements.txt
+  ```
+
+- **Database issues**  
+  Reinitialize DB with:
+  ```bash
+  python3 -m app.utils.db_init
+  ```
+
+---
+
+## 12) Ethical and legal notice
+
+This tool is for **educational and authorized testing only**.  
+Do not scan systems you do not own or do not have explicit permission to test.
+
+---
+
+## 13) License / usage context
+
+Academic project use (Project 2 / Đồ án II).

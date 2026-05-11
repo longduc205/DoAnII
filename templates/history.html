@@ -4,14 +4,58 @@
 
 {% block content %}
 
-<div class="page-head">
+<style>
+/* Premium overrides for History page */
+.premium-filter-input {
+  width: 100%;
+  padding: 10px 16px 10px 40px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-1);
+  border-radius: 8px;
+  color: var(--text-1);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+.premium-filter-input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+.input-group-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-4);
+  pointer-events: none;
+  width: 16px;
+  height: 16px;
+}
+.premium-filter-input:focus + .input-group-icon,
+.premium-filter-input:focus ~ .input-group-icon {
+  color: var(--accent);
+}
+
+.dtable-toolbar .custom-select-trigger {
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-1);
+  font-size: 13px;
+  font-weight: 500;
+}
+</style>
+
+<div class="page-head" style="margin-bottom: var(--sp-6);">
   <div class="page-head-meta">
-    <span class="t-eyebrow">Archive</span>
-    <h1 class="t-page-title">Every scan you have run.</h1>
-    <p class="t-caption" style="margin-top: 4px;">
-      {{ pagination.total }} total,
-      {{ total_completed }} completed,
-      {{ total_findings }} finding{{ '' if total_findings == 1 else 's' }} recorded.
+    <span class="t-eyebrow" style="color: var(--accent); font-weight: 600; font-family: var(--font-mono); letter-spacing: 0.1em; font-size: 11px;">Archive</span>
+    <h1 class="t-page-title" style="font-size: 28px; font-weight: 700; letter-spacing: -0.02em;">Scan History</h1>
+    <p class="t-caption" style="margin-top: 6px; font-size: 14px; color: var(--text-3);">
+      <span style="color: var(--text-1); font-weight: 500;">{{ pagination.total }}</span> total scans,
+      <span style="color: var(--success); font-weight: 500;">{{ total_completed }}</span> completed,
+      <span style="color: var(--danger); font-weight: 500;">{{ total_findings }}</span> finding{{ '' if total_findings == 1 else 's' }} recorded.
     </p>
   </div>
 </div>
@@ -23,13 +67,13 @@
     <input type="search"
            name="q"
            id="hist-search"
-           class="input"
-           placeholder="Search by target URL or scan ID"
+           class="premium-filter-input"
+           placeholder="Search by target URL or scan ID..."
            value="{{ q }}"
            autocomplete="off">
   </div>
   
-  <div class="custom-select" style="max-width: 180px;">
+  <div class="custom-select" style="max-width: 180px; flex: 1;">
     <select id="hist-status" name="status" style="display: none;">
       <option value="all" {{ 'selected' if status == 'all' }}>All statuses</option>
       <option value="completed" {{ 'selected' if status == 'completed' }}>Completed</option>
@@ -37,11 +81,11 @@
       <option value="failed" {{ 'selected' if status == 'failed' }}>Failed</option>
     </select>
     <div class="custom-select-trigger">
-      <span>
-        {% if status == 'completed' %}Completed
-        {% elif status == 'running' %}Running
-        {% elif status == 'failed' %}Failed
-        {% else %}All statuses
+      <span style="display: flex; align-items: center; gap: 8px;">
+        {% if status == 'completed' %}<span class="status-dot status-dot--success" aria-hidden="true"></span>Completed
+        {% elif status == 'running' %}<span class="status-dot status-dot--accent" aria-hidden="true"></span>Running
+        {% elif status == 'failed' %}<span class="status-dot status-dot--warning" aria-hidden="true"></span>Failed
+        {% else %}<span class="status-dot" style="background: var(--text-4);" aria-hidden="true"></span>All statuses
         {% endif %}
       </span>
       <i data-lucide="chevron-down"></i>
@@ -54,7 +98,7 @@
     </div>
   </div>
   
-  <button type="submit" class="btn btn--secondary" style="height: 40px;">Filter</button>
+  <button type="submit" class="btn btn--secondary" style="height: 40px; border-radius: 8px; font-weight: 500; border: 1px solid var(--border-2); background: rgba(255,255,255,0.02);">Filter</button>
 </form>
 
 {# ---- Table ---- #}

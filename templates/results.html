@@ -152,20 +152,20 @@
 
         {# ---- AI Remediation Section ---- #}
         {% if ai_data %}
-        <div class="ai-remediation" style="margin-top: var(--sp-5); padding: var(--sp-4); background: var(--surface-2); border-radius: var(--radius-2); border: 1px solid var(--border-1);">
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: var(--sp-4);">
-            <i data-lucide="sparkles" style="width: 16px; height: 16px; color: var(--accent);"></i>
-            <h3 style="margin: 0; font-size: var(--t-base); color: var(--text-1);">AI Remediation</h3>
+        <div class="ai-remediation">
+          <div class="ai-remediation-header">
+            <i data-lucide="sparkles" style="width: 18px; height: 18px; color: var(--accent);"></i>
+            <h3 class="ai-remediation-title">AI Remediation</h3>
           </div>
 
           {# Why was this flagged? #}
           {% if ai_data.explanation %}
-          <div class="finding-detail" style="margin-bottom: var(--sp-3);">
+          <div class="finding-detail" style="margin-bottom: var(--sp-4);">
             <span class="finding-detail-label" style="color: var(--warning);">
-              <i data-lucide="alert-triangle" style="width: 12px; height: 12px; display: inline; vertical-align: -2px;"></i>
+              <i data-lucide="alert-triangle" style="width: 14px; height: 14px;"></i>
               Why?
             </span>
-            <p style="margin: var(--sp-1) 0 0 0; color: var(--text-2); line-height: 1.6;">
+            <p class="finding-detail-value">
               {{ ai_data.explanation }}
             </p>
           </div>
@@ -174,14 +174,14 @@
           {# Remediation Steps #}
           {% set steps = ai_data.get_remediation_steps() %}
           {% if steps %}
-          <div class="finding-detail" style="margin-bottom: var(--sp-3);">
+          <div class="finding-detail" style="margin-bottom: var(--sp-4);">
             <span class="finding-detail-label" style="color: var(--success);">
-              <i data-lucide="check-circle" style="width: 12px; height: 12px; display: inline; vertical-align: -2px;"></i>
+              <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
               How to fix
             </span>
-            <ol style="margin: var(--sp-2) 0 0 0; padding-left: 20px; color: var(--text-2); line-height: 1.8;">
+            <ol class="finding-detail-value" style="margin: var(--sp-2) 0 0 0; padding-left: 20px;">
               {% for step in steps %}
-              <li style="margin-bottom: var(--sp-1);">{{ step }}</li>
+              <li style="margin-bottom: 8px;">{{ step }}</li>
               {% endfor %}
             </ol>
           </div>
@@ -190,47 +190,44 @@
           {# Code Example #}
           {% if ai_data.code_example %}
           <div class="finding-detail">
-            <span class="finding-detail-label" style="color: var(--text-3);">
-              <i data-lucide="code" style="width: 12px; height: 12px; display: inline; vertical-align: -2px;"></i>
+            <span class="finding-detail-label" style="color: var(--accent-bright);">
+              <i data-lucide="code" style="width: 14px; height: 14px;"></i>
               Code example
             </span>
-            <pre class="code-block" style="margin-top: var(--sp-2); white-space: pre-wrap; font-size: 13px; line-height: 1.5;">{{ ai_data.code_example }}</pre>
+            <pre class="code-block" style="margin-top: var(--sp-2);">{{ ai_data.code_example }}</pre>
           </div>
           {% endif %}
 
           {# Ask AI button #}
-          <div style="margin-top: var(--sp-4); padding-top: var(--sp-3); border-top: 1px solid var(--border-1);">
+          <div style="margin-top: var(--sp-5); padding-top: var(--sp-4); border-top: 1px solid rgba(168, 85, 247, 0.2);">
             <button class="btn btn--sm ai-ask-btn"
                     data-vuln-id="{{ vuln.id }}"
                     onclick="toggleAIChat(this)"
-                    type="button">
-              <i data-lucide="message-circle" style="width: 14px; height: 14px;"></i>
-              Ask AI about this finding
+                    type="button"
+                    style="background: var(--surface-1); border: 1px solid var(--border-2);">
+              <i data-lucide="message-square" style="width: 14px; height: 14px; color: var(--accent);"></i>
+              Chat with AI Advisor
             </button>
 
-            <div class="ai-chat-panel" id="ai-chat-{{ vuln.id }}" style="display: none; margin-top: var(--sp-3);">
-              <div class="ai-chat-messages" id="ai-messages-{{ vuln.id }}" style="max-height: 400px; overflow-y: auto; margin-bottom: var(--sp-2); display: flex; flex-direction: column; gap: 8px;">
+            <div class="ai-chat-panel" id="ai-chat-{{ vuln.id }}" style="display: none;">
+              <div class="ai-chat-messages" id="ai-messages-{{ vuln.id }}">
                 {% for chat in vuln.chat_history %}
-                <div class="chat-message chat-message--{{ chat.role }}" 
-                     style="padding: 10px; border-radius: 8px; font-size: 13px; line-height: 1.5; max-width: 85%;
-                            {{ 'align-self: flex-end; background: var(--primary-dark); color: white;' if chat.role == 'user' else 'align-self: flex-start; background: var(--surface-1); border: 1px solid var(--border-1); color: var(--text-2);' }}">
-                  <div style="font-weight: 600; font-size: 11px; margin-bottom: 4px; opacity: 0.8;">{{ 'You' if chat.role == 'user' else 'AI Advisor' }}</div>
+                <div class="chat-message chat-message--{{ chat.role }}">
+                  <div class="chat-sender">{{ 'You' if chat.role == 'user' else 'AI Advisor' }}</div>
                   <div style="white-space: pre-wrap;">{{ chat.content }}</div>
                 </div>
                 {% endfor %}
               </div>
-              <div style="display: flex; gap: 8px;">
+              <div class="ai-chat-input-row">
                 <input type="text"
                        class="ai-chat-input"
                        id="ai-input-{{ vuln.id }}"
-                       placeholder="e.g. How do I fix this in PHP?"
-                       style="flex: 1; padding: 8px 12px; border-radius: var(--radius-1); border: 1px solid var(--border-2); background: var(--surface-1); color: var(--text-1); font-size: 13px;"
+                       placeholder="Ask a follow-up question..."
                        onkeydown="if(event.key==='Enter') sendAIQuestion({{ vuln.id }})">
                 <button class="btn btn--primary btn--sm"
                         onclick="sendAIQuestion({{ vuln.id }})"
-                        type="button">
+                        type="button" style="border-radius: 8px;">
                   <i data-lucide="send" style="width: 14px; height: 14px;"></i>
-                  Send
                 </button>
               </div>
             </div>
@@ -320,13 +317,25 @@ function sendAIQuestion(vulnId) {
 
   // Show user message
   const userMsg = document.createElement('div');
-  userMsg.style.cssText = 'margin-bottom: 8px; padding: 8px 12px; border-radius: 8px; background: var(--accent-soft); color: var(--text-1); font-size: 13px;';
-  userMsg.textContent = question;
+  userMsg.className = 'chat-message chat-message--user';
+  
+  const userSender = document.createElement('div');
+  userSender.className = 'chat-sender';
+  userSender.textContent = 'You';
+  
+  const userText = document.createElement('div');
+  userText.style.whiteSpace = 'pre-wrap';
+  userText.textContent = question;
+  
+  userMsg.appendChild(userSender);
+  userMsg.appendChild(userText);
   messages.appendChild(userMsg);
 
   // Show loading
   const loadingMsg = document.createElement('div');
-  loadingMsg.style.cssText = 'margin-bottom: 8px; padding: 8px 12px; border-radius: 8px; background: var(--surface-1); color: var(--text-3); font-size: 13px; font-style: italic;';
+  loadingMsg.className = 'chat-message chat-message--ai';
+  loadingMsg.style.fontStyle = 'italic';
+  loadingMsg.style.opacity = '0.7';
   loadingMsg.textContent = 'AI is thinking...';
   messages.appendChild(loadingMsg);
 
@@ -344,10 +353,22 @@ function sendAIQuestion(vulnId) {
   .then(r => r.json())
   .then(data => {
     loadingMsg.remove();
+    
     const aiMsg = document.createElement('div');
-    aiMsg.style.cssText = 'margin-bottom: 8px; padding: 8px 12px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--border-1); color: var(--text-2); font-size: 13px; white-space: pre-wrap; line-height: 1.5;';
-    aiMsg.textContent = data.answer || data.error || 'No response';
+    aiMsg.className = 'chat-message chat-message--ai';
+    
+    const aiSender = document.createElement('div');
+    aiSender.className = 'chat-sender';
+    aiSender.textContent = 'AI Advisor';
+    
+    const aiText = document.createElement('div');
+    aiText.style.whiteSpace = 'pre-wrap';
+    aiText.textContent = data.answer || data.error || 'No response';
+    
+    aiMsg.appendChild(aiSender);
+    aiMsg.appendChild(aiText);
     messages.appendChild(aiMsg);
+    
     messages.scrollTop = messages.scrollHeight;
   })
   .catch(err => {

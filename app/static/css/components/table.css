@@ -3,29 +3,43 @@
 .dtable-wrap {
   background: var(--surface-1);
   border: 1px solid var(--border-1);
-  border-radius: var(--r-5);
+  border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.dtable-wrap::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+  opacity: 0.5;
+  z-index: 2;
 }
 
 .dtable {
   width: 100%;
   font-size: var(--fs-14);
+  border-collapse: collapse;
 }
 
 .dtable thead th {
   position: sticky;
   top: 0;
-  background: var(--surface-1);
-  border-bottom: 1px solid var(--border-1);
-  padding: var(--sp-3) var(--sp-4);
-  font-size: var(--fs-12);
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 16px var(--sp-4);
+  font-size: 11px;
   font-weight: var(--fw-600);
   color: var(--text-3);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   text-align: left;
   white-space: nowrap;
   z-index: 1;
+  border-bottom: 1px solid var(--border-2);
 }
 
 .dtable thead th[data-sort] {
@@ -55,16 +69,19 @@
 }
 
 .dtable tbody td {
-  padding: var(--sp-3) var(--sp-4);
+  padding: 16px var(--sp-4);
   border-bottom: 1px solid var(--border-1);
   color: var(--text-2);
   vertical-align: middle;
 }
 
 .dtable tbody tr {
-  transition: background var(--d-fast) var(--ease-quart);
+  transition: all 0.2s var(--ease-quart);
+  background: transparent;
 }
-.dtable tbody tr:hover { background: var(--surface-2); }
+.dtable tbody tr:hover { 
+  background: rgba(168, 85, 247, 0.03); 
+}
 .dtable tbody tr:last-child td { border-bottom: none; }
 
 .dtable tbody tr[data-href] { cursor: pointer; }
@@ -72,33 +89,52 @@
 .dtable .col-num {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  color: var(--text-3);
+  color: var(--text-4);
+  font-size: 12px;
   width: 56px;
 }
-.dtable .col-target { font-family: var(--font-mono); color: var(--text-1); max-width: 360px; }
-.dtable .col-target span {
+.dtable .col-target { 
+  font-family: var(--font-mono); 
+  color: var(--text-1); 
+  font-weight: 500;
+  max-width: 360px; 
+}
+.dtable .col-target .target-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dtable .col-target span[title] {
   display: inline-block;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  vertical-align: bottom;
 }
 .dtable .col-stat {
   font-variant-numeric: tabular-nums;
   font-family: var(--font-mono);
   color: var(--text-2);
 }
-.dtable .col-actions { width: 80px; text-align: right; white-space: nowrap; }
+.dtable .col-actions { width: 100px; text-align: right; white-space: nowrap; }
 
 /* Toolbar above table */
 .dtable-toolbar {
   display: flex;
   align-items: center;
   gap: var(--sp-3);
-  margin-bottom: var(--sp-4);
+  margin-bottom: var(--sp-5);
+  background: var(--surface-1);
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-.dtable-toolbar .input-group { flex: 1; max-width: 360px; }
+.dtable-toolbar .input-group { 
+  flex: 1; 
+  max-width: 400px; 
+  position: relative;
+}
 
 /* Compact list, used in dashboard right column */
 .list {
@@ -140,7 +176,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
   margin-top: var(--sp-6);
 }
 
@@ -148,36 +184,42 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 32px;
-  height: 32px;
+  min-width: 36px;
+  height: 36px;
   padding: 0 var(--sp-2);
-  border-radius: var(--r-4);
+  border-radius: 8px;
   font-size: var(--fs-13);
   font-family: var(--font-mono);
-  color: var(--text-2);
+  color: var(--text-3);
   text-decoration: none;
   transition: all var(--d-fast) var(--ease-quart);
   border: 1px solid transparent;
+  background: var(--surface-1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.pagination-item:hover {
+.pagination-item:hover:not(.is-disabled) {
   background: var(--surface-2);
   color: var(--text-1);
+  border-color: var(--border-2);
+  transform: translateY(-1px);
 }
 
 .pagination-item.is-active {
-  background: var(--accent-soft);
-  color: var(--accent-bright);
-  border-color: var(--accent-soft);
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
   font-weight: var(--fw-600);
+  box-shadow: 0 4px 12px var(--accent-glow);
 }
 
 .pagination-item.is-disabled {
   opacity: 0.3;
   pointer-events: none;
+  box-shadow: none;
 }
 
 .pagination-ellipsis {
   color: var(--text-4);
-  padding: 0 var(--sp-1);
+  padding: 0 var(--sp-2);
 }

@@ -52,12 +52,17 @@ def create_app(config_name=None):
     # Global template context: AI status, used by sidebar.
     @app.context_processor
     def inject_globals():
-        api_key = app.config.get('BLACKBOX_API_KEY')
-        # We consider AI ready if we have a key (or if it starts with 'sk-')
-        is_ready = bool(api_key and len(api_key) > 10)
+        from flask import session
+        from app.services.ai_advisor import AIAdvisor
+        
+        # Priority: session > env config
+        provider = session.get('ai_provider') or app.config.get('AI_PROVIDER', 'blackbox')
+        advisor = AIAdvisor(provider=provider)
+        
         return {
-            'ai_ready': is_ready,
-            'ai_model_name': 'Blackbox (DeepSeek-V3)' if is_ready else 'No AI Key'
+            'ai_ready': advisor.is_available(),
+            'ai_model_name': advisor.get_model_name(),
+            'ai_provider': provider
         }
 
     # Create database tables (with auto-recovery on schema mismatch)

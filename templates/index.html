@@ -3,62 +3,257 @@
 {% block crumb_label %}Homepage{% endblock %}
 
 {% block content %}
-<div class="home-hero">
-  <h1 class="home-title">Precision Security Assessment<br>with AI-Driven Insights</h1>
-  <p class="home-subtitle">
-    The Sentinel's Ledger acts as your definitive source of truth. It combines rigorous payload testing with AI-powered remediation advice to deliver actionable vulnerability reports.
-  </p>
+<style>
+/* Premium Homepage Customizations */
+.home-wrapper {
+    position: relative;
+    padding: var(--sp-6) 0;
+    overflow: hidden;
+}
 
-  <div style="margin-top: var(--sp-6);">
-    <a href="{{ url_for('scan.new_scan') }}" class="btn btn--primary" style="padding: 16px 32px; font-size: var(--fs-17); box-shadow: var(--elev-accent);">
-      <i data-lucide="zap"></i>
-      Start new scan
-    </a>
-  </div>
-</div>
+/* Background Effects */
+.bg-grid {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+    mask-image: radial-gradient(ellipse at top, black 40%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at top, black 40%, transparent 80%);
+    pointer-events: none;
+    z-index: 0;
+}
+.glow-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
+}
+.glow-orb-1 {
+    top: -100px; left: 10%;
+    width: 300px; height: 300px;
+    background: #6366f1;
+}
+.glow-orb-2 {
+    top: 20%; right: 5%;
+    width: 250px; height: 250px;
+    background: #a855f7;
+}
 
-<div class="home-features">
-  <div class="card-feature">
-    <div class="card-feature-icon">
-      <i data-lucide="brain-circuit"></i>
-    </div>
-    <h3 class="card-feature-title">AI Remediation</h3>
-    <p class="card-feature-body">
-      Every finding comes with AI-generated fix recommendations, impact analysis, and code examples so you can remediate vulnerabilities fast.
-    </p>
-  </div>
-  <div class="card-feature">
-    <div class="card-feature-icon">
-      <i data-lucide="shield-alert"></i>
-    </div>
-    <h3 class="card-feature-title">Precision Detection</h3>
-    <p class="card-feature-body">
-      Tests for SQL Injection and Cross-Site Scripting (XSS) using context-aware payloads designed to trigger definitive error states.
-    </p>
-  </div>
-  <div class="card-feature">
-    <div class="card-feature-icon">
-      <i data-lucide="network"></i>
-    </div>
-    <h3 class="card-feature-title">Deep Crawling</h3>
-    <p class="card-feature-body">
-      Automatically maps target architecture, extracting forms, endpoints, and hidden parameters for comprehensive coverage.
-    </p>
-  </div>
-</div>
+/* Hero Section */
+.hero-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: var(--sp-6) 20px;
+}
+.hero-title {
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    color: var(--text-1);
+    margin-bottom: 24px;
+}
+.text-gradient {
+    background: linear-gradient(135deg, #a855f7, #6366f1, #3b82f6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+.hero-subtitle {
+    font-size: 18px;
+    color: var(--text-2);
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto 40px;
+}
 
-<div class="home-stats">
-  <div class="home-stat">
-    <span class="home-stat-value">{{ stats.total_scans }}</span>
-    <span class="home-stat-label">Total Scans</span>
+/* Call to Action Button */
+.btn-hero {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 40px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 30px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+}
+.btn-hero:hover {
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+}
+.btn-hero i {
+    width: 20px; height: 20px;
+}
+
+/* Feature Cards Grid */
+.premium-features {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin: var(--sp-7) 0;
+}
+.premium-feature-card {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 32px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+.premium-feature-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(99, 102, 241, 0.3);
+    background: rgba(255, 255, 255, 0.04);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(99, 102, 241, 0.1);
+}
+.pfc-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(168,85,247,0.1));
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+.pfc-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-1);
+    margin-bottom: 12px;
+}
+.pfc-body {
+    font-size: 14px;
+    color: var(--text-3);
+    line-height: 1.6;
+}
+
+/* Statistics Section */
+.premium-stats {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 40px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    border-top: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    margin-top: 40px;
+}
+.premium-stat {
+    text-align: center;
+}
+.p-stat-value {
+    display: block;
+    font-size: 36px;
+    font-weight: 800;
+    font-family: var(--font-mono);
+    color: var(--text-1);
+    margin-bottom: 4px;
+    background: linear-gradient(135deg, #fff, #9ca3af);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.p-stat-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-3);
+    font-weight: 600;
+}
+</style>
+
+<div class="home-wrapper">
+  <!-- Decorative Backgrounds -->
+  <div class="bg-grid"></div>
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+
+  <!-- Hero Section -->
+  <div class="hero-content">
+    <h1 class="hero-title">
+      Precision Security Assessment<br>
+      <span class="text-gradient">with AI-Driven Insights</span>
+    </h1>
+    <p class="hero-subtitle">
+      Sentinel acts as your definitive source of truth. It combines rigorous payload testing with intelligent AI remediation advice to deliver actionable vulnerability reports instantly.
+    </p>
+
+    <div>
+      <a href="{{ url_for('scan.new_scan') }}" class="btn-hero">
+        <i data-lucide="crosshair"></i>
+        Initialize Scan
+      </a>
+    </div>
   </div>
-  <div class="home-stat">
-    <span class="home-stat-value">{{ stats.critical_vulns }}</span>
-    <span class="home-stat-label">Confirmed Findings</span>
+
+  <!-- Statistics Banner -->
+  <div class="premium-stats">
+    <div class="premium-stat">
+      <span class="p-stat-value">{{ stats.total_scans }}</span>
+      <span class="p-stat-label">Total Scans</span>
+    </div>
+    <div class="premium-stat">
+      <span class="p-stat-value">{{ stats.critical_vulns }}</span>
+      <span class="p-stat-label">Confirmed Risks</span>
+    </div>
+    <div class="premium-stat">
+      <span class="p-stat-value">{{ stats.ai_detections }}</span>
+      <span class="p-stat-label">AI Remediations</span>
+    </div>
   </div>
-  <div class="home-stat">
-    <span class="home-stat-value">{{ stats.ai_detections }}</span>
-    <span class="home-stat-label">AI Fixes</span>
+
+  <!-- Feature Cards -->
+  <div class="premium-features">
+    <div class="premium-feature-card">
+      <div class="pfc-icon">
+        <i data-lucide="sparkles"></i>
+      </div>
+      <h3 class="pfc-title">Intelligent Remediation</h3>
+      <p class="pfc-body">
+        Every finding comes with AI-generated fix recommendations, impact analysis, and specific code examples so you can patch vulnerabilities rapidly.
+      </p>
+    </div>
+    <div class="premium-feature-card">
+      <div class="pfc-icon">
+        <i data-lucide="shield-alert"></i>
+      </div>
+      <h3 class="pfc-title">Precision Detection</h3>
+      <p class="pfc-body">
+        Rigorous testing for SQL Injection and Cross-Site Scripting (XSS) using context-aware payloads designed to trigger definitive error states.
+      </p>
+    </div>
+    <div class="premium-feature-card">
+      <div class="pfc-icon">
+        <i data-lucide="git-branch-plus"></i>
+      </div>
+      <h3 class="pfc-title">Deep Architecture Crawling</h3>
+      <p class="pfc-body">
+        Automatically maps your target's architecture, extracting forms, endpoints, and hidden parameters for comprehensive coverage.
+      </p>
+    </div>
   </div>
+
 </div>
 {% endblock %}

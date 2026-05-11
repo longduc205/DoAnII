@@ -33,167 +33,326 @@
 </div>
 {% endif %}
 
-<div class="scan-grid">
+<style>
+/* Premium UI Customizations */
+.premium-panel {
+    background: var(--surface-1);
+    border-radius: 16px;
+    border: 1px solid var(--border-1);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+.premium-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #6366f1, #a855f7);
+}
+
+/* Glowing Input */
+.premium-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.premium-input-icon {
+    position: absolute;
+    left: 16px;
+    color: var(--text-3);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+.premium-input {
+    width: 100%;
+    padding: 16px 16px 16px 48px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-2);
+    border-radius: 12px;
+    color: var(--text-1);
+    font-family: var(--font-mono);
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+.premium-input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+}
+.premium-input:focus + .premium-input-icon {
+    color: var(--accent);
+}
+
+/* Feature Cards */
+.feature-card {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    background: var(--surface-1);
+    border: 1px solid var(--border-1);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+.feature-card:hover {
+    border-color: var(--border-2);
+    background: var(--surface-2);
+}
+.feature-card input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+.fc-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    margin-right: 16px;
+    color: var(--text-2);
+    transition: all 0.3s ease;
+}
+.fc-content { flex: 1; }
+.fc-title {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-1);
+    margin-bottom: 2px;
+}
+.fc-desc {
+    display: block;
+    font-size: 12px;
+    color: var(--text-3);
+    line-height: 1.4;
+}
+.fc-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+.fc-check i {
+    width: 14px; height: 14px;
+    color: transparent;
+    transition: color 0.2s ease;
+}
+
+/* Feature Card Active State */
+.feature-card:has(input:checked) {
+    border-color: var(--accent);
+    background: rgba(99, 102, 241, 0.05);
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.1);
+}
+.feature-card:has(input:checked) .fc-icon {
+    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    color: white;
+}
+.feature-card:has(input:checked) .fc-check {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+.feature-card:has(input:checked) .fc-check i {
+    color: white;
+}
+.feature-card.is-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Gradient Button */
+.btn-glow {
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    border: none;
+    color: white;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    transition: all 0.3s ease;
+}
+.btn-glow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+}
+</style>
+
+<div class="scan-grid" style="margin-top: var(--sp-4);">
 
   {# ---- Left: configuration form ---- #}
-  <form action="{{ url_for('scan.new_scan') }}" method="POST" id="scan-form" class="panel">
-    <div class="panel-head">
-      <span class="panel-head-title">
-        <i data-lucide="sliders-horizontal"></i>
-        Configuration
-      </span>
-      <span class="panel-head-meta">All fields required.</span>
+  <form action="{{ url_for('scan.new_scan') }}" method="POST" id="scan-form" class="premium-panel">
+    <div class="panel-head" style="border-bottom: 1px solid var(--border-1); padding: 24px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(99, 102, 241, 0.1); display: flex; align-items: center; justify-content: center; color: var(--accent);">
+          <i data-lucide="zap" style="width: 18px; height: 18px;"></i>
+        </div>
+        <div>
+          <h2 style="font-size: 16px; font-weight: 600; color: var(--text-1); margin: 0;">Scan Configuration</h2>
+          <span style="font-size: 12px; color: var(--text-3);">Set up your vulnerability test</span>
+        </div>
+      </div>
     </div>
 
-    <div class="panel-body scan-form-group">
+    <div class="panel-body" style="padding: 24px; display: flex; flex-direction: column; gap: 24px;">
 
       <div class="field">
-        <label class="field-label" for="target_url">
-          <i data-lucide="link"></i>
-          Target URL
-        </label>
-        <input type="url"
-               id="target_url"
-               name="target_url"
-               class="input input--mono input--lg"
-               placeholder="https://target.example/login"
-               autocomplete="url"
-               autofocus
-               required>
-        <p class="field-hint">Only scan applications you own or have permission to test.</p>
+        <label class="field-label" for="target_url" style="font-size: 13px; margin-bottom: 8px;">Target URL</label>
+        <div class="premium-input-wrapper">
+          <input type="url"
+                 id="target_url"
+                 name="target_url"
+                 class="premium-input"
+                 placeholder="https://target.example/login"
+                 autocomplete="url"
+                 autofocus
+                 required>
+          <i data-lucide="globe" class="premium-input-icon"></i>
+        </div>
+        <p class="field-hint" style="margin-top: 8px;">Only scan applications you own or have permission to test.</p>
       </div>
 
-      <div class="scan-row">
-        <div class="field">
-          <label class="field-label" for="crawl_depth">
-            <i data-lucide="layers"></i>
-            Crawl depth
-          </label>
+      <div class="scan-row" style="gap: 24px;">
+        <div class="field" style="flex: 1;">
+          <label class="field-label" for="crawl_depth" style="font-size: 13px; margin-bottom: 8px;">Crawl Depth</label>
           <div class="custom-select">
             <select id="crawl_depth" name="crawl_depth" style="display: none;">
               <option value="1">1, surface only</option>
               <option value="2" selected>2, balanced</option>
               <option value="3">3, exhaustive</option>
             </select>
-            <div class="custom-select-trigger">
-              <span>2, balanced</span>
+            <div class="custom-select-trigger" style="padding: 12px 16px; border-radius: 12px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-2);">
+              <span style="font-weight: 500;">2, balanced</span>
               <i data-lucide="chevron-down"></i>
             </div>
-            <div class="custom-select-list">
+            <div class="custom-select-list" style="border-radius: 12px; overflow: hidden; border: 1px solid var(--border-2);">
               <div class="custom-select-option" data-value="1">1, surface only</div>
               <div class="custom-select-option is-selected" data-value="2">2, balanced</div>
               <div class="custom-select-option" data-value="3">3, exhaustive</div>
             </div>
           </div>
-          <p class="field-hint">Higher depth means longer scans and more pages.</p>
+          <p class="field-hint" style="margin-top: 8px;">Higher depth means longer scans.</p>
         </div>
 
-        <div class="field">
-          <label class="field-label">
-            <i data-lucide="shield-check"></i>
-            Analysis & Intelligence
-          </label>
-          <div class="stack" style="gap: var(--sp-2);">
-            <label class="checkcard checkcard--compact">
+        <div class="field" style="flex: 2;">
+          <label class="field-label" style="font-size: 13px; margin-bottom: 8px;">Analysis Modules</label>
+          <div class="stack" style="gap: 12px;">
+            
+            <label class="feature-card">
               <input type="checkbox" name="test_sqli" checked>
-              <span class="checkcard-box"><i data-lucide="check"></i></span>
-              <span class="checkcard-body">
-                <span class="checkcard-title">SQL Injection</span>
-                <span class="checkcard-desc">Test for database vulnerabilities.</span>
-              </span>
+              <div class="fc-icon"><i data-lucide="database"></i></div>
+              <div class="fc-content">
+                <span class="fc-title">SQL Injection</span>
+                <span class="fc-desc">Test for database vulnerabilities</span>
+              </div>
+              <div class="fc-check"><i data-lucide="check"></i></div>
             </label>
-            <label class="checkcard checkcard--compact">
+
+            <label class="feature-card">
               <input type="checkbox" name="test_xss" checked>
-              <span class="checkcard-box"><i data-lucide="check"></i></span>
-              <span class="checkcard-body">
-                <span class="checkcard-title">Cross-Site Scripting</span>
-                <span class="checkcard-desc">Test for script injection risks.</span>
-              </span>
+              <div class="fc-icon"><i data-lucide="code-2"></i></div>
+              <div class="fc-content">
+                <span class="fc-title">Cross-Site Scripting</span>
+                <span class="fc-desc">Test for script injection risks</span>
+              </div>
+              <div class="fc-check"><i data-lucide="check"></i></div>
             </label>
-            <label class="checkcard checkcard--compact">
+
+            <label class="feature-card {{ '' if ai_ready else 'is-disabled' }}">
               <input type="checkbox" name="use_ai" checked {{ '' if ai_ready else 'disabled' }}>
-              <span class="checkcard-box"><i data-lucide="check"></i></span>
-              <span class="checkcard-body">
-                <span class="checkcard-title">AI Classification</span>
-                <span class="checkcard-desc">
+              <div class="fc-icon"><i data-lucide="cpu"></i></div>
+              <div class="fc-content">
+                <span class="fc-title">AI Remediation</span>
+                <span class="fc-desc">
                   {% if ai_ready %}
-                    Verify results with ML models.
+                    Generate intelligent fix suggestions
                   {% else %}
-                    Model missing: <code class="text-mono" style="font-size: 10px;">python -m ai.trainer</code>
+                    Missing API configuration
                   {% endif %}
                 </span>
-              </span>
+              </div>
+              <div class="fc-check"><i data-lucide="check"></i></div>
             </label>
+
           </div>
         </div>
       </div>
 
     </div>
 
-    <div class="scan-foot">
-      <span class="scan-foot-hint">
-        <i data-lucide="info" style="width: 12px; height: 12px;"></i>
-        Reloads when complete.
+    <div class="scan-foot" style="padding: 24px; border-top: 1px solid var(--border-1); background: rgba(0,0,0,0.1);">
+      <span class="scan-foot-hint" style="display: flex; align-items: center; gap: 6px; color: var(--text-3);">
+        <i data-lucide="info" style="width: 14px; height: 14px;"></i>
+        Page reloads when complete
       </span>
-      <div class="scan-foot-actions">
-        <a href="{{ url_for('main.index') }}" class="btn btn--ghost">Cancel</a>
-        <button type="submit" class="btn btn--primary" id="btn-launch-scan">
-          <i data-lucide="play"></i>
-          Start scan
+      <div class="scan-foot-actions" style="gap: 12px;">
+        <a href="{{ url_for('main.index') }}" class="btn" style="background: transparent; border: 1px solid var(--border-2); border-radius: 8px;">Cancel</a>
+        <button type="submit" class="btn btn-glow" id="btn-launch-scan" style="border-radius: 8px; padding: 10px 28px;">
+          <i data-lucide="rocket"></i>
+          Launch Scan
         </button>
       </div>
     </div>
   </form>
 
   {# ---- Right: contextual info ---- #}
-  <aside class="stack" style="gap: var(--sp-5);">
+  <aside class="stack" style="gap: 24px;">
 
     {% if last_scan %}
-    <section class="panel">
-      <div class="panel-head">
-        <span class="panel-head-title">
-          <i data-lucide="clock"></i>
-          Previous scan
-        </span>
+    <section class="premium-panel" style="padding: 20px;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+        <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: var(--text-2);">
+          <i data-lucide="clock" style="width: 14px; height: 14px;"></i>
+        </div>
+        <span style="font-weight: 600; font-size: 14px; color: var(--text-1);">Previous Scan</span>
       </div>
-      <div class="panel-body" style="display: flex; flex-direction: column; gap: var(--sp-3);">
-        <div class="last-scan-target" title="{{ last_scan.target_url }}">{{ last_scan.target_url }}</div>
-        <div class="row row--gap-3">
+      
+      <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 12px; border: 1px solid var(--border-1);">
+        <div class="last-scan-target" title="{{ last_scan.target_url }}" style="font-family: var(--font-mono); font-size: 13px; color: var(--text-1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 12px;">{{ last_scan.target_url }}</div>
+        
+        <div class="row row--gap-3" style="margin-bottom: 12px;">
           {% if last_scan.status == 'completed' and last_scan.total_vulnerabilities > 0 %}
-            <span class="badge badge--danger">{{ last_scan.total_vulnerabilities }} finding{{ '' if last_scan.total_vulnerabilities == 1 else 's' }}</span>
+            <span class="badge badge--danger" style="border-radius: 4px;">{{ last_scan.total_vulnerabilities }} finding{{ '' if last_scan.total_vulnerabilities == 1 else 's' }}</span>
           {% elif last_scan.status == 'completed' %}
-            <span class="badge badge--success">Clean</span>
+            <span class="badge badge--success" style="border-radius: 4px;">Clean</span>
           {% elif last_scan.status == 'failed' %}
-            <span class="badge badge--warning">Failed</span>
+            <span class="badge badge--warning" style="border-radius: 4px;">Failed</span>
           {% else %}
-            <span class="badge">{{ last_scan.status|capitalize }}</span>
+            <span class="badge" style="border-radius: 4px;">{{ last_scan.status|capitalize }}</span>
           {% endif %}
           <span class="t-caption">{{ last_scan.completed_at.strftime('%b %d, %H:%M') if last_scan.completed_at else '—' }}</span>
         </div>
-        <hr class="divider" style="margin: var(--sp-2) 0;">
-        <div class="last-scan-stats">
-          <span><strong class="text-tnum">{{ last_scan.total_pages or 0 }}</strong>pages</span>
-          <span><strong class="text-tnum">{{ last_scan.total_forms or 0 }}</strong>forms</span>
-          <span><strong class="text-tnum">{{ last_scan.total_vulnerabilities or 0 }}</strong>findings</span>
+        
+        <div class="last-scan-stats" style="background: transparent; border: none; padding: 0;">
+          <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-3); width: 100%;">
+            <span><strong style="color: var(--text-1);">{{ last_scan.total_pages or 0 }}</strong> pages</span>
+            <span><strong style="color: var(--text-1);">{{ last_scan.total_forms or 0 }}</strong> forms</span>
+            <span><strong style="color: var(--text-1);">{{ last_scan.total_vulnerabilities or 0 }}</strong> findings</span>
+          </div>
         </div>
       </div>
-      <div class="panel-foot">
-        <a href="{{ url_for('results.show_results', scan_id=last_scan.id) }}" style="color: var(--accent-bright);">
-          View report
-        </a>
-      </div>
+      
+      <a href="{{ url_for('results.show_results', scan_id=last_scan.id) }}" style="display: block; text-align: center; margin-top: 16px; color: var(--accent); font-size: 13px; font-weight: 500; text-decoration: none; padding: 8px; border-radius: 6px; background: rgba(99, 102, 241, 0.05);">
+        View detailed report
+      </a>
     </section>
     {% endif %}
 
-    <section class="empty" style="background: var(--surface-1); border-style: solid; border-color: var(--border-1);">
-      <span class="empty-icon"><i data-lucide="shield-alert"></i></span>
-      <div>
-        <h3 class="empty-title" style="font-size: var(--fs-15);">Scan responsibly.</h3>
-        <p class="empty-body">
-          This scanner sends real attack payloads to the target. Use it only on systems you own
-          or where you have written authorization.
-        </p>
+    <section style="background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--border-2); border-radius: 16px; padding: 24px; text-align: center;">
+      <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); color: var(--danger); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+        <i data-lucide="shield-alert"></i>
       </div>
+      <h3 style="font-size: 15px; font-weight: 600; color: var(--text-1); margin-bottom: 8px;">Scan Responsibly</h3>
+      <p style="font-size: 13px; color: var(--text-3); line-height: 1.5; margin: 0;">
+        This scanner sends active attack payloads to the target. Use it only on systems you own or where you have written authorization.
+      </p>
     </section>
 
   </aside>

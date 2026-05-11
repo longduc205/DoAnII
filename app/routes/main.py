@@ -2,14 +2,19 @@
 Main routes - Dashboard (Home page)
 """
 
-from flask import Blueprint, render_template
-
+from flask import Blueprint, render_template, session, redirect, url_for, request
 from app.models.scan import Scan
 from app.models.vulnerability import Vulnerability
 from app.models.ai_result import AIResult
 
 main_bp = Blueprint('main', __name__)
 
+@main_bp.route('/set_ai_provider/<provider>')
+def set_ai_provider(provider):
+    """Switch the AI provider and store in session."""
+    if provider in ['blackbox', 'gemini']:
+        session['ai_provider'] = provider
+    return redirect(request.referrer or url_for('main.index'))
 
 @main_bp.route('/')
 def index():

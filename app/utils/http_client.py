@@ -2,11 +2,16 @@
 HTTP Client Wrapper
 
 Provides a consistent interface for making HTTP requests
-with timeout, error handling, and response metadata collection.
+with timeout, error handling, and session management (including DVWA auto-login).
 """
 
 import requests
+import logging
+import os
+import re
+from bs4 import BeautifulSoup
 
+logger = logging.getLogger(__name__)
 
 class HTTPClient:
     """Wrapper around requests library with scanning-specific features."""
@@ -17,9 +22,44 @@ class HTTPClient:
         self.session.headers.update({
             'User-Agent': 'AI-VulnScanner/1.0 (Educational Purpose)'
         })
+        
+        # Try to auto-login if target is DVWA
+        self._check_and_login_dvwa()
 
-        self.session.cookies.set('PHPSESSID', '66du50cf3b36q3qa4in21fu3h0')
-        self.session.cookies.set('security', 'low')
+    def _check_and_login_dvwa(self):
+        """Attempts to login to DVWA automatically if credentials are provided."""
+        login_url = os.getenv('DVWA_LOGIN_URL', 'http://localhost:8080/login.php')
+        username = os.getenv('DVWA_USER', 'admin')
+        password = os.getenv('DVWA_PASS', 'password')
+
+        try:
+            # 1. Get the login page to extract CSRF token (user_token)
+            logger.info(f"Attempting DVWA auto-login at {login_url}...")
+            resp = self.session.get(login_url, timeout=self.timeout)
+            
+            soup = BeautifulSoup(resp.text, 'html.parser')
+            user_token = ""
+            token_input = soup.find('input', {'name': 'user_token'})
+            if token_input:
+                user_token = token_input.get('value', '')
+
+            # 2. Perform Login POST
+            payload = {
+                'username': username,
+                'password': password,
+                'Login': 'Login',
+                'user_token': user_token
+            }
+            
+            self.session.post(login_url, data=payload, timeout=self.timeout)
+            
+            # 3. Set security level to low for testing
+            # DVWA uses a 'security' cookie
+            self.session.cookies.set('security', 'low')
+            
+            logger.info("DVWA login successful (Security Level: LOW)")
+        except Exception as e:
+            logger.warning(f"DVWA auto-login failed: {str(e)}. Using guest/manual session.")
 
     def get(self, url, params=None):
         """Send a GET request."""

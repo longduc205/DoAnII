@@ -50,8 +50,32 @@ def ask_ai():
                 'evidence': vuln.evidence,
             }
 
-    api_key = current_app.config.get('GEMINI_API_KEY', '')
-    advisor = AIAdvisor(api_key=api_key)
+    from app import db
+    from app.models.chat_message import ChatMessage
+
+    # 1. Save User Question to DB
+    if vuln_id:
+        try:
+            user_msg = ChatMessage(vulnerability_id=vuln_id, role='user', content=question)
+            db.session.add(user_msg)
+            db.session.commit()
+            print(f"[DEBUG] Saved user message for vuln {vuln_id}")
+        except Exception as e:
+            print(f"[ERROR] Failed to save user message: {str(e)}")
+
+    from flask import session
+    provider = session.get('ai_provider') or current_app.config.get('AI_PROVIDER', 'blackbox')
+    advisor = AIAdvisor(provider=provider)
     answer = advisor.ask_question(question, finding_context)
+
+    # 2. Save AI Answer to DB
+    if vuln_id:
+        try:
+            ai_msg = ChatMessage(vulnerability_id=vuln_id, role='assistant', content=answer)
+            db.session.add(ai_msg)
+            db.session.commit()
+            print(f"[DEBUG] Saved AI answer for vuln {vuln_id}")
+        except Exception as e:
+            print(f"[ERROR] Failed to save AI answer: {str(e)}")
 
     return jsonify({'answer': answer})

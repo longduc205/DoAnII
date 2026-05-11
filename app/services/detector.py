@@ -96,9 +96,9 @@ class VulnerabilityDetector:
                 '+https://github.com/educational-scanner)'
             ),
         })
-        # --- THÊM COOKIE DVWA CHO DETECTOR ---
-        self.session.cookies.set('PHPSESSID', '66du50cf3b36q3qa4in21fu3h0')
-        self.session.cookies.set('security', 'low')
+        
+        # Attempt auto-login if scanning DVWA
+        self._login_dvwa()
 
         # Load SQLi payloads from file or use defaults
         self.sqli_payloads = self._load_payloads(
@@ -113,6 +113,32 @@ class VulnerabilityDetector:
             fallback=self.XSS_PAYLOADS,
         )
         logger.info("Loaded %d XSS payloads", len(self.xss_payloads))
+
+    def _login_dvwa(self):
+        """Simple DVWA auto-login for the detector's internal session."""
+        import os
+        import re
+        login_url = os.getenv('DVWA_LOGIN_URL', 'http://localhost:8080/login.php')
+        user = os.getenv('DVWA_USER', 'admin')
+        password = os.getenv('DVWA_PASS', 'password')
+        
+        try:
+            # 1. Get token
+            r = self.session.get(login_url, timeout=5)
+            token = re.search(r"user_token' value='(.*?)'", r.text)
+            user_token = token.group(1) if token else ""
+            
+            # 2. Login
+            self.session.post(login_url, data={
+                'username': user, 'password': password, 
+                'Login': 'Login', 'user_token': user_token
+            }, timeout=5)
+            
+            # 3. Security Level
+            self.session.cookies.set('security', 'low')
+        except:
+            pass
+
 
     # ------------------------------------------------------------------
     # Payload loading

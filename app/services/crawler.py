@@ -58,7 +58,13 @@ class CrawlerService:
         logger.info("Starting crawl: %s (depth=%d, max_pages=%d)",
                     self.base_url, self.max_depth, self.max_pages)
 
-        queue = deque([(self.base_url, 0)])
+        # If we are targeting DVWA login page, start crawling from index.php after login
+        start_url = self.base_url
+        if "login.php" in self.base_url:
+            start_url = self.base_url.replace("login.php", "index.php")
+            logger.info("DVWA login page detected. Starting crawl from: %s", start_url)
+
+        queue = deque([(start_url, 0)])
 
         while queue and len(self.visited_urls) < self.max_pages:
             url, depth = queue.popleft()

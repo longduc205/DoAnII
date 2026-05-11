@@ -99,15 +99,17 @@
       <summary>
         <i data-lucide="chevron-right" class="finding-chevron"></i>
         <span class="sev sev--{{ vuln.severity or 'medium' }}">{{ (vuln.severity or 'medium')|upper }}</span>
-        <span class="finding-target">
-          <span class="type-tag finding-type-tag">
+        <span class="finding-target" style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px;">
+          <span class="type-tag finding-type-tag" style="flex-shrink: 0;">
             {% if vuln.vuln_type == 'sqli' %}SQLi
             {% elif vuln.vuln_type == 'xss' %}XSS
             {% else %}{{ vuln.vuln_type|upper }}{% endif %}
           </span>
-          {{ vuln.url }}
+          <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-mono); font-size: 13px; opacity: 0.9;">
+            {{ vuln.url }}
+          </span>
           {% if vuln.parameter %}
-          <span class="finding-target-param">?{{ vuln.parameter }}</span>
+          <span class="finding-target-param" style="flex-shrink: 0; color: var(--accent);">?{{ vuln.parameter }}</span>
           {% endif %}
         </span>
         {% if ai_data %}
@@ -207,7 +209,15 @@
             </button>
 
             <div class="ai-chat-panel" id="ai-chat-{{ vuln.id }}" style="display: none; margin-top: var(--sp-3);">
-              <div class="ai-chat-messages" id="ai-messages-{{ vuln.id }}" style="max-height: 300px; overflow-y: auto; margin-bottom: var(--sp-2);">
+              <div class="ai-chat-messages" id="ai-messages-{{ vuln.id }}" style="max-height: 400px; overflow-y: auto; margin-bottom: var(--sp-2); display: flex; flex-direction: column; gap: 8px;">
+                {% for chat in vuln.chat_history %}
+                <div class="chat-message chat-message--{{ chat.role }}" 
+                     style="padding: 10px; border-radius: 8px; font-size: 13px; line-height: 1.5; max-width: 85%;
+                            {{ 'align-self: flex-end; background: var(--primary-dark); color: white;' if chat.role == 'user' else 'align-self: flex-start; background: var(--surface-1); border: 1px solid var(--border-1); color: var(--text-2);' }}">
+                  <div style="font-weight: 600; font-size: 11px; margin-bottom: 4px; opacity: 0.8;">{{ 'You' if chat.role == 'user' else 'AI Advisor' }}</div>
+                  <div style="white-space: pre-wrap;">{{ chat.content }}</div>
+                </div>
+                {% endfor %}
               </div>
               <div style="display: flex; gap: 8px;">
                 <input type="text"

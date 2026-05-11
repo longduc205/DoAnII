@@ -19,12 +19,14 @@
 
     {# ---- Sidebar ---- #}
     <aside class="shell-sidebar" aria-label="Primary">
-      <a href="{{ url_for('main.index') }}" class="shell-brand" aria-label="Sentinel home">
-        <span class="shell-brand-mark">
-          <i data-lucide="shield-check"></i>
+      <a href="{{ url_for('main.index') }}" class="shell-brand" aria-label="Sentinel home" style="display: flex; align-items: center; gap: 12px; text-decoration: none; padding: var(--sp-2) 0;">
+        <span class="shell-brand-mark" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 10px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);">
+          <span style="color: white; font-weight: 700; font-size: 15px; font-family: 'Geist Mono', monospace; letter-spacing: -0.5px;">SN</span>
         </span>
-        <span>SENTINEL</span>
-        <span class="shell-brand-tag">v1.0</span>
+        <div style="display: flex; flex-direction: column; line-height: 1.1;">
+          <span style="color: white; font-weight: 700; font-size: 16px; letter-spacing: 0.5px; font-family: 'Geist Mono', monospace;">SENTINEL</span>
+          <span style="color: var(--text-3); font-size: 11px; font-weight: 400; opacity: 0.7; margin-top: 2px;">AI Advisor <span style="opacity: 0.5;">v1.0</span></span>
+        </div>
       </a>
 
       <nav class="shell-nav-group" aria-label="Workspace">
@@ -66,10 +68,24 @@
         </a>
       </nav>
 
-      <div class="shell-sidebar-foot">
-        <span>Đồ án II</span>
-        <span class="ai-pill" data-state="{{ 'ready' if ai_ready else 'missing' }}"
-              title="{{ 'AI advisor is active (Blackbox)' if ai_ready else 'Missing API Key in .env' }}">
+      <div class="shell-sidebar-foot" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+        <span class="shell-nav-label" style="margin-left: 0;">AI PROVIDER</span>
+        <div style="display: flex; gap: 4px; background: var(--surface-1); padding: 4px; border-radius: 8px; border: 1px solid var(--border-1); width: 100%;">
+          <a href="{{ url_for('main.set_ai_provider', provider='blackbox') }}" 
+             style="flex: 1; text-align: center; padding: 4px; border-radius: 6px; font-size: 11px; text-decoration: none; font-weight: 600; transition: all 0.2s;
+                    {{ 'background: var(--surface-2); color: white; border: 1px solid var(--border-2);' if ai_provider == 'blackbox' else 'color: var(--text-3);' }}">
+            Blackbox
+          </a>
+          <a href="{{ url_for('main.set_ai_provider', provider='gemini') }}" 
+             style="flex: 1; text-align: center; padding: 4px; border-radius: 6px; font-size: 11px; text-decoration: none; font-weight: 600; transition: all 0.2s;
+                    {{ 'background: var(--surface-2); color: white; border: 1px solid var(--border-2);' if ai_provider == 'gemini' else 'color: var(--text-3);' }}">
+            Gemini
+          </a>
+        </div>
+        <span class="ai-pill" style="margin-top: 4px; width: 100%; justify-content: center;"
+              data-state="{{ 'ready' if ai_ready else 'missing' }}"
+              title="Currently using: {{ ai_model_name }}">
+          <i data-lucide="cpu" style="width: 11px; height: 11px;"></i>
           {{ ai_model_name }}
         </span>
       </div>

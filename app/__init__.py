@@ -49,13 +49,15 @@ def create_app(config_name=None):
     app.register_blueprint(tasks_bp, url_prefix='/tasks')
     app.register_blueprint(ai_chat_bp, url_prefix='/ai')
 
-    # Global template context: AI model availability, used by base.html sidebar.
+    # Global template context: AI status, used by sidebar.
     @app.context_processor
     def inject_globals():
-        import os
-        model_path = app.config.get('AI_MODEL_PATH', 'ai/models/classifier.pkl')
+        api_key = app.config.get('BLACKBOX_API_KEY')
+        # We consider AI ready if we have a key (or if it starts with 'sk-')
+        is_ready = bool(api_key and len(api_key) > 10)
         return {
-            'ai_ready': os.path.isfile(model_path),
+            'ai_ready': is_ready,
+            'ai_model_name': 'Blackbox (DeepSeek-V3)' if is_ready else 'No AI Key'
         }
 
     # Create database tables (with auto-recovery on schema mismatch)

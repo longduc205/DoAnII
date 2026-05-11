@@ -39,7 +39,6 @@
 - [ ] **📝 Thực hành**: Test thử SQLi trên DVWA hoặc SQLi-labs
 - [ ] **📚 Đọc**:
   - [OWASP: SQL Injection](https://owasp.org/www-community/attacks/SQL_Injection)
-  - [PortSwigger: SQL Injection](https://portswigger.net/web-security/sql-injection)
 
 ### Ngày 5-6: Cross-Site Scripting (XSS) Theory  
 - [ ] **🎯 Học**: Hiểu sâu về XSS
@@ -49,32 +48,20 @@
   - Cách phòng chống: Output encoding, Content Security Policy
 - [ ] **📝 Viết**: Draft phần "Cross-Site Scripting" cho Chapter 1 & 2
 - [ ] **📝 Thực hành**: Test thử XSS trên DVWA
-- [ ] **📚 Đọc**:
-  - [OWASP: XSS](https://owasp.org/www-community/attacks/xss/)
-  - [PortSwigger: XSS](https://portswigger.net/web-security/cross-site-scripting)
 
 ### Ngày 7-8: Web Crawling & Vulnerability Scanner Theory
 - [ ] **🎯 Học**: Tìm hiểu về web crawling và vulnerability scanning
   - Web crawler hoạt động như thế nào? BFS vs DFS
   - Vulnerability scanner workflow: crawl → test → analyze → report
   - Các scanner phổ biến: OWASP ZAP, Nikto, Burp Suite
-  - Hạn chế của scanner truyền thống (rule-based, false positives)
 - [ ] **📝 Viết**: Draft phần "Vulnerability Scanning" cho Chapter 1
-- [ ] **📚 Đọc**:
-  - [OWASP ZAP Documentation](https://www.zaproxy.org/docs/)
-  - Research papers về automated vulnerability scanning
 
-### Ngày 9-10: AI/ML in Cybersecurity
-- [ ] **🎯 Học**: Tìm hiểu AI/ML trong cybersecurity
-  - Supervised Learning: classification concepts
-  - Logistic Regression & Random Forest: cách hoạt động
-  - Feature engineering cho security data
-  - Evaluation metrics: Accuracy, Precision, Recall, F1-score
-  - Tại sao AI hỗ trợ được vulnerability scanning?
-- [ ] **📝 Viết**: Draft phần "AI in Cybersecurity" cho Chapter 1 & 2
-- [ ] **📚 Đọc**:
-  - [Scikit-learn: Classification](https://scikit-learn.org/stable/supervised_learning.html)
-  - Research papers: "Machine Learning for Web Vulnerability Detection"
+### Ngày 9-10: Generative AI in Cybersecurity
+- [ ] **🎯 Học**: Tìm hiểu Generative AI và LLM trong an toàn thông tin
+  - Prompt Engineering cơ bản
+  - Sử dụng AI để phân tích và giải thích lỗ hổng
+  - Cách tương tác với API của LLM (OpenAI, Gemini, Blackbox)
+- [ ] **📝 Viết**: Draft phần "Generative AI in Cybersecurity" cho Chapter 1 & 2
 
 ### 📌 Phase 1 Deliverables
 - [ ] Draft Introduction
@@ -89,51 +76,28 @@
 
 ### Ngày 11-12: Requirement Analysis
 - [x] **🎯 Học**: System requirements analysis methodology
-  - Functional vs Non-functional requirements
-  - Use case analysis
-  - Phân tích yêu cầu cho hệ thống scanner
 - [x] **📝 Viết**: Functional Requirements
   - FR1: Nhận URL target từ người dùng
   - FR2: Crawl website, phát hiện pages & forms
-  - FR3: Test SQLi trên các form tìm được
-  - FR4: Test XSS trên các form tìm được
-  - FR5: AI classify response (normal/suspicious)
-  - FR6: Tạo báo cáo kết quả scan
-  - FR7: Lưu lịch sử scan
-- [x] **📝 Viết**: Non-functional Requirements
-  - Usability, Modularity, Maintainability, Security
+  - FR3: Test SQLi, XSS trên các form tìm được
+  - FR4: Tích hợp AI để tư vấn cách khắc phục (Remediation)
+  - FR5: Cung cấp tính năng Chat Q&A với AI
+  - FR6: Lưu lịch sử và báo cáo kết quả scan
 - [x] **📝 Lưu**: `docs/requirements.md`
 
 ### Ngày 13: System Architecture Design
 - [x] **🎯 Thiết kế**: Kiến trúc tổng thể hệ thống
-  - Vẽ System Architecture Diagram
-  - Mô tả data flow: User Input → Crawler → Detector → AI → Report
-  - Xác định các module và interaction giữa chúng
+  - Mô tả data flow: User Input → Crawler → Detector → AI Advisor → Report
 - [x] **📝 Lưu**: `docs/diagrams/architecture.md`
 
 ### Ngày 14: UML Diagrams
-- [x] **🎯 Vẽ**: Use Case Diagram
-  - Actor: User
-  - Use cases: Start Scan, View Results, View History, Export Report
-- [x] **🎯 Vẽ**: Sequence Diagram
-  - Flow: User → WebUI → Scanner → Crawler → Detector → AI → DB → Report
-- [x] **🎯 Vẽ**: Activity Diagram (optional)
+- [x] **🎯 Vẽ**: Use Case Diagram & Sequence Diagram
 - [x] **📝 Lưu**: `docs/diagrams/uml.md`
 
 ### Ngày 15: Database Design
 - [x] **🎯 Thiết kế**: Database schema
-  - Table: `scans` (scan sessions)
-  - Table: `pages` (discovered pages)
-  - Table: `vulnerabilities` (findings)
-  - Table: `ai_results` (AI classifications)
-  - Vẽ ER Diagram
-- [x] **📝 Review**: Kiểm tra lại models trong `app/models/`
+  - Tables: `scans`, `pages`, `vulnerabilities`, `ai_results`
 - [x] **📝 Lưu**: `docs/diagrams/er_diagram.md`
-
-### 📌 Phase 2 Deliverables
-- [ ] Draft Chapter 3 (System Analysis & Design)
-- [ ] UML diagrams (Use Case, Sequence, Architecture)
-- [ ] Database ER Diagram
 
 ---
 
@@ -142,163 +106,54 @@
 > **Mục đích**: Xây dựng prototype hoạt động được: UI + Crawler + Detection
 
 ### Ngày 16-17: Development Environment Setup
-- [x] **🎯 Setup**: Môi trường phát triển
-  - Tạo virtual environment: `python -m venv venv`
-  - Install dependencies: `pip install -r requirements.txt`
-  - Copy `.env.example` → `.env` và config
-  - Test chạy Flask app: `python run.py`
-  - Verify database initialization
-- [x] **📝 Kiểm tra**: App chạy được trên `http://localhost:5000`
+- [x] **🎯 Setup**: Môi trường phát triển Flask, Docker.
 
 ### Ngày 18-20: Web Interface (Flask UI)
-- [x] **🎯 Học**: Flask basics (routes, templates, Jinja2, static files)
-- [x] **📝 Code**: `templates/base.html` - Base layout
-  - Navigation bar (Home, Scan, History)
-  - Footer, CSS styling
-- [x] **📝 Code**: `templates/index.html` - Home page
-  - URL input form
-  - Scan configuration options
-  - "Start Scan" button
-- [x] **📝 Code**: `templates/scan.html` - Scan progress page
-  - Scan status display
-  - Live progress updates (optional)
-- [x] **📝 Code**: `templates/results.html` - Results page
-  - Summary statistics
-  - Vulnerability list with details
-  - AI classification results
-- [x] **📝 Code**: `templates/history.html` - History page
-  - List of past scans
-  - Click to view details
-- [x] **📝 Code**: `app/static/css/style.css` - Styling
-- [x] **📝 Code**: `app/static/js/main.js` - Frontend logic
-- [x] **📝 Screenshot**: Chụp UI cho report → `docs/screenshots/`
+- [x] **📝 Code**: Xây dựng giao diện cơ bản (Base layout, Dashboard, Scan Config, History).
 
 ### Ngày 21-24: Web Crawler Implementation
-- [x] **🎯 Học**: BeautifulSoup4 & Requests library
-  - HTML parsing với BeautifulSoup
-  - HTTP requests với Requests library
-  - URL parsing với urllib.parse
-- [x] **📝 Code**: Hoàn thiện `app/services/crawler.py`
-  - `crawl()` - BFS traversal từ base URL
-  - `_fetch_page()` - Fetch & parse HTML
-  - `_extract_links()` - Tìm tất cả internal links
-  - `_extract_forms()` - Tìm forms và input fields
-  - `_should_skip()` - Filter URLs không cần crawl
-- [x] **📝 Test**: Chạy crawler trên website test
-  - Test với DVWA locally
-  - Verify link extraction hoạt động
-  - Verify form extraction hoạt động
-- [x] **📝 Code**: Viết tests trong `tests/test_crawler.py`
+- [x] **📝 Code**: Hoàn thiện `app/services/crawler.py` (BFS traversal, extract links, forms).
 
 ### Ngày 25-28: SQL Injection Detection
-- [x] **🎯 Học**: SQLi detection methodology
-  - Baseline response comparison
-  - Error-based detection (SQL error keywords)
-  - Response length anomaly detection
-  - Status code change detection
-- [x] **📝 Code**: Hoàn thiện `app/services/detector.py` - SQLi phần
-  - `test_sqli()` - Inject payloads vào form parameters
-  - `_get_baseline_response()` - Lấy response bình thường
-  - `_compare_responses()` - So sánh baseline vs test
-  - Error keyword matching
-- [x] **📝 Code**: Load payloads từ `data/payloads/sqli_payloads.txt`
-- [x] **📝 Test**: Test SQLi detection trên DVWA
-- [x] **📝 Code**: Viết tests trong `tests/test_detector.py`
-- [x] **📝 Screenshot**: Chụp kết quả detection
+- [x] **📝 Code**: Hoàn thiện `app/services/detector.py` (Error-based & Response length SQLi).
 
 ### Ngày 29-32: XSS Detection
-- [x] **🎯 Học**: XSS detection methodology
-  - Reflected payload detection
-  - Response content analysis
-  - Script tag detection in response
-- [x] **📝 Code**: Hoàn thiện `app/services/detector.py` - XSS phần
-  - `test_xss()` - Inject XSS payloads
-  - Kiểm tra payload có bị reflect trong response không
-  - Phát hiện script tags trong response
-- [x] **📝 Code**: Load payloads từ `data/payloads/xss_payloads.txt`
-- [x] **📝 Test**: Test XSS detection trên DVWA
-- [x] **📝 Screenshot**: Chụp kết quả detection
+- [x] **📝 Code**: Hoàn thiện `app/services/detector.py` (Reflected payload detection).
 
 ### Ngày 33-35: Scanner Engine Integration
-- [x] **📝 Code**: Hoàn thiện `app/services/scanner.py`
-  - Kết nối Crawler → Detector pipeline
-  - Lưu kết quả vào database
-  - Error handling và logging
-- [x] **📝 Code**: Cập nhật routes để connect với Scanner Engine
-  - `app/routes/scan.py` - Start scan, check status
-  - `app/routes/results.py` - Query & display results
-  - `app/routes/history.py` - Query scan history
-- [x] **📝 Test**: Full pipeline test: URL input → Crawl → Detect → Results
-- [x] **📝 Screenshot**: Chụp full workflow cho report
-
-### 📌 Phase 3 Deliverables
-- [x] Working prototype: Web UI + Crawler + SQLi/XSS Detection
-- [x] Database storing scan results
-- [x] Unit tests cho crawler & detector
-- [x] Screenshots cho Chapter 4
+- [x] **📝 Code**: Hoàn thiện `app/services/scanner.py` để chạy pipeline từ crawl đến detect và lưu DB.
 
 ---
 
-## Phase 4: AI Module Integration (Tuần 7)
+## Phase 4: AI Remediation Advisor & LLM Integration (Tuần 7)
 
-> **Mục đích**: Tích hợp ML model để classify responses
+> **Mục đích**: Tích hợp LLM để cung cấp lời khuyên bảo mật và chat Q&A.
 
-### Ngày 36-37: Data Collection & Feature Engineering
-- [x] **🎯 Học**: Feature engineering for security data
-  - Features nào quan trọng để classify response?
-  - Cách thu thập training data từ scan sessions
-- [x] **📝 Code**: Hoàn thiện `ai/feature_extractor.py`
-  - Extract features từ HTTP responses
-  - Features: response_length, status_code, keyword presence, reflection
-- [x] **📝 Tạo**: Training dataset
-  - Tạo synthetic data với 500 normal + 500 suspicious samples
-  - Script: `scripts/generate_training_data.py`
-  - Validation: `scripts/validate_training_data.py`
-  - Lưu vào `data/raw/training_data.csv`
+### Ngày 36-37: Prompt Engineering & API Setup
+- [x] **🎯 Học**: Xây dựng prompt hiệu quả để AI đóng vai trò Security Expert.
+- [x] **📝 Code**: Thiết lập kết nối API (sử dụng thư viện `requests` gọi đến Blackbox AI).
+- [x] **📝 Code**: Xây dựng template JSON output mong muốn (Explanation, Remediation Steps, Code Example).
 
-### Ngày 38-39: Model Training
-- [x] **🎯 Học**: Scikit-learn classification pipeline
-  - Train/test split
-  - Model fitting
-  - Evaluation metrics interpretation
-- [x] **📝 Code**: Hoàn thiện `ai/preprocessor.py`
-  - Normalize features
-  - Handle missing values
-- [x] **📝 Code**: Hoàn thiện `ai/trainer.py`
-  - Fix import error (`sklearn.ensemble`)
-  - Train LogisticRegression
-  - Train RandomForest (so sánh)
-  - Evaluate: accuracy, precision, recall, F1-score
-  - Save best model → `ai/models/classifier.pkl`
-- [x] **📝 Ghi lại**: Training results cho report
+### Ngày 38-39: AI Advisor Service Implementation
+- [x] **📝 Code**: Hoàn thiện `app/services/ai_advisor.py`.
+  - Hàm `get_remediation()`: Gửi payload và evidence cho AI để phân tích tại sao lỗi xảy ra và cách sửa.
+  - Xử lý các fallback template trong trường hợp API lỗi.
+  - Parse JSON response trả về từ AI một cách an toàn.
 
-### Ngày 40-41: AI Integration into Pipeline
-- [x] **📝 Code**: Hoàn thiện `ai/predictor.py`
-  - Load trained model
-  - Predict trên new responses
-- [x] **📝 Code**: Hoàn thiện `app/services/ai_analyzer.py`
-  - Kết nối Predictor vào scanning pipeline
-  - Classify mỗi response sau khi detect
-- [x] **📝 Code**: Cập nhật `app/services/scanner.py`
-  - Thêm AI analysis step vào pipeline
-  - Lưu AI results vào database
-- [x] **📝 Code**: Cập nhật `templates/results.html`
-  - Hiển thị AI classification bên cạnh rule-based results
-  - Hiển thị confidence score
+### Ngày 40-41: Interactive AI Q&A Integration
+- [x] **📝 Code**: Xây dựng API endpoint `/ai/ask` để chat.
+- [x] **📝 Code**: Tạo giao diện Chat Panel trên trang `results.html`.
+- [x] **📝 Code**: Cập nhật logic Javascript để gửi tin nhắn chat và render kết quả dạng Markdown/HTML.
 
-### Ngày 42: AI Module Testing
-- [ ] **📝 Test**: End-to-end test với AI module
-  - Verify model loads correctly
-  - Verify classification results make sense
-  - Test edge cases
-- [ ] **📝 Code**: Hoàn thiện tests trong `tests/test_ai_analyzer.py`
-- [ ] **📝 Screenshot**: Chụp AI results cho report
+### Ngày 42: End-to-End AI Testing
+- [x] **📝 Test**: Kiểm tra luồng scan với AI kích hoạt.
+  - Verify AI phân tích chính xác payload.
+  - Verify chat panel hoạt động tốt khi đặt câu hỏi tùy chỉnh.
 
 ### 📌 Phase 4 Deliverables
-- [ ] Trained ML model (`ai/models/classifier.pkl`)
-- [ ] AI integrated into scanning pipeline
-- [ ] Training evaluation metrics cho Chapter 5
-- [ ] Screenshots cho Chapter 4
+- [x] AI Advisor module hoạt động ổn định.
+- [x] Chat interface hoạt động mượt mà.
+- [x] Tích hợp hoàn chỉnh AI vào Workflow.
 
 ---
 
@@ -308,49 +163,21 @@
 
 ### Ngày 43-44: Functional Testing
 - [ ] **📝 Test**: Test từng chức năng
-  - ✅ URL input validation
   - ✅ Crawler discovers pages & forms correctly
-  - ✅ SQLi detection finds known vulnerabilities
-  - ✅ XSS detection finds known vulnerabilities
-  - ✅ AI classification runs without errors
-  - ✅ Results stored in database
-  - ✅ Report generation works
-  - ✅ History page shows past scans
+  - ✅ SQLi & XSS detection finds known vulnerabilities
+  - ✅ AI provides relevant and accurate security advice
+  - ✅ Report generation and History work
 - [ ] **📝 Ghi lại**: Kết quả testing vào bảng
 
 ### Ngày 45-46: Performance Evaluation
-- [ ] **📝 Test**: Test trên multiple targets
-  - DVWA (Damn Vulnerable Web Application)
-  - WebGoat (OWASP)
-  - Custom test pages (nếu có)
-- [ ] **📝 Đánh giá**: Scanner performance
-  - True Positives: Phát hiện đúng vulnerability
-  - False Positives: Báo sai
-  - True Negatives: Bỏ qua đúng
-  - False Negatives: Bỏ sót vulnerability
-- [ ] **📝 Đánh giá**: AI model performance
-  - Accuracy, Precision, Recall, F1-score
-  - Confusion matrix
-  - So sánh với rule-based only
+- [ ] **📝 Test**: Test trên multiple targets (DVWA)
+- [ ] **📝 Đánh giá**: Scanner performance (True Positives, False Positives).
+- [ ] **📝 Đánh giá**: Chất lượng phản hồi của AI (Độ chính xác, tính hữu ích của code examples).
 
 ### Ngày 47-48: Strengths & Limitations Analysis
-- [ ] **📝 Viết**: Điểm mạnh
-  - Tích hợp AI + rule-based scanning
-  - Modular architecture, dễ mở rộng
-  - Giá trị giáo dục
-  - Tự động hóa quy trình scan
-- [ ] **📝 Viết**: Hạn chế
-  - Coverage giới hạn (chỉ SQLi, XSS)
-  - Training data ít
-  - Crawler đơn giản (không handle JavaScript)
-  - Không support authenticated scanning
+- [ ] **📝 Viết**: Điểm mạnh (Tích hợp AI Q&A, tự động hóa cao).
+- [ ] **📝 Viết**: Hạn chế (Scanner chỉ là rule-based cơ bản, AI phụ thuộc API bên thứ 3).
 - [ ] **📝 Viết**: Draft Chapter 5 (Testing & Evaluation)
-
-### 📌 Phase 5 Deliverables
-- [ ] Complete testing results
-- [ ] AI evaluation metrics (accuracy, precision, recall, F1)
-- [ ] Draft Chapter 5
-- [ ] Screenshots các test scenarios
 
 ---
 
@@ -358,56 +185,10 @@
 
 > **Mục đích**: Hoàn thiện báo cáo, review, chuẩn bị bảo vệ
 
-### Ngày 49-51: Final Report Assembly
-- [ ] **📝 Viết**: Hoàn thiện Introduction
-  - Background, problem statement, objectives, scope
-- [ ] **📝 Review**: Chapter 1 - Overview
-  - Web security context, vulnerability types, scanner role, AI in security
-- [ ] **📝 Review**: Chapter 2 - Theoretical Background
-  - Web architecture, HTTP, crawling, SQLi theory, XSS theory, AI/ML theory
-- [ ] **📝 Review**: Chapter 3 - System Analysis & Design
-  - Requirements, architecture, UML diagrams, database design
-- [ ] **📝 Review**: Chapter 4 - Implementation
-  - Technologies, UI, crawler, detector, AI module, report generation
-- [ ] **📝 Review**: Chapter 5 - Testing & Evaluation
-  - Test environment, scenarios, results, AI metrics, strengths/limitations
-
-### Ngày 52-53: Conclusion & Future Work
-- [ ] **📝 Viết**: Conclusion
-  - Tóm tắt contributions
-  - Academic value
-  - Practical usefulness
-- [ ] **📝 Viết**: Future Work
-  - Thêm vulnerability types (CSRF, IDOR, etc.)
-  - Improve crawler (JavaScript rendering)
-  - Larger training dataset
-  - Explainable AI decisions
-  - Extend thành platform hoàn chỉnh cho Đồ Án 3 / Khóa luận
-
-### Ngày 54-55: Formatting & Polish
-- [ ] **📝 Check**: Grammar & spelling (English)
-- [ ] **📝 Check**: Consistent terminology
-- [ ] **📝 Check**: Figure numbering & captions
-- [ ] **📝 Check**: Table formatting
-- [ ] **📝 Check**: References (APA/IEEE format)
-- [ ] **📝 Check**: Chapter transitions
-- [ ] **📝 Check**: Academic tone throughout
-
-### Ngày 56: Presentation Preparation
-- [ ] **📝 Tạo**: Slide thuyết trình
-  - Slide 1: Title
-  - Slide 2-3: Problem & Objectives
-  - Slide 4-5: Architecture & Design
-  - Slide 6-8: Implementation highlights
-  - Slide 9-10: Results & Evaluation
-  - Slide 11: Demo
-  - Slide 12: Conclusion & Future Work
-- [ ] **📝 Chuẩn bị**: Demo scenario
-
-### 📌 Phase 6 Deliverables
-- [ ] Complete academic report (English)
-- [ ] Presentation slides
-- [ ] Demo ready
+### Ngày 49-56: Báo cáo & Thuyết trình
+- [ ] **📝 Viết**: Hoàn thiện Introduction, Overview, Implementation, Conclusion.
+- [ ] **📝 Check**: Formatting, References.
+- [ ] **📝 Tạo**: Slide thuyết trình và chuẩn bị Demo scenario.
 
 ---
 
@@ -419,7 +200,7 @@
 | 3    | Phase 2 | Requirements & Design | `[x]` |
 | 4-5  | Phase 3a | Web UI + Crawler | `[x]` |
 | 6    | Phase 3b | SQLi/XSS Detection | `[x]` |
-| 7    | Phase 4 | AI Module | `[/]` |
+| 7    | Phase 4 | AI Remediation & Chat | `[x]` |
 | 8    | Phase 5 | Testing & Evaluation | `[ ]` |
 | 9    | Phase 6 | Report & Presentation | `[ ]` |
 
@@ -431,26 +212,17 @@
 # Activate virtual environment
 source venv/bin/activate
 
-# Run the app
+# Run the app locally
 python run.py
 
-# Run tests
-pytest tests/ -v
+# Run with Docker
+docker compose up --build
 
 # Initialize database
 python -m app.utils.db_init
 
-# Generate training data (default 500+500)
-python scripts/generate_training_data.py
-
-# Generate custom sample counts
-python scripts/generate_training_data.py --normal 200 --suspicious 200
-
-# Validate training data
-python scripts/validate_training_data.py data/raw/training_data.csv
-
-# Train AI model
-python -m ai.trainer
+# Run unit tests
+pytest tests/ -v
 ```
 
 ---
@@ -461,10 +233,4 @@ python -m ai.trainer
 2. **OWASP Testing Guide**: https://owasp.org/www-project-web-security-testing-guide/
 3. **PortSwigger Web Security Academy**: https://portswigger.net/web-security
 4. **Flask Documentation**: https://flask.palletsprojects.com/
-5. **Scikit-learn Documentation**: https://scikit-learn.org/stable/
-6. **BeautifulSoup Documentation**: https://www.crummy.com/software/BeautifulSoup/bs4/doc/
-7. **DVWA (Damn Vulnerable Web Application)**: https://github.com/digininja/DVWA
-
----
-
-> 💡 **Tip**: Mỗi ngày dành ít nhất 30 phút đọc tài liệu + 1-2 giờ code/viết. Consistency quan trọng hơn intensity!
+5. **DVWA (Damn Vulnerable Web Application)**: https://github.com/digininja/DVWA

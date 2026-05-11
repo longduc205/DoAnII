@@ -69,8 +69,8 @@
       <div class="shell-sidebar-foot">
         <span>Đồ án II</span>
         <span class="ai-pill" data-state="{{ 'ready' if ai_ready else 'missing' }}"
-              title="{{ 'AI classifier loaded' if ai_ready else 'No model trained yet, run: python -m ai.trainer' }}">
-          {{ 'AI ready' if ai_ready else 'No model' }}
+              title="{{ 'AI advisor is active (Blackbox)' if ai_ready else 'Missing API Key in .env' }}">
+          {{ ai_model_name }}
         </span>
       </div>
     </aside>

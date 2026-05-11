@@ -97,8 +97,8 @@ class VulnerabilityDetector:
             ),
         })
         # --- THÊM COOKIE DVWA CHO DETECTOR ---
-        self.session.cookies.set('PHPSESSID', 'b7k7vqilcumponm5no8tmokvu5')
-        self.session.cookies.set('security', 'high')
+        self.session.cookies.set('PHPSESSID', '66du50cf3b36q3qa4in21fu3h0')
+        self.session.cookies.set('security', 'low')
 
         # Load SQLi payloads from file or use defaults
         self.sqli_payloads = self._load_payloads(

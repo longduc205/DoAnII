@@ -8,7 +8,7 @@ Supports training, evaluation, model comparison, and persistence.
 
 Usage:
     python -m ai.trainer
-    python -m ai.trainer --data data/raw/combined_data.csv
+    python -m ai.trainer --data data/raw/combined_training_data.csv
 """
 
 import argparse
@@ -186,8 +186,8 @@ def _parse_args():
     parser.add_argument(
         '--data',
         type=str,
-        default='data/raw/combined_data.csv',
-        help='Path to training CSV (default: data/raw/combined_data.csv)',
+        default='data/raw/combined_training_data.csv',
+        help='Path to training CSV (default: data/raw/combined_training_data.csv)',
     )
     parser.add_argument(
         '--output-model',

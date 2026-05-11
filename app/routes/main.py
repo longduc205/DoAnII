@@ -18,7 +18,7 @@ def index():
     critical_vulns = Vulnerability.query.filter(
         Vulnerability.severity.in_(['high', 'critical'])
     ).count()
-    ai_detections = AIResult.query.filter_by(classification='suspicious').count()
+    ai_detections = AIResult.query.count()
 
     # Count active (running) scans
     active_scans = Scan.query.filter_by(status='running').count()

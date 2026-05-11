@@ -38,6 +38,9 @@ class Preprocessor:
         'error_page_detected',
         'has_redirect',
         'length_delta',
+        'content_length_ratio',
+        'length_anomaly_flag',
+        'payload_length',
     ]
 
     def __init__(self):

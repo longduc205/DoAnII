@@ -7,7 +7,7 @@ or from the project root.
 
 Usage:
     python scripts/train_model.py
-    python scripts/train_model.py --data data/raw/combined_data.csv
+    python scripts/train_model.py --data data/raw/combined_training_data.csv
 
     # Inside Docker:
     docker exec -it ai-vuln-scanner python scripts/train_model.py

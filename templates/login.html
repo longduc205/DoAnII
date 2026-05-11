@@ -1,38 +1,89 @@
 {% extends "base.html" %}
 
-{% block title %}Đăng nhập - Sentinel{% endblock %}
-{% block crumb_label %}Đăng nhập{% endblock %}
+{% block title %}Sign In - Sentinel{% endblock %}
+{% block crumb_label %}Sign In{% endblock %}
 
 {% block content %}
-<section class="panel" style="max-width: 480px; margin: 0 auto;">
-  <header class="panel-head">
-    <h2 class="panel-title">Đăng nhập</h2>
-    <p class="panel-subtitle">Đăng nhập để thực hiện scan và xem lịch sử riêng.</p>
+<section class="panel" style="max-width: 420px; margin: var(--sp-9) auto 0;">
+
+  <header class="panel-head" style="flex-direction: column; align-items: flex-start; gap: var(--sp-3); padding: var(--sp-6) var(--sp-6) var(--sp-5);">
+    <span style="width: 40px; height: 40px; border-radius: var(--r-4); background: var(--accent-soft); color: var(--accent-bright); display: grid; place-items: center; flex-shrink: 0;">
+      <i data-lucide="shield-check" style="width: 20px; height: 20px;"></i>
+    </span>
+    <div>
+      <h2 style="font-size: var(--fs-20); font-weight: var(--fw-600); color: var(--text-1); line-height: var(--lh-tight); margin: 0;">Sign In</h2>
+      <p style="font-size: var(--fs-14); color: var(--text-3); margin: var(--sp-1) 0 0;">Sign in to run scans and view your personal history.</p>
+    </div>
   </header>
 
-  {% if error %}
-  <div class="empty-state" style="border-color: var(--danger-500); margin-bottom: 12px;">
-    <p style="color: var(--danger-300);">{{ error }}</p>
+  <div class="panel-body">
+
+    {% if error %}
+    <div style="display: flex; align-items: flex-start; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); background: var(--danger-soft); border: 1px solid oklch(64% 0.220 22 / 0.3); border-radius: var(--r-4); margin-bottom: var(--sp-5);">
+      <i data-lucide="alert-circle" style="width: 16px; height: 16px; color: var(--danger); flex-shrink: 0; margin-top: 2px;"></i>
+      <p style="font-size: var(--fs-14); color: var(--danger); line-height: var(--lh-snug); margin: 0;">{{ error }}</p>
+    </div>
+    {% endif %}
+
+    <form method="post" class="stack" style="gap: var(--sp-4);">
+
+      <div class="field">
+        <label class="field-label" for="identifier">Username or Email</label>
+        <div class="input-group">
+          <i data-lucide="user" class="input-group-icon"></i>
+          <input class="input input--lg" type="text" id="identifier" name="identifier"
+                 placeholder="user@example.com" autocomplete="username" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="password">Password</label>
+        <div class="input-group" style="position: relative;">
+          <i data-lucide="lock" class="input-group-icon"></i>
+          <input class="input input--lg" type="password" id="password" name="password"
+                 placeholder="••••••••" autocomplete="current-password" required
+                 style="padding-right: 48px;">
+          <button type="button" class="btn btn--icon" id="toggle-password"
+                  aria-label="Show/hide password"
+                  style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%);">
+            <i data-lucide="eye" id="eye-icon"></i>
+          </button>
+        </div>
+      </div>
+
+      <button class="btn btn--primary btn--lg" type="submit" style="width: 100%; margin-top: var(--sp-2);">
+        <i data-lucide="log-in"></i>
+        Sign In
+      </button>
+
+    </form>
+
+    <hr class="divider">
+
+    <p style="font-size: var(--fs-14); color: var(--text-3); text-align: center; margin: 0;">
+      Don't have an account?
+      <a href="{{ url_for('auth.register') }}" style="color: var(--accent-bright); font-weight: var(--fw-500);">Create one</a>
+    </p>
+
   </div>
-  {% endif %}
-
-  <form method="post" class="stack" style="gap: 12px;">
-    <label>
-      <span class="label">Username hoặc Email</span>
-      <input class="input" type="text" name="identifier" required>
-    </label>
-
-    <label>
-      <span class="label">Mật khẩu</span>
-      <input class="input" type="password" name="password" required>
-    </label>
-
-    <button class="btn btn-primary" type="submit">Đăng nhập</button>
-  </form>
-
-  <p style="margin-top: 12px; color: var(--text-3);">
-    Chưa có tài khoản?
-    <a href="{{ url_for('auth.register') }}">Tạo tài khoản</a>
-  </p>
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var btn = document.getElementById('toggle-password');
+    var input = document.getElementById('password');
+    var icon = document.getElementById('eye-icon');
+    if (!btn || !input || !icon) return;
+    btn.addEventListener('click', function () {
+      var isHidden = input.type === 'password';
+      input.type = isHidden ? 'text' : 'password';
+      icon.setAttribute('data-lucide', isHidden ? 'eye-off' : 'eye');
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons({ attrs: { 'stroke-width': 1.6 } });
+      }
+    });
+  })();
+</script>
 {% endblock %}

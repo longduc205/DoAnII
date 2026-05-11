@@ -1,13 +1,9 @@
-# TODO - Auth + User-owned Scan History
+- [x] Update sidebar brand in templates/base.html to use static logo image app/static/icons/logo.jpg
+- [x] Keep existing SENTINEL text and version badge unchanged
+- [x] Add minimal inline sizing/alignment for the image to fit current layout
+- [x] Verify template structure remains valid
 
-- [x] Add authentication dependency (Flask-Login)
-- [x] Create User model and register it in models package
-- [x] Initialize Flask-Login in app factory
-- [x] Add `user_id` ownership to Scan model
-- [x] Update ScannerEngine to persist scans with owner
-- [x] Add auth routes: register/login/logout
-- [x] Protect scan/history/results routes and enforce ownership checks
-- [x] Update base layout with auth-aware navigation
-- [x] Add login/register templates
-- [ ] Run quick validation (import/app startup level)
-- [x] Update TODO progress
+- [ ] Update results UI wording from "AI verification" to "AI assessment"
+- [ ] Add clear note that AI is advisory and does not override rule-based findings
+- [ ] Show separate labels for rule-based detection and AI assessment confidence
+- [ ] Verify results template render logic remains valid

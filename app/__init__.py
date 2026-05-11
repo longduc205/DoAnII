@@ -34,6 +34,7 @@ def create_app(config_name=None):
     from app.routes.history import history_bp
     from app.routes.tasks import tasks_bp
     from app.routes.auth import auth_bp
+    from app.routes.ai_chat import ai_chat_bp
     from app.models.user import User
 
     @login_manager.user_loader
@@ -46,6 +47,7 @@ def create_app(config_name=None):
     app.register_blueprint(results_bp, url_prefix='/results')
     app.register_blueprint(history_bp, url_prefix='/history')
     app.register_blueprint(tasks_bp, url_prefix='/tasks')
+    app.register_blueprint(ai_chat_bp, url_prefix='/ai')
 
     # Global template context: AI model availability, used by base.html sidebar.
     @app.context_processor

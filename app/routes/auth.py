@@ -24,16 +24,16 @@ def register():
         confirm_password = request.form.get('confirm_password', '')
 
         if not username or not email or not password:
-            return render_template('register.html', error='Vui lòng nhập đầy đủ thông tin.')
+            return render_template('register.html', error='Please fill in all required fields.')
 
         if password != confirm_password:
-            return render_template('register.html', error='Mật khẩu xác nhận không khớp.')
+            return render_template('register.html', error='Passwords do not match.')
 
         existing_user = User.query.filter(
             (User.username == username) | (User.email == email)
         ).first()
         if existing_user:
-            return render_template('register.html', error='Username hoặc email đã tồn tại.')
+            return render_template('register.html', error='Username or email is already taken.')
 
         user = User(username=username, email=email)
         user.set_password(password)
@@ -41,7 +41,7 @@ def register():
         db.session.commit()
 
         login_user(user)
-        flash('Tạo tài khoản thành công. Bạn đã đăng nhập.', 'scan_success')
+        flash('Account created. You are now signed in.', 'scan_success')
         return redirect(url_for('scan.new_scan'))
 
     return render_template('register.html')
@@ -58,17 +58,17 @@ def login():
         password = request.form.get('password', '')
 
         if not identifier or not password:
-            return render_template('login.html', error='Vui lòng nhập tài khoản và mật khẩu.')
+            return render_template('login.html', error='Please enter your username/email and password.')
 
         user = User.query.filter(
             (User.username == identifier) | (User.email == identifier.lower())
         ).first()
 
         if not user or not user.check_password(password):
-            return render_template('login.html', error='Thông tin đăng nhập không hợp lệ.')
+            return render_template('login.html', error='Invalid credentials. Please try again.')
 
         login_user(user)
-        flash('Đăng nhập thành công.', 'scan_success')
+        flash('Signed in successfully.', 'scan_success')
         return redirect(url_for('scan.new_scan'))
 
     return render_template('login.html')
@@ -79,5 +79,5 @@ def logout():
     """Logout current user."""
     if current_user.is_authenticated:
         logout_user()
-        flash('Bạn đã đăng xuất.', 'scan_success')
+        flash('You have been signed out.', 'scan_success')
     return redirect(url_for('auth.login'))

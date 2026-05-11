@@ -7,13 +7,16 @@ Coordinates the scanning workflow:
 3. Save discovered pages to DB
 4. Run vulnerability detection (SQLi, XSS)
 5. Save vulnerability findings to DB
-6. Run AI analysis on findings
-7. Save AI classification results to DB
+6. Run AI remediation advice generation
+7. Save AI remediation results to DB
 8. Update scan record with final stats
 """
 
+import json
 import logging
 from datetime import datetime, timezone
+
+from flask import current_app
 
 from app import db
 from app.models.scan import Scan
@@ -22,7 +25,7 @@ from app.models.vulnerability import Vulnerability
 from app.models.ai_result import AIResult
 from app.services.crawler import CrawlerService
 from app.services.detector import VulnerabilityDetector
-from app.services.ai_analyzer import AIAnalyzer
+from app.services.ai_advisor import AIAdvisor
 
 logger = logging.getLogger(__name__)
 
@@ -48,12 +51,13 @@ class ScannerEngine:
 
             # Run vulnerability detection if any test is enabled
             findings = self._run_detection(crawl_results)
+            saved_vulns = []
             if findings:
-                self._save_vulnerabilities(findings)
+                saved_vulns = self._save_vulnerabilities(findings)
 
-            # Run AI analysis if enabled and findings exist
-            if self.config.get('use_ai', True) and findings:
-                self._run_ai_analysis(findings)
+            # Run AI remediation if enabled and findings exist
+            if self.config.get('use_ai', True) and saved_vulns:
+                self._run_ai_remediation(findings, saved_vulns)
 
             self._finalize_scan(crawl_results, len(findings))
             return self.scan
@@ -165,7 +169,12 @@ class ScannerEngine:
         return all_findings
 
     def _save_vulnerabilities(self, findings):
-        """Step 4: Save vulnerability findings to the database."""
+        """Step 4: Save vulnerability findings to the database.
+
+        Returns:
+            list[Vulnerability]: The persisted ORM objects (with IDs set).
+        """
+        saved = []
         for finding in findings:
             vuln = Vulnerability(
                 scan_id=self.scan.id,
@@ -177,60 +186,62 @@ class ScannerEngine:
                 evidence=finding.get('evidence', ''),
             )
             db.session.add(vuln)
+            saved.append(vuln)
 
         db.session.commit()
         logger.info("Scan #%d: saved %d vulnerabilities to DB",
                      self.scan.id, len(findings))
+        return saved
 
-    def _run_ai_analysis(self, findings):
-        """Step 5: Run AI classification on vulnerability findings.
+    def _run_ai_remediation(self, findings, saved_vulns):
+        """Step 5: Generate AI remediation advice for findings.
 
-        Uses the trained ML model to classify each finding's HTTP
-        response as normal or suspicious.  Results are saved as
-        AIResult records in the database.
+        Uses Gemini API (or static fallback) to generate remediation
+        recommendations for each finding.  Results are saved as
+        AIResult records linked to their Vulnerability row.
         """
-        analyzer = AIAnalyzer()
+        api_key = ''
+        try:
+            api_key = current_app.config.get('GEMINI_API_KEY', '')
+        except RuntimeError:
+            pass
 
-        if not analyzer.is_available():
-            logger.warning(
-                "Scan #%d: AI model not available — skipping AI analysis. "
-                "Train a model with: python -m ai.trainer",
-                self.scan.id,
-            )
-            return
+        advisor = AIAdvisor(api_key=api_key)
 
         logger.info(
-            "Scan #%d: running AI analysis on %d findings ...",
+            "Scan #%d: generating AI remediation for %d findings %s",
             self.scan.id, len(findings),
+            '(Gemini)' if advisor.is_available() else '(fallback)',
         )
 
-        ai_classifications = analyzer.classify_findings(findings)
-
-        for finding, ai_result in zip(findings, ai_classifications):
-            features = ai_result.get('features', {})
+        for finding, vuln_obj in zip(findings, saved_vulns):
+            advice = advisor.get_remediation(
+                vuln_type=finding.get('vuln_type', 'unknown'),
+                severity=finding.get('severity', 'medium'),
+                url=finding.get('url', ''),
+                parameter=finding.get('parameter', ''),
+                payload=finding.get('payload', ''),
+                evidence=finding.get('evidence', ''),
+            )
 
             record = AIResult(
                 scan_id=self.scan.id,
+                vulnerability_id=vuln_obj.id,
                 url=finding.get('url', ''),
-                classification=ai_result['classification'],
-                confidence=ai_result['confidence'],
-                response_length=features.get('response_length', 0),
-                status_code=features.get('status_code', 0),
-                has_reflection=bool(features.get('has_xss_reflection', False)),
-                has_error_keywords=bool(features.get('has_sql_keywords', False)),
+                explanation=advice.get('explanation', ''),
+                impact=advice.get('impact', ''),
+                remediation=json.dumps(
+                    advice.get('remediation_steps', []),
+                    ensure_ascii=False,
+                ),
+                code_example=advice.get('code_example', ''),
             )
             db.session.add(record)
 
         db.session.commit()
-
-        # Log summary
-        suspicious_count = sum(
-            1 for r in ai_classifications
-            if r['classification'] == 'suspicious'
-        )
         logger.info(
-            "Scan #%d: AI analysis complete — %d/%d classified as suspicious",
-            self.scan.id, suspicious_count, len(ai_classifications),
+            "Scan #%d: AI remediation complete — %d recommendations saved",
+            self.scan.id, len(findings),
         )
 
     def _finalize_scan(self, crawl_results, vuln_count=0):

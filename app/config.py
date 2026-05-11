@@ -23,3 +23,6 @@ class Config:
     # AI Module settings
     AI_MODEL_PATH = os.getenv('AI_MODEL_PATH', 'ai/models/classifier.pkl')
     AI_CONFIDENCE_THRESHOLD = float(os.getenv('AI_CONFIDENCE_THRESHOLD', 0.7))
+
+    # Blackbox AI — used for remediation suggestions and Q&A
+    BLACKBOX_API_KEY = os.getenv('BLACKBOX_API_KEY', 'sk-4Qk5OHr9GYuUGAuuMxcNiQ')

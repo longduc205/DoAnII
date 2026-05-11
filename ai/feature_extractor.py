@@ -51,8 +51,20 @@ class FeatureExtractor:
         content_lower = content.lower()
         status_code = response_data.get('status_code', 0)
 
+        # Compute content length ratio vs baseline (key for blind SQLi detection)
+        response_length = len(content)
+        if baseline_length is not None and baseline_length > 0:
+            content_length_ratio = response_length / baseline_length
+        else:
+            content_length_ratio = 1.0  # no baseline → assume no anomaly
+
+        # Flag significant deviations (>30% change from baseline)
+        length_anomaly_flag = (
+            content_length_ratio > 1.3 or content_length_ratio < 0.7
+        )
+
         features = {
-            'response_length': len(content),
+            'response_length': response_length,
             'status_code': status_code,
             'has_sql_keywords': self._check_keywords(content_lower, self.SQL_KEYWORDS),
             'sql_keyword_count': self._count_keywords(content_lower, self.SQL_KEYWORDS),
@@ -61,7 +73,10 @@ class FeatureExtractor:
             'content_type_html': 'text/html' in response_data.get('headers', {}).get('Content-Type', ''),
             'error_page_detected': 400 <= status_code < 600,
             'has_redirect': 300 <= status_code < 400,
-            'length_delta': abs(len(content) - baseline_length) if baseline_length is not None else 0,
+            'length_delta': abs(response_length - baseline_length) if baseline_length is not None else 0,
+            'content_length_ratio': content_length_ratio,
+            'length_anomaly_flag': length_anomaly_flag,
+            'payload_length': len(payload) if payload else 0,
         }
 
         return features

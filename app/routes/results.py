@@ -1,5 +1,5 @@
 """
-Results routes - Display scan results
+Results routes - Display scan results with AI remediation
 """
 
 from flask import Blueprint, render_template, abort
@@ -22,29 +22,16 @@ def show_results(scan_id):
     vulnerabilities = Vulnerability.query.filter_by(scan_id=scan_id).all()
     ai_results = AIResult.query.filter_by(scan_id=scan_id).all()
 
-    # Build a lookup: url+classification → AIResult for per-finding display
-    ai_results_by_url = {}
+    # Build a lookup: vulnerability_id → AIResult for per-finding display
+    ai_by_vuln = {}
     for ar in ai_results:
-        ai_results_by_url[ar.url] = {
-            'classification': ar.classification,
-            'confidence': ar.confidence or 0.0,
-            'status_code': ar.status_code,
-            'response_length': ar.response_length,
-        }
+        if ar.vulnerability_id:
+            ai_by_vuln[ar.vulnerability_id] = ar
 
-    # Build AI summary stats
-    suspicious_count = sum(1 for r in ai_results if r.classification == 'suspicious')
-    normal_count = sum(1 for r in ai_results if r.classification == 'normal')
-    total_ai = len(ai_results)
-
-    # AI summary used by results.html. Numbers are real, sourced from AIResult
-    # rows; we do not fake an "accuracy" figure since per-scan accuracy is not
-    # measurable without ground truth.
+    # AI summary stats
     ai_summary = {
-        'total': total_ai,
-        'suspicious_count': suspicious_count,
-        'normal_count': normal_count,
-        'has_results': total_ai > 0,
+        'total': len(ai_results),
+        'has_results': len(ai_results) > 0,
     }
 
     return render_template(
@@ -52,6 +39,5 @@ def show_results(scan_id):
         scan=scan,
         vulnerabilities=vulnerabilities,
         ai_summary=ai_summary,
-        ai_results=ai_results,
-        ai_results_by_url=ai_results_by_url,
+        ai_by_vuln=ai_by_vuln,
     )

@@ -66,9 +66,9 @@
   </div>
   {% if ai_summary.has_results %}
   <div class="stat-strip-cell">
-    <span class="stat-strip-label">AI suspicious</span>
-    <span class="stat-strip-value stat-strip-value--accent">{{ ai_summary.suspicious_count }}</span>
-    <span class="stat-strip-sub">of {{ ai_summary.total }} classified</span>
+    <span class="stat-strip-label">AI Remediation</span>
+    <span class="stat-strip-value stat-strip-value--accent">{{ ai_summary.total }}</span>
+    <span class="stat-strip-sub">recommendations</span>
   </div>
   {% endif %}
 </div>
@@ -86,7 +86,7 @@
     </h2>
     {% if vulnerabilities %}
     <span class="t-caption">
-      Click a row to expand evidence and payload.
+      Click a row to expand details and AI remediation.
     </span>
     {% endif %}
   </div>
@@ -94,7 +94,7 @@
   {% if vulnerabilities %}
   <div class="findings">
     {% for vuln in vulnerabilities %}
-    {% set ai_data = ai_results_by_url.get(vuln.url) %}
+    {% set ai_data = ai_by_vuln.get(vuln.id) %}
     <details class="finding">
       <summary>
         <i data-lucide="chevron-right" class="finding-chevron"></i>
@@ -111,15 +111,15 @@
           {% endif %}
         </span>
         {% if ai_data %}
-        <span class="finding-ai finding-ai-tag">
-          <i data-lucide="cpu" style="width: 11px; height: 11px;"></i>
-          {{ ai_data.classification }}
-          <span style="color: var(--text-1);">{{ (ai_data.confidence * 100)|round }}%</span>
+        <span class="finding-ai finding-ai-tag" style="background: var(--accent-soft); color: var(--accent);">
+          <i data-lucide="sparkles" style="width: 11px; height: 11px;"></i>
+          AI Fix Available
         </span>
         {% endif %}
       </summary>
 
       <div class="finding-body">
+        {# ---- Basic finding details ---- #}
         <div class="stack" style="gap: var(--sp-4);">
           <div class="finding-detail">
             <span class="finding-detail-label">Endpoint</span>
@@ -139,40 +139,95 @@
             <code class="code-block">{{ vuln.payload }}</code>
           </div>
           {% endif %}
-        </div>
 
-        <div class="stack" style="gap: var(--sp-4);">
           {% if vuln.evidence %}
           <div class="finding-detail">
             <span class="finding-detail-label">Evidence</span>
             <span class="finding-detail-value">{{ vuln.evidence }}</span>
           </div>
           {% endif %}
+        </div>
 
-          {% if ai_data %}
-          <div class="finding-detail">
-            <span class="finding-detail-label">AI verification</span>
-            <div class="confidence">
-              <div class="confidence-meter">
-                <div class="confidence-fill"
-                     data-class="{{ ai_data.classification }}"
-                     style="width: {{ (ai_data.confidence * 100)|round(1) }}%;"></div>
-              </div>
-              <div class="confidence-text">
-                <span>
-                  {% if ai_data.classification == 'suspicious' %}Suspicious response
-                  {% elif ai_data.classification == 'normal' %}Looks normal
-                  {% else %}{{ ai_data.classification|capitalize }}{% endif %}
-                </span>
-                <strong>{{ (ai_data.confidence * 100)|round(1) }}% confidence</strong>
-              </div>
-            </div>
-            <span class="t-caption" style="margin-top: var(--sp-2);">
-              Status code {{ ai_data.status_code or '—' }}, response length {{ ai_data.response_length or 0 }} bytes.
+        {# ---- AI Remediation Section ---- #}
+        {% if ai_data %}
+        <div class="ai-remediation" style="margin-top: var(--sp-5); padding: var(--sp-4); background: var(--surface-2); border-radius: var(--radius-2); border: 1px solid var(--border-1);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: var(--sp-4);">
+            <i data-lucide="sparkles" style="width: 16px; height: 16px; color: var(--accent);"></i>
+            <h3 style="margin: 0; font-size: var(--t-base); color: var(--text-1);">AI Remediation</h3>
+          </div>
+
+          {# Why was this flagged? #}
+          {% if ai_data.explanation %}
+          <div class="finding-detail" style="margin-bottom: var(--sp-3);">
+            <span class="finding-detail-label" style="color: var(--warning);">
+              <i data-lucide="alert-triangle" style="width: 12px; height: 12px; display: inline; vertical-align: -2px;"></i>
+              Why?
             </span>
+            <p style="margin: var(--sp-1) 0 0 0; color: var(--text-2); line-height: 1.6;">
+              {{ ai_data.explanation }}
+            </p>
           </div>
           {% endif %}
+
+          {# Remediation Steps #}
+          {% set steps = ai_data.get_remediation_steps() %}
+          {% if steps %}
+          <div class="finding-detail" style="margin-bottom: var(--sp-3);">
+            <span class="finding-detail-label" style="color: var(--success);">
+              <i data-lucide="check-circle" style="width: 12px; height: 12px; display: inline; vertical-align: -2px;"></i>
+              How to fix
+            </span>
+            <ol style="margin: var(--sp-2) 0 0 0; padding-left: 20px; color: var(--text-2); line-height: 1.8;">
+              {% for step in steps %}
+              <li style="margin-bottom: var(--sp-1);">{{ step }}</li>
+              {% endfor %}
+            </ol>
+          </div>
+          {% endif %}
+
+          {# Code Example #}
+          {% if ai_data.code_example %}
+          <div class="finding-detail">
+            <span class="finding-detail-label" style="color: var(--text-3);">
+              <i data-lucide="code" style="width: 12px; height: 12px; display: inline; vertical-align: -2px;"></i>
+              Code example
+            </span>
+            <pre class="code-block" style="margin-top: var(--sp-2); white-space: pre-wrap; font-size: 13px; line-height: 1.5;">{{ ai_data.code_example }}</pre>
+          </div>
+          {% endif %}
+
+          {# Ask AI button #}
+          <div style="margin-top: var(--sp-4); padding-top: var(--sp-3); border-top: 1px solid var(--border-1);">
+            <button class="btn btn--sm ai-ask-btn"
+                    data-vuln-id="{{ vuln.id }}"
+                    onclick="toggleAIChat(this)"
+                    type="button">
+              <i data-lucide="message-circle" style="width: 14px; height: 14px;"></i>
+              Ask AI about this finding
+            </button>
+
+            <div class="ai-chat-panel" id="ai-chat-{{ vuln.id }}" style="display: none; margin-top: var(--sp-3);">
+              <div class="ai-chat-messages" id="ai-messages-{{ vuln.id }}" style="max-height: 300px; overflow-y: auto; margin-bottom: var(--sp-2);">
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <input type="text"
+                       class="ai-chat-input"
+                       id="ai-input-{{ vuln.id }}"
+                       placeholder="e.g. How do I fix this in PHP?"
+                       style="flex: 1; padding: 8px 12px; border-radius: var(--radius-1); border: 1px solid var(--border-2); background: var(--surface-1); color: var(--text-1); font-size: 13px;"
+                       onkeydown="if(event.key==='Enter') sendAIQuestion({{ vuln.id }})">
+                <button class="btn btn--primary btn--sm"
+                        onclick="sendAIQuestion({{ vuln.id }})"
+                        type="button">
+                  <i data-lucide="send" style="width: 14px; height: 14px;"></i>
+                  Send
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
+        {% endif %}
+
       </div>
     </details>
     {% endfor %}
@@ -232,4 +287,63 @@
   {% endif %}
 </section>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleAIChat(btn) {
+  const vulnId = btn.dataset.vulnId;
+  const panel = document.getElementById('ai-chat-' + vulnId);
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    document.getElementById('ai-input-' + vulnId).focus();
+  } else {
+    panel.style.display = 'none';
+  }
+}
+
+function sendAIQuestion(vulnId) {
+  const input = document.getElementById('ai-input-' + vulnId);
+  const messages = document.getElementById('ai-messages-' + vulnId);
+  const question = input.value.trim();
+  if (!question) return;
+
+  // Show user message
+  const userMsg = document.createElement('div');
+  userMsg.style.cssText = 'margin-bottom: 8px; padding: 8px 12px; border-radius: 8px; background: var(--accent-soft); color: var(--text-1); font-size: 13px;';
+  userMsg.textContent = question;
+  messages.appendChild(userMsg);
+
+  // Show loading
+  const loadingMsg = document.createElement('div');
+  loadingMsg.style.cssText = 'margin-bottom: 8px; padding: 8px 12px; border-radius: 8px; background: var(--surface-1); color: var(--text-3); font-size: 13px; font-style: italic;';
+  loadingMsg.textContent = 'AI is thinking...';
+  messages.appendChild(loadingMsg);
+
+  input.value = '';
+  messages.scrollTop = messages.scrollHeight;
+
+  fetch('/ai/ask', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      question: question,
+      vulnerability_id: vulnId
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    loadingMsg.remove();
+    const aiMsg = document.createElement('div');
+    aiMsg.style.cssText = 'margin-bottom: 8px; padding: 8px 12px; border-radius: 8px; background: var(--surface-1); border: 1px solid var(--border-1); color: var(--text-2); font-size: 13px; white-space: pre-wrap; line-height: 1.5;';
+    aiMsg.textContent = data.answer || data.error || 'No response';
+    messages.appendChild(aiMsg);
+    messages.scrollTop = messages.scrollHeight;
+  })
+  .catch(err => {
+    loadingMsg.textContent = 'Error: ' + err.message;
+    loadingMsg.style.color = 'var(--danger)';
+  });
+}
+</script>
 {% endblock %}

@@ -18,5 +18,8 @@ COPY . .
 # Expose Flask port
 EXPOSE 5000
 
+# Remove any stale SQLite DB so schema is always recreated fresh on startup
+RUN rm -f /app/instance/scanner.db /app/scanner.db
+
 # Run the application
 CMD ["python", "run.py"]

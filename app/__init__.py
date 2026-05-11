@@ -44,9 +44,24 @@ def create_app(config_name=None):
             'ai_ready': os.path.isfile(model_path),
         }
 
-    # Create database tables
+    # Create database tables (with auto-recovery on schema mismatch)
     with app.app_context():
         from app import models  # noqa: F401
-        db.create_all()
+        from app.models.scan import Scan as _Scan
+        try:
+            db.create_all()
+            # Probe the actual DB columns against the ORM model to detect drift.
+            from sqlalchemy import inspect as sa_inspect
+            inspector = sa_inspect(db.engine)
+            if inspector.has_table('scans'):
+                db_cols = {col['name'] for col in inspector.get_columns('scans')}
+                model_cols = {c.key for c in _Scan.__table__.columns}
+                if db_cols != model_cols:
+                    # Schema mismatch — drop all tables and recreate fresh.
+                    db.drop_all()
+                    db.create_all()
+        except Exception:
+            db.drop_all()
+            db.create_all()
 
     return app

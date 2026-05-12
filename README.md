@@ -27,7 +27,7 @@ The scanner performs an end-to-end workflow:
 - **AI Chat Box**: Interactive Q&A panel for each vulnerability to help developers understand the risks.
 - **Automated Discovery**: High-performance crawling and form mapping.
 - **Precision Detection**: Rule-based engine with verified payload evidence.
-- **Modern Dashboard**: Dashboard with overview stats, risk distribution, and scan history.
+- **Modern Homepage**: Homepage with overview stats, risk distribution, and scan history.
 - **Dockerized**: Fully containerized environment for easy deployment.
 
 ---
@@ -55,7 +55,7 @@ DoAnII/
 │   ├── services/               # crawler, scanner, detector, ai_advisor
 │   ├── static/                 # CSS/JS/icons
 │   └── utils/                  # db init, logger, helpers
-├── templates/                  # Jinja2 templates (Dashboard, Results, Chat)
+├── templates/                  # Jinja2 templates (Homepage, Results, Chat)
 ├── tests/                      # Pytest suite
 ├── docker-compose.yml          # Container orchestration
 ├── Dockerfile                  # Web app image definition

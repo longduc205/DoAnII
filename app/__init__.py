@@ -5,6 +5,7 @@ AI Web Vulnerability Scanner - Flask Application Factory
 from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime, timezone
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -53,16 +54,63 @@ def create_app(config_name=None):
     @app.context_processor
     def inject_globals():
         from flask import session
+        from flask_login import current_user
         from app.services.ai_advisor import AIAdvisor
+        from app.models.scan import Scan
+        from app.models.task import Task
         
         # Priority: session > env config
         provider = session.get('ai_provider') or app.config.get('AI_PROVIDER', 'blackbox')
         advisor = AIAdvisor(provider=provider)
         
+        notifications = []
+        if current_user.is_authenticated:
+            # Fetch latest 5 scans
+            latest_scans = Scan.query.filter_by(user_id=current_user.id).order_by(Scan.started_at.desc()).limit(5).all()
+            for scan in latest_scans:
+                # Simple relative time logic
+                delta = datetime.now(timezone.utc) - scan.started_at.replace(tzinfo=timezone.utc)
+                if delta.total_seconds() < 60:
+                    time_str = "Just now"
+                elif delta.total_seconds() < 3600:
+                    time_str = f"{int(delta.total_seconds() // 60)} mins ago"
+                elif delta.total_seconds() < 86400:
+                    time_str = f"{int(delta.total_seconds() // 3600)} hrs ago"
+                else:
+                    time_str = scan.started_at.strftime('%b %d')
+
+                notifications.append({
+                    'type': 'scan',
+                    'title': f"Scan: {scan.target_url.split('//')[-1]}",
+                    'description': f"Status: {scan.status.capitalize()}",
+                    'time_str': time_str,
+                    'time_raw': scan.started_at,
+                    'status': scan.status,
+                    'url': f"/results/{scan.id}"
+                })
+            
+            # Fetch pending tasks (demo/real mix)
+            pending_tasks = Task.query.filter_by(status='pending').limit(3).all()
+            for task in pending_tasks:
+                notifications.append({
+                    'type': 'task',
+                    'title': task.title,
+                    'description': task.phase,
+                    'time_str': "Task Assigned",
+                    'time_raw': task.created_at,
+                    'status': 'info',
+                    'url': "/tasks/"
+                })
+            
+            # Sort by time desc
+            notifications.sort(key=lambda x: x['time_raw'], reverse=True)
+            notifications = notifications[:8]
+
         return {
             'ai_ready': advisor.is_available(),
             'ai_model_name': advisor.get_model_name(),
-            'ai_provider': provider
+            'ai_provider': provider,
+            'recent_notifications': notifications
         }
 
     # Create database tables (with auto-recovery on schema mismatch)

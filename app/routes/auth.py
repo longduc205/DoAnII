@@ -81,3 +81,17 @@ def logout():
         logout_user()
         flash('You have been signed out.', 'scan_success')
     return redirect(url_for('auth.login'))
+
+
+@auth_bp.route('/profile')
+def profile():
+    """Display user profile and statistics."""
+    if not current_user.is_authenticated:
+        return redirect(url_for('auth.login'))
+
+    # Simple statistics
+    total_scans = len(current_user.scans)
+
+    return render_template('profile.html',
+                           user=current_user,
+                           total_scans=total_scans)

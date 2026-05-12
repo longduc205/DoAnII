@@ -25,7 +25,7 @@ The interface should feel like a well-made instrument: precise, trustworthy, and
 ## Anti-references
 
 - **Hollywood hacker aesthetic.** No green-on-black terminals, no Matrix rain, no neon-on-dark "cyber" visuals. Security tools don't need to look dangerous to be taken seriously.
-- **Overcrowded dashboards.** No Grafana-style walls of charts competing for attention. This tool has a focused workflow, not a monitoring surface.
+- **Overcrowded Homepages.** No Grafana-style walls of charts competing for attention. This tool has a focused workflow, not a monitoring surface.
 - **Generic SaaS templates.** No hero-metric cards with big numbers and tiny labels. No identical card grids with icon + heading + description repeated six times.
 
 ## Design Principles

@@ -11,7 +11,7 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 # Routes (we resolve scan_id at runtime for /results)
 ROUTES = [
-    ('dashboard',     '/'),
+    ('Homepage',     '/'),
     ('scan',          '/scan/new'),
     ('history',       '/history/'),
     ('tasks',         '/tasks/'),

@@ -1,6 +1,6 @@
 /* Page-level layouts. Each route has a deliberate composition. */
 
-/* ---- Dashboard ---- */
+/* ---- Homepage ---- */
 .dash {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
@@ -12,7 +12,7 @@
 
 .dash-col { display: flex; flex-direction: column; gap: var(--sp-5); }
 
-/* Quick scan card, dashboard hero replacement */
+/* Quick scan card, Homepage hero replacement */
 .quick-scan {
   background: var(--surface-1);
   border: 1px solid var(--border-1);

@@ -51,7 +51,7 @@
                       "type": "text",
                       "id": "MjOSL",
                       "fill": "$foreground_inverse",
-                      "content": "Dashboard",
+                      "content": "Homepage",
                       "fontFamily": "$font_body",
                       "fontSize": 14,
                       "fontWeight": "normal"
@@ -123,7 +123,7 @@
                   "type": "text",
                   "id": "TiIdL",
                   "fill": "$foreground_inverse",
-                  "content": "Dashboard Overview",
+                  "content": "Homepage Overview",
                   "fontFamily": "$font_headings",
                   "fontSize": 18,
                   "fontWeight": "normal"
@@ -1012,7 +1012,7 @@
                       "type": "text",
                       "id": "LMaG8",
                       "fill": "$foreground_muted",
-                      "content": "Dashboard",
+                      "content": "Homepage",
                       "fontFamily": "$font_body",
                       "fontSize": 14,
                       "fontWeight": "normal"
@@ -1439,7 +1439,7 @@
                       "type": "text",
                       "id": "Os8O8",
                       "fill": "$foreground_muted",
-                      "content": "Dashboard",
+                      "content": "Homepage",
                       "fontFamily": "$font_body",
                       "fontSize": 14,
                       "fontWeight": "normal"
@@ -2013,7 +2013,7 @@
                       "id": "SB57Z",
                       "name": "rm1t",
                       "fill": "$foreground_muted",
-                      "content": "Dashboard",
+                      "content": "Homepage",
                       "fontFamily": "$font_body",
                       "fontSize": 14,
                       "fontWeight": "normal"
@@ -2688,7 +2688,7 @@
                       "id": "P13c0n",
                       "name": "m1t",
                       "fill": "$foreground_muted",
-                      "content": "Dashboard",
+                      "content": "Homepage",
                       "fontFamily": "$font_body",
                       "fontSize": 14,
                       "fontWeight": "normal"

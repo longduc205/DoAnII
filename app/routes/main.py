@@ -1,5 +1,5 @@
 """
-Main routes - Dashboard (Home page)
+Main routes - Homepage (Home page)
 """
 
 from flask import Blueprint, render_template, session, redirect, url_for, request
@@ -18,7 +18,7 @@ def set_ai_provider(provider):
 
 @main_bp.route('/')
 def index():
-    """Render the dashboard with overview stats and recent activity."""
+    """Render the Homepage with overview stats and recent activity."""
     total_scans = Scan.query.count()
     critical_vulns = Vulnerability.query.filter(
         Vulnerability.severity.in_(['high', 'critical'])
@@ -50,7 +50,7 @@ def index():
         'risk_other': risk_other,
     }
 
-    # Recent activity, last 8 scans for the dashboard list.
+    # Recent activity, last 8 scans for the Homepage list.
     recent_scans = Scan.query.order_by(Scan.started_at.desc()).limit(8).all()
 
     return render_template(

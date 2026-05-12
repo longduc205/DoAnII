@@ -59,7 +59,7 @@ Hệ thống được chia thành nhiều module rõ ràng, tuân theo mô hình
 - `/app/services`: Các thành phần logic chính: `crawler.py`, `scanner.py`, `detector.py`, `ai_advisor.py`.
 - `/data`: Chứa payloads cho SQLi, XSS.
 - `/tests`: Các kịch bản kiểm thử cho từng tính năng.
-- `/templates`: Chứa giao diện Dashboard, Report và AI Chat.
+- `/templates`: Chứa giao diện Homepage, Report và AI Chat.
 
 ## 6. 🚀 Các lệnh vận hành dự án
 

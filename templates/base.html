@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,11 +10,14 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
 
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body>
   <div class="shell">
 
@@ -31,22 +35,19 @@
 
       <nav class="shell-nav-group" aria-label="Workspace">
         <span class="shell-nav-label">Workspace</span>
-        <a href="{{ url_for('main.index') }}"
-           class="shell-nav-link"
-           {% if request.endpoint == 'main.index' %}aria-current="page"{% endif %}>
+        <a href="{{ url_for('main.index') }}" class="shell-nav-link" {% if request.endpoint=='main.index'
+          %}aria-current="page" {% endif %}>
           <i data-lucide="layout-dashboard"></i>
-          <span>Dashboard</span>
+          <span>Homepage</span>
         </a>
         {% if current_user.is_authenticated %}
-        <a href="{{ url_for('scan.new_scan') }}"
-           class="shell-nav-link"
-           {% if request.endpoint == 'scan.new_scan' %}aria-current="page"{% endif %}>
+        <a href="{{ url_for('scan.new_scan') }}" class="shell-nav-link" {% if request.endpoint=='scan.new_scan'
+          %}aria-current="page" {% endif %}>
           <i data-lucide="zap"></i>
           <span>New scan</span>
         </a>
-        <a href="{{ url_for('history.scan_history') }}"
-           class="shell-nav-link"
-           {% if request.endpoint in ['history.scan_history', 'results.show_results'] %}aria-current="page"{% endif %}>
+        <a href="{{ url_for('history.scan_history') }}" class="shell-nav-link" {% if request.endpoint in
+          ['history.scan_history', 'results.show_results' ] %}aria-current="page" {% endif %}>
           <i data-lucide="history"></i>
           <span>Scan history</span>
         </a>
@@ -60,9 +61,8 @@
 
       <nav class="shell-nav-group" aria-label="Project">
         <span class="shell-nav-label">Project</span>
-        <a href="{{ url_for('tasks.task_list') }}"
-           class="shell-nav-link"
-           {% if request.endpoint and request.endpoint.startswith('tasks.') %}aria-current="page"{% endif %}>
+        <a href="{{ url_for('tasks.task_list') }}" class="shell-nav-link" {% if request.endpoint and
+          request.endpoint.startswith('tasks.') %}aria-current="page" {% endif %}>
           <i data-lucide="check-square"></i>
           <span>Tasks</span>
         </a>
@@ -71,18 +71,17 @@
       <div class="shell-sidebar-foot">
         <span class="shell-nav-label" style="padding-left: 0;">AI PROVIDER</span>
         <div class="ai-provider-toggle">
-          <a href="{{ url_for('main.set_ai_provider', provider='blackbox') }}" 
-             class="toggle-btn {{ 'is-active' if ai_provider == 'blackbox' else '' }}">
+          <a href="{{ url_for('main.set_ai_provider', provider='blackbox') }}"
+            class="toggle-btn {{ 'is-active' if ai_provider == 'blackbox' else '' }}">
             Blackbox
           </a>
-          <a href="{{ url_for('main.set_ai_provider', provider='gemini') }}" 
-             class="toggle-btn {{ 'is-active' if ai_provider == 'gemini' else '' }}">
+          <a href="{{ url_for('main.set_ai_provider', provider='gemini') }}"
+            class="toggle-btn {{ 'is-active' if ai_provider == 'gemini' else '' }}">
             Gemini
           </a>
         </div>
-        <span class="ai-pill"
-              data-state="{{ 'ready' if ai_ready else 'missing' }}"
-              title="Currently using: {{ ai_model_name }}">
+        <span class="ai-pill" data-state="{{ 'ready' if ai_ready else 'missing' }}"
+          title="Currently using: {{ ai_model_name }}">
           <i data-lucide="cpu" style="width: 14px; height: 14px;"></i>
           {{ ai_model_name }}
         </span>
@@ -95,20 +94,103 @@
       <header class="shell-header">
         <div class="shell-header-title">
           {% block crumb %}
-            <a href="{{ url_for('main.index') }}" style="color: var(--text-3);">Workspace</a>
-            <span aria-hidden="true" style="color: var(--text-4);">/</span>
-            <strong>{% block crumb_label %}—{% endblock %}</strong>
+          <strong class="breadcrumb-item active">{% block crumb_label %}—{% endblock %}</strong>
           {% endblock %}
         </div>
+
+        <div class="shell-header-center">
+          <button class="header-cmd-btn" aria-label="Open command palette">
+            <i data-lucide="search"></i>
+            <span>Search or type a command...</span>
+            <span class="kbd-hint"><kbd>Ctrl</kbd> <kbd>K</kbd></span>
+          </button>
+        </div>
+
         <div class="shell-header-actions">
+          <div class="notification-wrapper" id="notification-wrapper">
+            <button class="header-action-btn" id="notification-trigger" aria-label="Notifications">
+              <i data-lucide="bell"></i>
+              <span class="notification-dot" id="notification-dot"></span>
+            </button>
+
+            <div class="notification-popover">
+              <div class="popover-header">
+                <h3>Notifications</h3>
+                <button class="btn-text-only" id="mark-all-read">Mark all read</button>
+              </div>
+              <div class="popover-content">
+                {% if recent_notifications %}
+                  {% for n in recent_notifications %}
+                  <a href="{{ n.url }}" class="notification-item {% if n.status == 'unread' %}unread{% endif %}">
+                    <div class="notification-icon {{ n.status if n.type == 'scan' else 'info' }}">
+                      {% if n.type == 'scan' %}
+                        <i data-lucide="{{ 'check-circle' if n.status == 'completed' else 'alert-triangle' if n.status == 'failed' else 'zap' }}"></i>
+                      {% else %}
+                        <i data-lucide="clipboard-list"></i>
+                      {% endif %}
+                    </div>
+                    <div class="notification-body">
+                      <p>{{ n.title }}</p>
+                      <span class="text-dim">{{ n.description }} • {{ n.time_str }}</span>
+                    </div>
+                  </a>
+                  {% endfor %}
+                {% else %}
+                  <div class="empty-state" style="padding: var(--sp-6);">
+                    <i data-lucide="bell-off"></i>
+                    <p>No recent activity</p>
+                  </div>
+                {% endif %}
+              </div>
+              <div class="popover-footer">
+                <a href="{{ url_for('history.scan_history') }}">View all activity</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="header-divider"></div>
+
           {% if current_user.is_authenticated %}
-            <span style="color: var(--text-3); margin-right: 10px;">{{ current_user.username }}</span>
-            <form method="post" action="{{ url_for('auth.logout') }}" style="display: inline;">
-              <button class="btn btn-ghost" type="submit">Logout</button>
-            </form>
+          <div class="user-profile-wrapper" id="user-profile-dropdown">
+            <button class="user-profile-trigger" aria-label="User menu">
+              <div class="user-avatar" title="{{ current_user.username }}">
+                {{ current_user.username[:1].upper() }}
+              </div>
+              <div class="user-meta">
+                <span class="user-name">{{ current_user.username }}</span>
+                <span class="user-status">Online</span>
+              </div>
+              <i data-lucide="chevron-down" class="dropdown-chevron"></i>
+            </button>
+
+            <div class="user-dropdown">
+              <div class="dropdown-header">
+                <strong>{{ current_user.username }}</strong>
+                <span>{{ current_user.email }}</span>
+              </div>
+              <div class="dropdown-divider"></div>
+              <a href="{{ url_for('auth.profile') }}" class="dropdown-item">
+                <i data-lucide="user"></i>
+                <span>View Profile</span>
+              </a>
+              <a href="#" class="dropdown-item">
+                <i data-lucide="settings"></i>
+                <span>Account Settings</span>
+              </a>
+              <div class="dropdown-divider"></div>
+              <form method="post" action="{{ url_for('auth.logout') }}">
+                <button class="dropdown-item logout-item" type="submit">
+                  <i data-lucide="log-out"></i>
+                  <span>Logout</span>
+                </button>
+              </form>
+            </div>
+          </div>
           {% else %}
+          <div class="auth-actions">
             <a class="btn btn-ghost" href="{{ url_for('auth.login') }}">Login</a>
             <a class="btn btn-primary" href="{{ url_for('auth.register') }}">Register</a>
+          </div>
           {% endif %}
           {% block header_actions %}
           {% endblock %}
@@ -125,26 +207,25 @@
   {# Toast stack, server-rendered via flash messages #}
   <div class="toast-stack" role="region" aria-live="polite" aria-label="Notifications">
     {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for category, message in messages %}
-        {% if category in ['scan_success', 'scan_error'] %}
-        <div class="toast toast--{{ 'success' if category == 'scan_success' else 'error' }}"
-             role="alert"
-             data-auto-dismiss="5000">
-          <span class="toast-icon">
-            <i data-lucide="{{ 'check' if category == 'scan_success' else 'alert-triangle' }}"></i>
-          </span>
-          <div class="toast-body">
-            <p class="toast-title">
-              {{ 'Scan complete' if category == 'scan_success' else 'Scan failed' }}
-            </p>
-            <p class="toast-message">{{ message }}</p>
-          </div>
-          <button class="toast-close" aria-label="Dismiss" type="button">
-            <i data-lucide="x"></i>
-          </button>
-        </div>
-        {% endif %}
-      {% endfor %}
+    {% for category, message in messages %}
+    {% if category in ['scan_success', 'scan_error'] %}
+    <div class="toast toast--{{ 'success' if category == 'scan_success' else 'error' }}" role="alert"
+      data-auto-dismiss="5000">
+      <span class="toast-icon">
+        <i data-lucide="{{ 'check' if category == 'scan_success' else 'alert-triangle' }}"></i>
+      </span>
+      <div class="toast-body">
+        <p class="toast-title">
+          {{ 'Scan complete' if category == 'scan_success' else 'Scan failed' }}
+        </p>
+        <p class="toast-message">{{ message }}</p>
+      </div>
+      <button class="toast-close" aria-label="Dismiss" type="button">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+    {% endif %}
+    {% endfor %}
     {% endwith %}
   </div>
 
@@ -157,5 +238,54 @@
     }
   </script>
   {% block scripts %}{% endblock %}
+
+  {# Command Palette Modal #}
+  <div class="command-palette-overlay" id="command-palette">
+    <div class="command-palette-modal">
+      <div class="command-palette-search">
+        <i data-lucide="search"></i>
+        <input type="text" placeholder="Type a command or search..." id="command-palette-input" spellcheck="false" autocomplete="off">
+        <kbd>ESC</kbd>
+      </div>
+      <div class="command-palette-results" id="command-palette-results">
+        <div class="command-group">
+          <span class="command-group-label">Navigation</span>
+          <a href="{{ url_for('main.index') }}" class="command-item">
+            <div class="command-icon"><i data-lucide="layout-dashboard"></i></div>
+            <span>Go to Homepage</span>
+            <kbd class="enter-kbd">↵</kbd>
+          </a>
+          <a href="{{ url_for('scan.new_scan') }}" class="command-item">
+            <div class="command-icon"><i data-lucide="zap"></i></div>
+            <span>Launch New Scan</span>
+          </a>
+          <a href="{{ url_for('history.scan_history') }}" class="command-item">
+            <div class="command-icon"><i data-lucide="history"></i></div>
+            <span>View Scan History</span>
+          </a>
+          <a href="{{ url_for('tasks.task_list') }}" class="command-item">
+            <div class="command-icon"><i data-lucide="check-square"></i></div>
+            <span>Project Tasks</span>
+          </a>
+        </div>
+        <div class="command-group">
+          <span class="command-group-label">Account</span>
+          <a href="{{ url_for('auth.profile') }}" class="command-item">
+            <div class="command-icon"><i data-lucide="user"></i></div>
+            <span>View My Profile</span>
+          </a>
+          <a href="#" class="command-item">
+            <div class="command-icon"><i data-lucide="settings"></i></div>
+            <span>Account Settings</span>
+          </a>
+        </div>
+      </div>
+      <div class="command-palette-footer">
+        <span><kbd>↑↓</kbd> to navigate</span>
+        <span><kbd>↵</kbd> to select</span>
+      </div>
+    </div>
+  </div>
 </body>
+
 </html>

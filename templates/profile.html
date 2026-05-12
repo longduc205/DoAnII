@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}User Profile — Sentinel Scanner{% endblock %}
+
+{% block crumb_label %}Profile{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="page-head">
+        <div class="page-head-meta">
+            <h1>User Account</h1>
+            <p class="text-muted">Manage your personal information and view account statistics.</p>
+        </div>
+    </div>
+
+    <div class="profile-grid">
+        {# Left: User Card #}
+        <div class="profile-card panel">
+            <div class="profile-card-header">
+                <div class="profile-avatar-large">
+                    {{ user.username[:1].upper() }}
+                </div>
+                <div class="profile-identity">
+                    <h2>{{ user.username }}</h2>
+                    <p class="text-dim">Sentinel Researcher</p>
+                </div>
+                <div class="status-badge" data-state="ready">Active</div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="profile-details">
+                <div class="detail-item">
+                    <span class="detail-label">Email Address</span>
+                    <span class="detail-value">{{ user.email }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Member Since</span>
+                    <span class="detail-value text-tnum">{{ user.created_at.strftime('%B %d, %Y') }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Account ID</span>
+                    <span class="detail-value text-mono">#USR-{{ "%04d" | format(user.id) }}</span>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <button class="btn btn-ghost" style="width: 100%;">
+                    <i data-lucide="edit-3"></i>
+                    Edit Profile
+                </button>
+            </div>
+        </div>
+
+        {# Right: Statistics & Activity #}
+        <div class="profile-main">
+            <div class="stats-row">
+                <div class="stat-card panel">
+                    <div class="stat-icon">
+                        <i data-lucide="zap"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Scans</span>
+                        <span class="stat-value text-tnum">{{ total_scans }}</span>
+                    </div>
+                </div>
+                <div class="stat-card panel">
+                    <div class="stat-icon" style="color: var(--accent);">
+                        <i data-lucide="shield-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Security Score</span>
+                        <span class="stat-value">A+</span>
+                    </div>
+                </div>
+                <div class="stat-card panel">
+                    <div class="stat-icon" style="color: var(--success);">
+                        <i data-lucide="activity"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">System Access</span>
+                        <span class="stat-value">Level 4</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel mt-6">
+                <div class="panel-head">
+                    <h3>Recent Activity</h3>
+                </div>
+                {% if user.scans %}
+                <div class="activity-list">
+                    {% for scan in user.scans[:5] %}
+                    <div class="activity-item">
+                        <div class="activity-mark"></div>
+                        <div class="activity-content">
+                            <p>Performed a scan on <strong>{{ scan.target_url }}</strong></p>
+                            <span class="text-dim text-tnum">{{ scan.started_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                        </div>
+                        <a href="{{ url_for('results.show_results', scan_id=scan.id) }}" class="btn btn-ghost btn-sm">View</a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state" style="padding: var(--sp-8);">
+                    <i data-lucide="inbox"></i>
+                    <p>No recent activity found.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-container { max-width: 1000px; margin: 0 auto; }
+.profile-grid { display: grid; grid-template-columns: 320px 1fr; gap: var(--sp-6); align-items: start; }
+
+.profile-card { padding: var(--sp-6); position: sticky; top: calc(var(--shell-header) + var(--sp-6)); }
+.profile-card-header { display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--sp-4); }
+
+.profile-avatar-large {
+    width: 80px; height: 80px; border-radius: 20px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    color: white; display: flex; align-items: center; justify-content: center;
+    font-size: 32px; font-weight: var(--fw-700);
+    box-shadow: 0 12px 32px var(--accent-glow);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-identity h2 { margin: 0; font-size: var(--fs-20); color: var(--text-1); }
+
+.status-badge {
+    padding: 4px 10px; border-radius: var(--r-pill); font-size: 11px; font-weight: var(--fw-700);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    background: var(--success-soft); color: var(--success); border: 1px solid var(--success-soft);
+}
+
+.profile-details { display: flex; flex-direction: column; gap: var(--sp-4); }
+.detail-item { display: flex; flex-direction: column; gap: 4px; }
+.detail-label { font-size: 11px; color: var(--text-4); text-transform: uppercase; font-weight: var(--fw-600); letter-spacing: 0.05em; }
+.detail-value { font-size: 14px; color: var(--text-2); }
+
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4); }
+.stat-card { padding: var(--sp-5); display: flex; align-items: center; gap: var(--sp-4); }
+.stat-icon { 
+    width: 40px; height: 40px; border-radius: 10px; background: var(--surface-2);
+    display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--text-3);
+}
+.stat-icon svg { width: 20px; height: 20px; }
+.stat-info { display: flex; flex-direction: column; line-height: 1.2; }
+.stat-label { font-size: 12px; color: var(--text-4); }
+.stat-value { font-size: 18px; font-weight: var(--fw-700); color: var(--text-1); }
+
+.activity-list { display: flex; flex-direction: column; }
+.activity-item { 
+    display: flex; align-items: center; gap: var(--sp-4); padding: var(--sp-4) var(--sp-5);
+    border-bottom: 1px solid var(--border-1); transition: background 0.2s;
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-item:hover { background: var(--surface-0); }
+.activity-mark { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.activity-content { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.activity-content p { margin: 0; font-size: 14px; color: var(--text-2); }
+.activity-content span { font-size: 12px; }
+
+@media (max-width: 800px) {
+    .profile-grid { grid-template-columns: 1fr; }
+    .profile-card { position: static; }
+    .stats-row { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}

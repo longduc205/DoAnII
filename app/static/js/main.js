@@ -9,8 +9,119 @@ document.addEventListener('DOMContentLoaded', () => {
   initHistoryTable();
   initFindingExpand();
   initCustomSelects();
+  initUserDropdown();
+  initNotifications();
+  initCommandPalette();
   exposeDeleteScan();
 });
+
+/* -------------------------------------------------------------------------
+   User Dropdown: toggle visibility of the profile menu.
+   -------------------------------------------------------------------------*/
+function initUserDropdown() {
+  const container = document.getElementById('user-profile-dropdown');
+  if (!container) return;
+
+  const trigger = container.querySelector('.user-profile-trigger');
+  if (!trigger) return;
+
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    container.classList.toggle('is-open');
+    // Close others
+    document.getElementById('notification-wrapper')?.classList.remove('is-open');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!container.contains(e.target)) {
+      container.classList.remove('is-open');
+    }
+  });
+}
+
+/* -------------------------------------------------------------------------
+   Notifications: toggle popover visibility.
+   -------------------------------------------------------------------------*/
+function initNotifications() {
+  const wrapper = document.getElementById('notification-wrapper');
+  if (!wrapper) return;
+
+  const trigger = document.getElementById('notification-trigger');
+  if (!trigger) return;
+
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    wrapper.classList.toggle('is-open');
+    // Close others
+    document.getElementById('user-profile-dropdown')?.classList.remove('is-open');
+  });
+
+  // Mark all as read simulation
+  const markReadBtn = document.getElementById('mark-all-read');
+  const dot = document.getElementById('notification-dot');
+  if (markReadBtn) {
+    markReadBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      wrapper.querySelectorAll('.notification-item').forEach(i => i.classList.remove('unread'));
+      if (dot) dot.style.display = 'none';
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!wrapper.contains(e.target)) {
+      wrapper.classList.remove('is-open');
+    }
+  });
+}
+
+/* -------------------------------------------------------------------------
+   Command Palette: modal logic and shortcut support.
+   -------------------------------------------------------------------------*/
+function initCommandPalette() {
+  const palette = document.getElementById('command-palette');
+  const input = document.getElementById('command-palette-input');
+  const trigger = document.querySelector('.header-cmd-btn');
+  const items = Array.from(palette?.querySelectorAll('.command-item') || []);
+
+  if (!palette || !input || !trigger) return;
+
+  function open() {
+    palette.classList.add('is-open');
+    input.value = '';
+    // Re-show all items
+    items.forEach(i => i.style.display = 'flex');
+    if (window.lucide) lucide.createIcons({ nodes: [palette] });
+    setTimeout(() => input.focus(), 100);
+  }
+
+  function close() {
+    palette.classList.remove('is-open');
+  }
+
+  trigger.addEventListener('click', open);
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      open();
+    }
+    if (e.key === 'Escape' && palette.classList.contains('is-open')) {
+      close();
+    }
+  });
+
+  palette.addEventListener('click', (e) => {
+    if (e.target === palette) close();
+  });
+
+  input.addEventListener('input', () => {
+    const q = input.value.toLowerCase().trim();
+    items.forEach(item => {
+      const text = item.textContent.toLowerCase();
+      item.style.display = text.includes(q) ? 'flex' : 'none';
+    });
+  });
+}
 
 /* -------------------------------------------------------------------------
    Scan form: show inline progress, then let the form submit normally so
@@ -27,8 +138,26 @@ function initScanForm() {
   const stepEls = Array.from(document.querySelectorAll('#scan-steps .step'));
 
   form.addEventListener('submit', () => {
-    // Don't preventDefault; we want the browser to actually POST and let
-    // Flask's synchronous scanner run, then 302 to results.
+    // Determine which modules are enabled to show in progress
+    const enabledModules = {
+      sqli: form.elements['test_sqli']?.checked,
+      xss: form.elements['test_xss']?.checked,
+      ai: form.elements['use_ai']?.checked
+    };
+
+    // Filter progress steps
+    stepEls.forEach(step => {
+      const type = step.dataset.step;
+      if (type === 'crawl') return; // Always crawl
+      if (!enabledModules[type]) {
+        step.style.display = 'none';
+        step.classList.add('is-skipped');
+      } else {
+        step.style.display = 'flex';
+        step.classList.remove('is-skipped');
+      }
+    });
+
     if (progress) {
       progress.hidden = false;
       progress.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -44,32 +173,41 @@ function initScanForm() {
       submitBtn.setAttribute('aria-disabled', 'true');
     }
 
-    animateSteps(stepEls, progressFill);
+    // Only animate steps that are NOT skipped
+    const visibleSteps = Array.from(stepEls).filter(s => !s.classList.contains('is-skipped'));
+    animateSteps(visibleSteps, progressFill);
   });
 }
 
 /* Animate steps as a *visual estimate* while the synchronous scan runs. */
-function animateSteps(stepEls, progressFill) {
-  if (!stepEls.length) return;
+function animateSteps(visibleSteps, progressFill) {
+  if (!visibleSteps.length) return;
 
   let idx = 0;
-  const total = stepEls.length;
+  const total = visibleSteps.length;
 
   function tick() {
-    if (idx > 0) stepEls[idx - 1].classList.replace('step--active', 'step--done');
+    if (idx > 0) visibleSteps[idx - 1].classList.replace('step--active', 'step--done');
     if (idx < total) {
-      stepEls[idx].classList.add('step--active');
+      visibleSteps[idx].classList.add('step--active');
       const pct = ((idx + 0.7) / total) * 100;
       if (progressFill) progressFill.style.width = pct + '%';
       idx++;
-      // Steps don't all take the same time; bias toward crawl + SQLi.
-      const delays = [1100, 1800, 1400, 900];
-      setTimeout(tick, delays[Math.min(idx - 1, delays.length - 1)]);
+      
+      // Dynamic delay based on step type
+      const stepType = visibleSteps[idx - 1].dataset.step;
+      let delay = 1200;
+      if (stepType === 'crawl') delay = 1500;
+      if (stepType === 'sqli') delay = 2000;
+      if (stepType === 'xss') delay = 1800;
+      if (stepType === 'ai') delay = 1000;
+
+      setTimeout(tick, delay);
     } else {
-      // Hold near 100% until the server response arrives (page navigates away).
       if (progressFill) progressFill.style.width = '95%';
     }
   }
+
   tick();
 }
 

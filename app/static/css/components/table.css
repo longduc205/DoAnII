@@ -136,7 +136,7 @@
   position: relative;
 }
 
-/* Compact list, used in dashboard right column */
+/* Compact list, used in Homepage right column */
 .list {
   display: flex;
   flex-direction: column;

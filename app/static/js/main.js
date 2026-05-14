@@ -4,7 +4,6 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  initScanForm();
   initToasts();
   initHistoryTable();
   initFindingExpand();
@@ -124,92 +123,9 @@ function initCommandPalette() {
 }
 
 /* -------------------------------------------------------------------------
-   Scan form: show inline progress, then let the form submit normally so
-   Flask can run the scan and redirect to /results.
+   Scan form: handled inline in scan.html (premium overlay).
    -------------------------------------------------------------------------*/
-function initScanForm() {
-  const form = document.getElementById('scan-form');
-  if (!form) return;
 
-  const progress = document.getElementById('scan-progress');
-  const progressFill = document.getElementById('scan-progress-fill');
-  const progressTarget = document.getElementById('scan-progress-target');
-  const submitBtn = document.getElementById('btn-launch-scan');
-  const stepEls = Array.from(document.querySelectorAll('#scan-steps .step'));
-
-  form.addEventListener('submit', () => {
-    // Determine which modules are enabled to show in progress
-    const enabledModules = {
-      sqli: form.elements['test_sqli']?.checked,
-      xss: form.elements['test_xss']?.checked,
-      ai: form.elements['use_ai']?.checked
-    };
-
-    // Filter progress steps
-    stepEls.forEach(step => {
-      const type = step.dataset.step;
-      if (type === 'crawl') return; // Always crawl
-      if (!enabledModules[type]) {
-        step.style.display = 'none';
-        step.classList.add('is-skipped');
-      } else {
-        step.style.display = 'flex';
-        step.classList.remove('is-skipped');
-      }
-    });
-
-    if (progress) {
-      progress.hidden = false;
-      progress.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    if (progressTarget) {
-      const url = form.elements['target_url']?.value || '';
-      progressTarget.textContent = 'Target: ' + url;
-    }
-
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.setAttribute('aria-disabled', 'true');
-    }
-
-    // Only animate steps that are NOT skipped
-    const visibleSteps = Array.from(stepEls).filter(s => !s.classList.contains('is-skipped'));
-    animateSteps(visibleSteps, progressFill);
-  });
-}
-
-/* Animate steps as a *visual estimate* while the synchronous scan runs. */
-function animateSteps(visibleSteps, progressFill) {
-  if (!visibleSteps.length) return;
-
-  let idx = 0;
-  const total = visibleSteps.length;
-
-  function tick() {
-    if (idx > 0) visibleSteps[idx - 1].classList.replace('step--active', 'step--done');
-    if (idx < total) {
-      visibleSteps[idx].classList.add('step--active');
-      const pct = ((idx + 0.7) / total) * 100;
-      if (progressFill) progressFill.style.width = pct + '%';
-      idx++;
-      
-      // Dynamic delay based on step type
-      const stepType = visibleSteps[idx - 1].dataset.step;
-      let delay = 1200;
-      if (stepType === 'crawl') delay = 1500;
-      if (stepType === 'sqli') delay = 2000;
-      if (stepType === 'xss') delay = 1800;
-      if (stepType === 'ai') delay = 1000;
-
-      setTimeout(tick, delay);
-    } else {
-      if (progressFill) progressFill.style.width = '95%';
-    }
-  }
-
-  tick();
-}
 
 /* -------------------------------------------------------------------------
    Toasts, server-rendered. Wire up close button + auto-dismiss.

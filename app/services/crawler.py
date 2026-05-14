@@ -58,11 +58,17 @@ class CrawlerService:
         logger.info("Starting crawl: %s (depth=%d, max_pages=%d)",
                     self.base_url, self.max_depth, self.max_pages)
 
-        # If we are targeting DVWA login page, start crawling from index.php after login
+        # If we are targeting DVWA, start crawling from index.php after login to ensure we find all links
         start_url = self.base_url
         if "login.php" in self.base_url:
             start_url = self.base_url.replace("login.php", "index.php")
-            logger.info("DVWA login page detected. Starting crawl from: %s", start_url)
+            logger.info("DVWA login page target detected. Re-routing start to: %s", start_url)
+        elif self.base_url.endswith('/') or self.base_url.count('/') == 2:
+            # It's a root URL like http://dvwa or http://dvwa/
+            # For DVWA, we want to jump straight to index.php to avoid redirect issues
+            if "dvwa" in self.base_url.lower():
+                start_url = self.base_url.rstrip('/') + "/index.php"
+                logger.info("DVWA root target detected. Re-routing start to: %s", start_url)
 
         queue = deque([(start_url, 0)])
 

@@ -111,8 +111,9 @@
 ### Ngày 18-20: Web Interface (Flask UI)
 - [x] **📝 Code**: Xây dựng giao diện cơ bản (Base layout, Dashboard, Scan Config, History).
 
-### Ngày 21-24: Web Crawler Implementation
-- [x] **📝 Code**: Hoàn thiện `app/services/crawler.py` (BFS traversal, extract links, forms).
+### Ngày 21-24: Web Crawler & Session Management Implementation
+- [x] **📝 Code**: Hoàn thiện `app/utils/http_client.py` (Session management, DVWA auto-login, CSRF token handling).
+- [x] **📝 Code**: Hoàn thiện `app/services/crawler.py` (BFS traversal, extract links, forms, filtering static assets).
 
 ### Ngày 25-28: SQL Injection Detection
 - [x] **📝 Code**: Hoàn thiện `app/services/detector.py` (Error-based & Response length SQLi).
@@ -129,10 +130,11 @@
 
 > **Mục đích**: Tích hợp LLM để cung cấp lời khuyên bảo mật và chat Q&A.
 
-### Ngày 36-37: Prompt Engineering & API Setup
-- [x] **🎯 Học**: Xây dựng prompt hiệu quả để AI đóng vai trò Security Expert.
-- [x] **📝 Code**: Thiết lập kết nối API (sử dụng thư viện `requests` gọi đến Blackbox AI).
-- [x] **📝 Code**: Xây dựng template JSON output mong muốn (Explanation, Remediation Steps, Code Example).
+### Ngày 36-37: Multi-Model AI Setup & Prompt Engineering
+- [x] **🎯 Học**: Xây dựng prompt hiệu quả để AI đóng vai trò Security Expert (JSON output format).
+- [x] **📝 Code**: Thiết lập kết nối đa mô hình (Google Gemini SDK & Blackbox AI API).
+- [x] **📝 Code**: Cấu hình API keys và provider selection trong `.env`.
+- [x] **📝 Code**: Xây dựng template JSON output (Explanation, Remediation Steps, Code Example).
 
 ### Ngày 38-39: AI Advisor Service Implementation
 - [x] **📝 Code**: Hoàn thiện `app/services/ai_advisor.py`.
@@ -146,9 +148,9 @@
 - [x] **📝 Code**: Cập nhật logic Javascript để gửi tin nhắn chat và render kết quả dạng Markdown/HTML.
 
 ### Ngày 42: End-to-End AI Testing
-- [x] **📝 Test**: Kiểm tra luồng scan với AI kích hoạt.
-  - Verify AI phân tích chính xác payload.
-  - Verify chat panel hoạt động tốt khi đặt câu hỏi tùy chỉnh.
+- [x] **📝 Test**: Kiểm tra luồng scan với AI kích hoạt (Cả Gemini và Blackbox).
+  - [x] Verify AI phân tích chính xác payload và evidence.
+  - [x] Verify chat panel hoạt động tốt khi đặt câu hỏi tùy chỉnh (Context-aware).
 
 ### 📌 Phase 4 Deliverables
 - [x] AI Advisor module hoạt động ổn định.
@@ -162,17 +164,17 @@
 > **Mục đích**: Testing hệ thống, thu thập kết quả, đánh giá
 
 ### Ngày 43-44: Functional Testing
-- [ ] **📝 Test**: Test từng chức năng
-  - ✅ Crawler discovers pages & forms correctly
-  - ✅ SQLi & XSS detection finds known vulnerabilities
-  - ✅ AI provides relevant and accurate security advice
-  - ✅ Report generation and History work
-- [ ] **📝 Ghi lại**: Kết quả testing vào bảng
+- [x] **📝 Test**: Test từng chức năng
+  - [x] ✅ Crawler discovers pages & forms correctly (with auth support)
+  - [x] ✅ SQLi & XSS detection finds known vulnerabilities (on DVWA)
+  - [x] ✅ AI provides relevant and accurate security advice (Multi-model)
+  - [x] ✅ Report generation and History work (CRUD operations)
+- [/] **📝 Ghi lại**: Kết quả testing vào bảng và báo cáo.
 
 ### Ngày 45-46: Performance Evaluation
-- [ ] **📝 Test**: Test trên multiple targets (DVWA)
+- [/] **📝 Test**: Test trên multiple targets (DVWA Low/Medium/High)
 - [ ] **📝 Đánh giá**: Scanner performance (True Positives, False Positives).
-- [ ] **📝 Đánh giá**: Chất lượng phản hồi của AI (Độ chính xác, tính hữu ích của code examples).
+- [x] **📝 Đánh giá**: Chất lượng phản hồi của AI (Gemini vs Blackbox).
 
 ### Ngày 47-48: Strengths & Limitations Analysis
 - [ ] **📝 Viết**: Điểm mạnh (Tích hợp AI Q&A, tự động hóa cao).
@@ -198,10 +200,10 @@
 |------|-------|-----------|--------|
 | 1-2  | Phase 1 | Literature Review & Theory | `[x]` |
 | 3    | Phase 2 | Requirements & Design | `[x]` |
-| 4-5  | Phase 3a | Web UI + Crawler | `[x]` |
+| 4-5  | Phase 3a | Web UI + Crawler + Auth | `[x]` |
 | 6    | Phase 3b | SQLi/XSS Detection | `[x]` |
-| 7    | Phase 4 | AI Remediation & Chat | `[x]` |
-| 8    | Phase 5 | Testing & Evaluation | `[ ]` |
+| 7    | Phase 4 | AI Remediation & Multi-model Chat | `[x]` |
+| 8    | Phase 5 | Testing & Evaluation | `[/]` |
 | 9    | Phase 6 | Report & Presentation | `[ ]` |
 
 ---

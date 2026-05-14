@@ -358,46 +358,588 @@
   </aside>
 </div>
 
-{# ---- Inline progress overlay, shown while scan request is in-flight ---- #}
-<div class="scan-progress" id="scan-progress" hidden
-     role="status"
-     aria-live="polite"
-     style="margin-top: var(--sp-7);">
-  <div class="progress-strip">
-    <span class="progress-strip-icon">
-      <i data-lucide="loader-2"></i>
-    </span>
-    <div class="progress-strip-body">
-      <span class="progress-strip-title">Scanning in progress</span>
-      <span class="progress-strip-sub" id="scan-progress-target">Target:</span>
-      <div class="progress-bar" aria-hidden="true">
-        <div class="progress-bar-fill" id="scan-progress-fill" style="width: 0%;"></div>
+{# ---- Premium Scan Progress Overlay ---- #}
+<div class="scan-overlay" id="scan-progress" hidden>
+  <div class="scan-overlay-backdrop"></div>
+  <div class="scan-overlay-content">
+
+    {# Animated Scanner Orb #}
+    <div class="scanner-orb">
+      <div class="scanner-orb-ring scanner-orb-ring--1"></div>
+      <div class="scanner-orb-ring scanner-orb-ring--2"></div>
+      <div class="scanner-orb-ring scanner-orb-ring--3"></div>
+      <div class="scanner-orb-core">
+        <i data-lucide="shield-check"></i>
+      </div>
+      <div class="scanner-orb-pulse"></div>
+    </div>
+
+    {# Status Text #}
+    <div class="scan-overlay-status">
+      <h2 class="scan-overlay-title">Scanning in progress</h2>
+      <p class="scan-overlay-target" id="scan-progress-target">—</p>
+    </div>
+
+    {# Progress Bar #}
+    <div class="scan-overlay-bar-wrapper">
+      <div class="scan-overlay-bar">
+        <div class="scan-overlay-bar-fill" id="scan-progress-fill"></div>
+        <div class="scan-overlay-bar-glow" id="scan-progress-glow"></div>
+      </div>
+      <div class="scan-overlay-bar-meta">
+        <span class="scan-overlay-percent" id="scan-progress-pct">0%</span>
+        <span class="scan-overlay-elapsed" id="scan-elapsed">00:00</span>
       </div>
     </div>
-  </div>
 
-  <div class="panel" style="margin-top: var(--sp-3);">
-    <div class="panel-body">
-      <ol class="steps" id="scan-steps">
-        <li class="step" data-step="crawl">
-          <span class="step-marker"><i data-lucide="check"></i></span>
-          <span>Crawling target, discovering pages and forms.</span>
-        </li>
-        <li class="step" data-step="sqli">
-          <span class="step-marker"><i data-lucide="check"></i></span>
-          <span>Testing SQL Injection vectors.</span>
-        </li>
-        <li class="step" data-step="xss">
-          <span class="step-marker"><i data-lucide="check"></i></span>
-          <span>Testing Cross-Site Scripting payloads.</span>
-        </li>
-        <li class="step" data-step="ai">
-          <span class="step-marker"><i data-lucide="check"></i></span>
-          <span>Classifying responses with AI.</span>
-        </li>
-      </ol>
-    </div>
+    {# Step Pipeline #}
+    <ol class="scan-pipeline" id="scan-steps">
+      <li class="scan-pipeline-step" data-step="crawl">
+        <div class="pipeline-icon">
+          <i data-lucide="globe"></i>
+          <div class="pipeline-spinner"></div>
+        </div>
+        <div class="pipeline-body">
+          <span class="pipeline-label">Crawling</span>
+          <span class="pipeline-desc">Discovering pages & forms</span>
+        </div>
+        <div class="pipeline-status">
+          <i data-lucide="check" class="pipeline-check-icon"></i>
+        </div>
+      </li>
+      <li class="scan-pipeline-step" data-step="sqli">
+        <div class="pipeline-icon">
+          <i data-lucide="database"></i>
+          <div class="pipeline-spinner"></div>
+        </div>
+        <div class="pipeline-body">
+          <span class="pipeline-label">SQL Injection</span>
+          <span class="pipeline-desc">Testing injection vectors</span>
+        </div>
+        <div class="pipeline-status">
+          <i data-lucide="check" class="pipeline-check-icon"></i>
+        </div>
+      </li>
+      <li class="scan-pipeline-step" data-step="xss">
+        <div class="pipeline-icon">
+          <i data-lucide="code-2"></i>
+          <div class="pipeline-spinner"></div>
+        </div>
+        <div class="pipeline-body">
+          <span class="pipeline-label">Cross-Site Scripting</span>
+          <span class="pipeline-desc">Testing XSS payloads</span>
+        </div>
+        <div class="pipeline-status">
+          <i data-lucide="check" class="pipeline-check-icon"></i>
+        </div>
+      </li>
+      <li class="scan-pipeline-step" data-step="ai">
+        <div class="pipeline-icon">
+          <i data-lucide="cpu"></i>
+          <div class="pipeline-spinner"></div>
+        </div>
+        <div class="pipeline-body">
+          <span class="pipeline-label">AI Classification</span>
+          <span class="pipeline-desc">Generating remediation advice</span>
+        </div>
+        <div class="pipeline-status">
+          <i data-lucide="check" class="pipeline-check-icon"></i>
+        </div>
+      </li>
+    </ol>
+
+    <p class="scan-overlay-hint">
+      <i data-lucide="info" style="width: 14px; height: 14px;"></i>
+      This page will redirect automatically when the scan completes.
+    </p>
+
   </div>
 </div>
 
+<style>
+/* ========================================================================
+   Scan Progress Overlay — Premium Animation
+   ======================================================================== */
+
+/* Overlay Container */
+.scan-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlayIn 0.5s var(--ease-quint) forwards;
+}
+.scan-overlay[hidden] { display: none; }
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.scan-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: oklch(8% 0.01 295 / 0.92);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+}
+
+.scan-overlay-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  max-width: 480px;
+  width: 100%;
+  padding: 0 24px;
+  animation: contentSlideUp 0.6s 0.15s var(--ease-quint) both;
+}
+
+@keyframes contentSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ---- Scanner Orb ---- */
+.scanner-orb {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scanner-orb-core {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  display: grid;
+  place-items: center;
+  color: white;
+  box-shadow: 0 0 30px var(--accent-glow), 0 0 60px oklch(68% 0.22 305 / 0.15);
+  z-index: 2;
+  animation: coreBreath 3s ease-in-out infinite;
+}
+.scanner-orb-core svg { width: 24px; height: 24px; }
+
+@keyframes coreBreath {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 30px var(--accent-glow), 0 0 60px oklch(68% 0.22 305 / 0.15); }
+  50%      { transform: scale(1.08); box-shadow: 0 0 40px var(--accent-glow), 0 0 80px oklch(68% 0.22 305 / 0.25); }
+}
+
+.scanner-orb-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+}
+
+.scanner-orb-ring--1 {
+  width: 80px; height: 80px;
+  border-top-color: var(--accent);
+  border-right-color: oklch(68% 0.22 305 / 0.3);
+  animation: orbitSpin 2.5s linear infinite;
+}
+.scanner-orb-ring--2 {
+  width: 100px; height: 100px;
+  border-bottom-color: var(--accent-bright);
+  border-left-color: oklch(78% 0.18 305 / 0.2);
+  animation: orbitSpin 3.8s linear infinite reverse;
+}
+.scanner-orb-ring--3 {
+  width: 120px; height: 120px;
+  border-top-color: oklch(68% 0.22 305 / 0.2);
+  border-right-color: oklch(78% 0.18 305 / 0.1);
+  animation: orbitSpin 5s linear infinite;
+}
+
+@keyframes orbitSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.scanner-orb-pulse {
+  position: absolute;
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0;
+  z-index: 1;
+  animation: orbPulse 2.5s ease-out infinite;
+}
+
+@keyframes orbPulse {
+  0%   { transform: scale(1); opacity: 0.4; }
+  100% { transform: scale(3); opacity: 0; }
+}
+
+/* ---- Status Text ---- */
+.scan-overlay-status {
+  text-align: center;
+}
+.scan-overlay-title {
+  font-size: var(--fs-20);
+  font-weight: var(--fw-700);
+  color: var(--text-1);
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+.scan-overlay-target {
+  font-size: var(--fs-13);
+  font-family: var(--font-mono);
+  color: var(--text-3);
+  margin: 0;
+  max-width: 380px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- Progress Bar ---- */
+.scan-overlay-bar-wrapper {
+  width: 100%;
+}
+.scan-overlay-bar {
+  position: relative;
+  height: 6px;
+  width: 100%;
+  background: var(--surface-3);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+.scan-overlay-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent), var(--accent-bright));
+  border-radius: var(--r-pill);
+  transition: width 0.8s var(--ease-quart);
+  position: relative;
+}
+.scan-overlay-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 40px; height: 100%;
+  background: linear-gradient(90deg, transparent, oklch(95% 0.05 305 / 0.5));
+  border-radius: var(--r-pill);
+  animation: barShimmer 1.5s ease-in-out infinite;
+}
+@keyframes barShimmer {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 1; }
+}
+
+.scan-overlay-bar-glow {
+  position: absolute;
+  top: -4px; bottom: -4px;
+  left: 0;
+  width: 0%;
+  background: linear-gradient(90deg, transparent, var(--accent-glow));
+  border-radius: var(--r-pill);
+  filter: blur(6px);
+  transition: width 0.8s var(--ease-quart);
+  pointer-events: none;
+}
+
+.scan-overlay-bar-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: var(--fs-12);
+  font-family: var(--font-mono);
+  color: var(--text-3);
+}
+.scan-overlay-percent {
+  color: var(--accent-bright);
+  font-weight: var(--fw-600);
+}
+
+/* ---- Step Pipeline ---- */
+.scan-pipeline {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.scan-pipeline-step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-1);
+  border-radius: var(--r-5);
+  transition: all 0.35s var(--ease-quart);
+  opacity: 0.45;
+  transform: translateX(0);
+}
+
+/* Waiting state */
+.scan-pipeline-step .pipeline-spinner { display: none; }
+.scan-pipeline-step .pipeline-check-icon { opacity: 0; transform: scale(0); }
+
+/* Active state */
+.scan-pipeline-step.is-active {
+  opacity: 1;
+  background: oklch(19.5% 0.02 305);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px oklch(68% 0.22 305 / 0.2), 0 4px 20px oklch(68% 0.22 305 / 0.1);
+  transform: translateX(4px);
+}
+.scan-pipeline-step.is-active .pipeline-icon {
+  color: var(--accent-bright);
+}
+.scan-pipeline-step.is-active .pipeline-spinner {
+  display: block;
+}
+.scan-pipeline-step.is-active .pipeline-label {
+  color: var(--text-1);
+}
+
+/* Done state */
+.scan-pipeline-step.is-done {
+  opacity: 0.7;
+}
+.scan-pipeline-step.is-done .pipeline-icon {
+  color: var(--success);
+}
+.scan-pipeline-step.is-done .pipeline-check-icon {
+  opacity: 1;
+  transform: scale(1);
+  transition: all 0.3s var(--ease-quart);
+  color: var(--success);
+}
+.scan-pipeline-step.is-done .pipeline-label {
+  color: var(--text-2);
+}
+
+/* Pipeline icon container */
+.pipeline-icon {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  color: var(--text-4);
+  flex-shrink: 0;
+  transition: color 0.3s ease;
+}
+.pipeline-icon > svg:first-child {
+  width: 18px;
+  height: 18px;
+  z-index: 1;
+}
+
+/* Spinner ring around icon */
+.pipeline-spinner {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: var(--accent);
+  border-right-color: oklch(68% 0.22 305 / 0.3);
+  animation: orbitSpin 1s linear infinite;
+}
+
+/* Pipeline body */
+.pipeline-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.pipeline-label {
+  font-size: var(--fs-14);
+  font-weight: var(--fw-600);
+  color: var(--text-3);
+  transition: color 0.3s ease;
+}
+.pipeline-desc {
+  font-size: var(--fs-12);
+  color: var(--text-4);
+}
+
+/* Pipeline status check */
+.pipeline-status {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+}
+.pipeline-check-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---- Hint ---- */
+.scan-overlay-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-12);
+  color: var(--text-4);
+  margin: 0;
+}
+
+/* ---- Reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .scanner-orb-ring,
+  .scanner-orb-pulse,
+  .scanner-orb-core,
+  .pipeline-spinner,
+  .scan-overlay-bar-fill::after {
+    animation: none !important;
+  }
+  .scan-overlay,
+  .scan-overlay-content {
+    animation: none !important;
+  }
+}
+</style>
+
 {% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+  const form = document.getElementById('scan-form');
+  if (!form) return;
+
+  const overlay     = document.getElementById('scan-progress');
+  const fillBar     = document.getElementById('scan-progress-fill');
+  const glowBar     = document.getElementById('scan-progress-glow');
+  const pctLabel    = document.getElementById('scan-progress-pct');
+  const targetLabel = document.getElementById('scan-progress-target');
+  const elapsedEl   = document.getElementById('scan-elapsed');
+  const stepEls     = Array.from(document.querySelectorAll('#scan-steps .scan-pipeline-step'));
+
+  let timerInterval = null;
+  let startTime = null;
+
+  form.addEventListener('submit', function() {
+    // Gather which modules are enabled
+    const modules = {
+      sqli: form.elements['test_sqli']?.checked,
+      xss:  form.elements['test_xss']?.checked,
+      ai:   form.elements['use_ai']?.checked
+    };
+
+    // Filter steps
+    stepEls.forEach(step => {
+      const type = step.dataset.step;
+      if (type === 'crawl') return;
+      if (!modules[type]) {
+        step.style.display = 'none';
+        step.classList.add('is-skipped');
+      } else {
+        step.style.display = 'flex';
+        step.classList.remove('is-skipped');
+      }
+    });
+
+    // Show overlay
+    if (overlay) {
+      overlay.hidden = false;
+      // Re-create icons inside the overlay
+      if (window.lucide) {
+        setTimeout(() => lucide.createIcons({ nodes: [overlay] }), 50);
+      }
+    }
+
+    // Set target label
+    if (targetLabel) {
+      const url = form.elements['target_url']?.value || '';
+      targetLabel.textContent = url;
+    }
+
+    // Start elapsed timer
+    startTime = Date.now();
+    timerInterval = setInterval(updateElapsed, 1000);
+
+    // Disable submit
+    const btn = document.getElementById('btn-launch-scan');
+    if (btn) {
+      btn.disabled = true;
+      btn.setAttribute('aria-disabled', 'true');
+    }
+
+    // Animate visible steps
+    const visible = stepEls.filter(s => !s.classList.contains('is-skipped'));
+    animatePipeline(visible);
+  });
+
+  function updateElapsed() {
+    if (!startTime || !elapsedEl) return;
+    const seconds = Math.floor((Date.now() - startTime) / 1000);
+    const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const secs = String(seconds % 60).padStart(2, '0');
+    elapsedEl.textContent = mins + ':' + secs;
+  }
+
+  function setProgress(pct) {
+    pct = Math.min(Math.max(pct, 0), 100);
+    if (fillBar) fillBar.style.width = pct + '%';
+    if (glowBar) glowBar.style.width = pct + '%';
+    if (pctLabel) pctLabel.textContent = Math.round(pct) + '%';
+  }
+
+  function animatePipeline(steps) {
+    if (!steps.length) return;
+
+    let idx = 0;
+    const total = steps.length;
+
+    function tick() {
+      // Mark previous step as done
+      if (idx > 0) {
+        steps[idx - 1].classList.remove('is-active');
+        steps[idx - 1].classList.add('is-done');
+      }
+
+      if (idx < total) {
+        steps[idx].classList.add('is-active');
+
+        // Progress calculation
+        const pct = ((idx + 0.5) / total) * 90;
+        setProgress(pct);
+
+        idx++;
+
+        // Dynamic delay based on step type
+        const stepType = steps[idx - 1].dataset.step;
+        let delay = 1200;
+        if (stepType === 'crawl') delay = 1500;
+        if (stepType === 'sqli')  delay = 2200;
+        if (stepType === 'xss')   delay = 1800;
+        if (stepType === 'ai')    delay = 1200;
+
+        setTimeout(tick, delay);
+      } else {
+        // All steps done, show 95%
+        setProgress(95);
+      }
+    }
+
+    tick();
+  }
+})();
+</script>
+{% endblock %}
+

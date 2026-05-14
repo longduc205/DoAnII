@@ -21,5 +21,7 @@ class Config:
     SCAN_DELAY = float(os.getenv('SCAN_DELAY', 0.5))
 
 
-    # Blackbox AI — used for remediation suggestions and Q&A
-    BLACKBOX_API_KEY = os.getenv('BLACKBOX_API_KEY', 'sk-4Qk5OHr9GYuUGAuuMxcNiQ')
+    # AI API Keys — loaded from .env only, never hardcoded
+    BLACKBOX_API_KEY = os.getenv('BLACKBOX_API_KEY', '')
+    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
+    AI_PROVIDER = os.getenv('AI_PROVIDER', 'blackbox').lower()

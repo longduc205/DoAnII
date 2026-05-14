@@ -28,20 +28,30 @@ class HTTPClient:
 
     def _check_and_login_dvwa(self):
         """Attempts to login to DVWA automatically if credentials are provided."""
-        login_url = os.getenv('DVWA_LOGIN_URL', 'http://localhost:8080/login.php')
+        login_url = os.getenv('DVWA_LOGIN_URL', 'http://dvwa/login.php')
         username = os.getenv('DVWA_USER', 'admin')
         password = os.getenv('DVWA_PASS', 'password')
+        security_level = os.getenv('DVWA_SECURITY_LEVEL', 'low').lower()
 
         try:
             # 1. Get the login page to extract CSRF token (user_token)
-            logger.info(f"Attempting DVWA auto-login at {login_url}...")
+            logger.info(f"Attempting DVWA auto-login at {login_url} (Security: {security_level})...")
             resp = self.session.get(login_url, timeout=self.timeout)
             
+            if resp.status_code != 200:
+                logger.warning(f"Could not reach DVWA login page (Status: {resp.status_code})")
+                return
+
             soup = BeautifulSoup(resp.text, 'html.parser')
             user_token = ""
             token_input = soup.find('input', {'name': 'user_token'})
             if token_input:
                 user_token = token_input.get('value', '')
+            else:
+                # Check if we are already logged in
+                if 'PHPSESSID' in self.session.cookies:
+                    logger.info("Already have a session cookie, skipping login.")
+                    return
 
             # 2. Perform Login POST
             payload = {
@@ -51,15 +61,19 @@ class HTTPClient:
                 'user_token': user_token
             }
             
-            self.session.post(login_url, data=payload, timeout=self.timeout)
+            login_resp = self.session.post(login_url, data=payload, timeout=self.timeout)
             
-            # 3. Set security level to low for testing
-            # DVWA uses a 'security' cookie
-            self.session.cookies.set('security', 'low')
+            # 3. Verify success
+            if "login.php" in login_resp.url and "Login failed" in login_resp.text:
+                logger.error("DVWA login failed: Invalid credentials or CSRF token.")
+                return
+
+            # 4. Set security level
+            self.session.cookies.set('security', security_level)
             
-            logger.info("DVWA login successful (Security Level: LOW)")
+            logger.info(f"DVWA login successful (Security Level: {security_level.upper()})")
         except Exception as e:
-            logger.warning(f"DVWA auto-login failed: {str(e)}. Using guest/manual session.")
+            logger.warning(f"DVWA auto-login encountered an error: {str(e)}")
 
     def get(self, url, params=None):
         """Send a GET request."""

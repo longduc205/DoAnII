@@ -59,11 +59,4 @@
   margin: var(--sp-5) 0;
 }
 
-/* Reduce-motion safety net, only target animations and long transitions. */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-  }
-}
+

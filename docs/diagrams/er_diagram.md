@@ -47,13 +47,10 @@ erDiagram
         int id PK
         int scan_id FK
         string url
-        string classification
-        float confidence
-        int response_length
-        int status_code
-        bool has_reflection
-        bool has_error_keywords
-        datetime classified_at
+        text explanation
+        text remediation
+        text code_example
+        datetime created_at
     }
 
     SCAN ||--o{ PAGE : contains

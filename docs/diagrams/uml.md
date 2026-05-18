@@ -25,9 +25,9 @@ flowchart LR
         ValidateURL([Validate URL])
         CrawlPages([Crawl Pages])
         DetectVuln([Detect Vulnerabilities])
-        AIClass([AI Classification])
+        AIAdvisor([AI Remediation Advisor])
         SaveResults([Save Results])
-
+        
         TestSQLi([Test SQLi])
         TestXSS([Test XSS])
     end
@@ -43,20 +43,20 @@ flowchart LR
     StartScan -. "«include»" .-> ValidateURL
     StartScan -. "«include»" .-> CrawlPages
     StartScan -. "«include»" .-> DetectVuln
-    StartScan -. "«include»" .-> AIClass
+    StartScan -. "«include»" .-> AIAdvisor
     StartScan -. "«include»" .-> SaveResults
 
     DetectVuln -. "«include»" .-> TestSQLi
     DetectVuln -. "«include»" .-> TestXSS
 
-    ViewResults -. "«include»" .-> AIClass
+    ViewResults -. "«include»" .-> AIAdvisor
 ```
 
 | Actor | Description |
 |-------|-------------|
 | User | Người dùng tương tác với hệ thống qua giao diện web |
 | System | AI Web Vulnerability Scanner (Flask app) |
-| AI Module | Mô-đun phân loại phản hồi HTTP bằng ML |
+| AI Module | Mô-đun LLM tư vấn cách khắc phục lỗ hổng |
 
 | Use Case | Description |
 |----------|-------------|
@@ -64,7 +64,7 @@ flowchart LR
 | Validate URL | Kiểm tra URL hợp lệ và có thể truy cập |
 | Crawl Pages | Thu thập pages và forms từ target |
 | Detect Vulnerabilities | Thử nghiệm SQLi và XSS payloads |
-| AI Classification | Trích xuất features, phân loại phản hồi |
+| AI Remediation Advisor | Phân tích lỗ hổng và đưa ra hướng dẫn khắc phục |
 | Save Results | Lưu kết quả vào database |
 | View Results | Xem chi tiết kết quả sau khi scan xong |
 | View History | Xem lịch sử các scan đã thực hiện |
@@ -83,7 +83,7 @@ sequenceDiagram
     participant Scanner as Scanner Engine
     participant Crawler
     participant Detector
-    participant AI as AI Module
+    participant AI as AI Advisor
     participant DB as Database
 
     User->>UI: Enter target URL
@@ -117,12 +117,10 @@ sequenceDiagram
         end
         Detector-->>Scanner: xss_results[]
 
-        alt Model exists
-            Scanner->>AI: extract_features(response)
-            AI-->>Scanner: features[]
-            Scanner->>AI: predict(features)
-            AI-->>Scanner: classification, confidence
-        else No model
+        alt Vulnerability Found
+            Scanner->>AI: get_remediation(vulnerability)
+            AI-->>Scanner: remediation_json (Explanation, Fix, Code)
+        else No Vulnerability
             Scanner-->>Scanner: skip AI
         end
     end
@@ -133,7 +131,7 @@ sequenceDiagram
     UI-->>User: Display results page
 ```
 
-**Ghi chu:** Nhanh `alt/else` cho AI model fallback logic - neu chua co model trained, he thong van chay binh thuong chi khong co AI classification.
+**Ghi chu:** Nhanh `alt/else` cho AI Advisor logic - neu tim thay lo hong, he thong gui evidence cho LLM de lay huong dan khac phuc.
 
 ---
 
@@ -157,12 +155,12 @@ flowchart TD
     M -->|Yes| N[Save SQLi\nVulnerability]
     M -->|No| O{Test XSS\ndetected?}
     O -->|Yes| P[Save XSS\nVulnerability]
-    O -->|No| Q{AI model\navailable?}
-    K -->|No| Q
-    N --> Q
-    P --> Q
-    Q -->|Yes| R[Extract Features\nfrom Response]
-    R --> S[AI Classify:\nnormal/suspicious]
+    O -->|No| K
+    N --> K
+    P --> K
+    K -->|No| Q{Vuln Found\nin Form?}
+    Q -->|Yes| R[Send Data to\nAI Advisor]
+    R --> S[Get Remediation\nJSON]
     S --> T[Save AI Result]
     Q -->|No| I
     T --> I
@@ -183,5 +181,5 @@ flowchart TD
 **Tom tat flow:**
 1. Nhap URL -> kiem tra hop le
 2. Tao session -> crawl pages -> extract forms
-3. Moi form: thu SQLi -> thu XSS -> AI classify (neu co model)
+3. Moi form: thu SQLi -> thu XSS -> Goi AI Advisor neu tim thay lo hong
 4. Luu ket qua -> hien thi trang results

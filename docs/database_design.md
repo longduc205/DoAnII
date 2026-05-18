@@ -65,16 +65,13 @@
 |--------|------|-------------|-------------|
 | id | INTEGER | PRIMARY KEY, AUTOINCREMENT | AI result ID |
 | scan_id | INTEGER | FK -> scans.id, NOT NULL | Parent scan session |
-| url | VARCHAR(500) | NOT NULL | Tested page URL |
-| classification | VARCHAR(20) | NULL | normal / suspicious |
-| confidence | FLOAT | NULL | ML confidence score (0.0-1.0) |
-| response_length | INTEGER | NULL | HTTP response length |
-| status_code | INTEGER | NULL | HTTP status code |
-| has_reflection | BOOLEAN | DEFAULT FALSE | XSS reflection detected |
-| has_error_keywords | BOOLEAN | DEFAULT FALSE | SQL error keywords found |
-| classified_at | DATETIME | DEFAULT NOW | Classification timestamp |
+| url | VARCHAR(500) | NOT NULL | Vulnerability URL |
+| explanation | TEXT | NULL | AI explanation of the vulnerability |
+| remediation | TEXT | NULL | Step-by-step fix instructions |
+| code_example | TEXT | NULL | Secure code snippet |
+| created_at | DATETIME | DEFAULT NOW | Creation timestamp |
 
-**Indexes:** `idx_ai_scan_id` on (scan_id), `idx_ai_classification` on (classification)
+**Indexes:** `idx_ai_scan_id` on (scan_id)
 
 ---
 
@@ -82,7 +79,7 @@
 
 - **ON DELETE CASCADE:** Khi xoa scan, tat ca pages/vulnerabilities/ai_results cua scan do deu bi xoa tu dong
 - **NOT NULL:** target_url (scans), scan_id (tat ca bang con), vuln_type (vulnerabilities), url (tat ca bang)
-- **DEFAULT:** status='pending', severity='medium', has_forms=FALSE, confidence=NULL
+- **DEFAULT:** status='pending', severity='medium', has_forms=FALSE
 
 ---
 

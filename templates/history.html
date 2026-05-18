@@ -77,13 +77,11 @@
     <select id="hist-status" name="status" style="display: none;">
       <option value="all" {{ 'selected' if status == 'all' }}>All statuses</option>
       <option value="completed" {{ 'selected' if status == 'completed' }}>Completed</option>
-      <option value="running" {{ 'selected' if status == 'running' }}>Running</option>
       <option value="failed" {{ 'selected' if status == 'failed' }}>Failed</option>
     </select>
     <div class="custom-select-trigger">
       <span style="display: flex; align-items: center; gap: 8px;">
         {% if status == 'completed' %}<span class="status-dot status-dot--success" aria-hidden="true"></span>Completed
-        {% elif status == 'running' %}<span class="status-dot status-dot--accent" aria-hidden="true"></span>Running
         {% elif status == 'failed' %}<span class="status-dot status-dot--warning" aria-hidden="true"></span>Failed
         {% else %}<span class="status-dot" style="background: var(--text-4);" aria-hidden="true"></span>All statuses
         {% endif %}
@@ -93,7 +91,6 @@
     <div class="custom-select-list">
       <div class="custom-select-option {{ 'is-selected' if status == 'all' }}" data-value="all">All statuses</div>
       <div class="custom-select-option {{ 'is-selected' if status == 'completed' }}" data-value="completed">Completed</div>
-      <div class="custom-select-option {{ 'is-selected' if status == 'running' }}" data-value="running">Running</div>
       <div class="custom-select-option {{ 'is-selected' if status == 'failed' }}" data-value="failed">Failed</div>
     </div>
   </div>

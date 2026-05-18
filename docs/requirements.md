@@ -11,7 +11,7 @@
 
 **AI Web Vulnerability Scanner** is a web application that automatically detects SQL Injection (SQLi) and Cross-Site Scripting (XSS) vulnerabilities in target websites, using both rule-based detection and AI-powered response classification.
 
-The system crawls a target website, extracts forms, injects test payloads, analyzes server responses, and classifies findings using a trained machine learning model. Scan results are stored and displayed through a Flask-based web interface.
+The system crawls a target website, extracts forms, injects test payloads, analyzes server responses, and utilizes Generative AI (LLMs like Gemini and Blackbox) to provide detailed remediation advice and interactive Q&A for any discovered findings. Scan results and AI insights are stored and displayed through a modern Flask-based web interface.
 
 **Target Users:** Security researchers, developers, students learning web security.
 
@@ -103,27 +103,27 @@ The system crawls a target website, extracts forms, injects test payloads, analy
 
 ---
 
-### FR5: AI-Powered Response Classification
+### FR5: Generative AI Remediation Advisor & Interactive Chat
 
-**Description:** The system must use a trained machine learning model to classify server responses as normal or suspicious.
+**Description:** The system must use Large Language Models (LLMs) to analyze discovered vulnerabilities, provide detailed remediation steps, and allow users to ask follow-up questions via a chat interface.
 
-**Input:** HTTP response features extracted from scan requests.
+**Input:** Vulnerability details (type, payload, URL, evidence snippet) and user chat messages.
 
-**Output:** Classification label (normal / suspicious) and confidence score for each tested response.
+**Output:** Structured JSON response (Explanation, Remediation Steps, Code Example) and chat responses.
 
 **Priority:** High
 
 **Acceptance Criteria:**
-- [x] Features are extracted from each HTTP response:
-  - `response_length` (numeric)
-  - `status_code` (numeric)
-  - `keyword_presence` (boolean: SQL error keywords found)
-  - `payload_reflection` (boolean: XSS payload found in response)
-- [x] Features are preprocessed (normalized) before prediction
-- [x] Model loads from `ai/models/classifier.pkl`
-- [x] Classification result and confidence score are returned
-- [x] AI results are stored in the `ai_results` table and linked to the scan session
-- [x] If model file does not exist, system falls back to rule-based detection only
+- [x] System integrates with multiple LLM providers (Google Gemini & Blackbox AI).
+- [x] System sends vulnerability evidence to the AI using structured prompt engineering.
+- [x] AI returns a structured JSON containing:
+  - `explanation`: Why the vulnerability exists.
+  - `remediation`: Step-by-step guide to fix it.
+  - `code_example`: Secure code snippet.
+- [x] Web interface provides an interactive Chat Q&A panel on the results page.
+- [x] Users can ask context-aware questions about the findings.
+- [x] AI analysis results are saved in the `ai_results` table.
+- [x] Fallback mechanisms exist in case the LLM API is unavailable.
 
 ---
 
@@ -141,8 +141,9 @@ The system crawls a target website, extracts forms, injects test payloads, analy
 - [x] Results page shows scan summary: target URL, start time, end time, total pages, total forms, total vulnerabilities
 - [x] Results page lists all detected vulnerabilities grouped by type (SQLi, XSS)
 - [x] Each vulnerability entry shows: type, URL, parameter, payload, severity, evidence
-- [x] Results page shows AI classification results alongside rule-based findings
-- [x] Results are retrieved from database and displayed in structured format (table or cards)
+- [x] Results page displays the AI-generated Explanation, Remediation Steps, and Code Example for each finding.
+- [x] Interactive chat interface is available to query the AI advisor.
+- [x] Results are retrieved from database and displayed in a modern, structured format (cards).
 - [x] Results are accessible via a unique URL per scan session
 
 ---
@@ -199,7 +200,7 @@ The system crawls a target website, extracts forms, injects test payloads, analy
 
 - The crawler limit (max pages, max depth) must be configurable so the system can adapt to different target sizes.
 - The database schema must support future extensions (additional vulnerability types, new AI models).
-- New payload types and detection rules must be addable without modifying core scanner code.
+- New LLM providers can be added seamlessly by implementing the provider interface.
 
 ---
 
@@ -216,7 +217,7 @@ The system crawls a target website, extracts forms, injects test payloads, analy
 | ID | Use Case | Description |
 |----|----------|-------------|
 | **UC1** | Start Scan | User enters target URL and clicks "Start Scan". System validates URL and begins crawling. |
-| **UC2** | View Results | User views the scan results page showing all detected vulnerabilities and AI classifications. |
+| **UC2** | View Results | User views the scan results page showing all detected vulnerabilities and AI remediation advice. |
 | **UC3** | View History | User navigates to the history page to see all past scan sessions. |
 | **UC4** | View Scan Details | User clicks on a history entry to view the full results of a past scan. |
 
@@ -255,7 +256,7 @@ User Input (URL)
        │
        ▼
   ┌─────────┐    ┌──────────┐    ┌───────────┐    ┌─────────┐
-  │ Crawler │───▶│ Detector │───▶│ AI Module │───▶│ Report  │
+  │ Crawler │───▶│ Detector │───▶│AI Advisor │───▶│ Report  │
   └─────────┘    └──────────┘    └───────────┘    └─────────┘
        │              │                 │                 │
        ▼              ▼                 ▼                 ▼
@@ -273,9 +274,10 @@ User Input (URL)
 | AC2 | Crawler discovers pages and forms within configured limits | Critical |
 | AC3 | SQLi detection identifies vulnerabilities using baseline comparison | Critical |
 | AC4 | XSS detection identifies reflected payloads in responses | Critical |
-| AC5 | AI model classifies responses with confidence score | High |
-| AC6 | Results are displayed clearly with evidence | High |
-| AC7 | Scan history persists across sessions | Medium |
+| AC5 | Generative AI provides structured remediation advice for findings | High |
+| AC6 | Interactive Chat Q&A functions correctly with scan context | High |
+| AC7 | Results are displayed clearly with evidence | High |
+| AC8 | Scan history persists across sessions | Medium |
 
 ---
 

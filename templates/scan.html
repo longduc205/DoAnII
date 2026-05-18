@@ -302,80 +302,18 @@
     </div>
   </form>
 
-  {# ---- Right: contextual info ---- #}
-  <aside class="stack" style="gap: 24px;">
-
-    {% if last_scan %}
-    <section class="premium-panel" style="padding: 20px;">
-      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
-        <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: var(--text-2);">
-          <i data-lucide="clock" style="width: 14px; height: 14px;"></i>
-        </div>
-        <span style="font-weight: 600; font-size: 14px; color: var(--text-1);">Previous Scan</span>
+  {# ---- Inline Scan Progress Panel ---- #}
+  <div id="scan-progress-panel" class="premium-panel" hidden style="display: none; padding: 48px 32px; flex-direction: column; align-items: center; gap: 32px; justify-content: center;">
+    {# Sleek Pulsing Shield #}
+    <div class="shield-spinner">
+      <div class="shield-ring"></div>
+      <div class="shield-core">
+        <i data-lucide="shield"></i>
       </div>
-      
-      <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 12px; border: 1px solid var(--border-1);">
-        <div class="last-scan-target" title="{{ last_scan.target_url }}" style="font-family: var(--font-mono); font-size: 13px; color: var(--text-1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 12px;">{{ last_scan.target_url }}</div>
-        
-        <div class="row row--gap-3" style="margin-bottom: 12px;">
-          {% if last_scan.status == 'completed' and last_scan.total_vulnerabilities > 0 %}
-            <span class="badge badge--danger" style="border-radius: 4px;">{{ last_scan.total_vulnerabilities }} finding{{ '' if last_scan.total_vulnerabilities == 1 else 's' }}</span>
-          {% elif last_scan.status == 'completed' %}
-            <span class="badge badge--success" style="border-radius: 4px;">Clean</span>
-          {% elif last_scan.status == 'failed' %}
-            <span class="badge badge--warning" style="border-radius: 4px;">Failed</span>
-          {% else %}
-            <span class="badge" style="border-radius: 4px;">{{ last_scan.status|capitalize }}</span>
-          {% endif %}
-          <span class="t-caption">{{ last_scan.completed_at.strftime('%b %d, %H:%M') if last_scan.completed_at else '—' }}</span>
-        </div>
-        
-        <div class="last-scan-stats" style="background: transparent; border: none; padding: 0;">
-          <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-3); width: 100%;">
-            <span><strong style="color: var(--text-1);">{{ last_scan.total_pages or 0 }}</strong> pages</span>
-            <span><strong style="color: var(--text-1);">{{ last_scan.total_forms or 0 }}</strong> forms</span>
-            <span><strong style="color: var(--text-1);">{{ last_scan.total_vulnerabilities or 0 }}</strong> findings</span>
-          </div>
-        </div>
-      </div>
-      
-      <a href="{{ url_for('results.show_results', scan_id=last_scan.id) }}" style="display: block; text-align: center; margin-top: 16px; color: var(--accent); font-size: 13px; font-weight: 500; text-decoration: none; padding: 8px; border-radius: 6px; background: rgba(99, 102, 241, 0.05);">
-        View detailed report
-      </a>
-    </section>
-    {% endif %}
-
-    <section style="background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--border-2); border-radius: 16px; padding: 24px; text-align: center;">
-      <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); color: var(--danger); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-        <i data-lucide="shield-alert"></i>
-      </div>
-      <h3 style="font-size: 15px; font-weight: 600; color: var(--text-1); margin-bottom: 8px;">Scan Responsibly</h3>
-      <p style="font-size: 13px; color: var(--text-3); line-height: 1.5; margin: 0;">
-        This scanner sends active attack payloads to the target. Use it only on systems you own or where you have written authorization.
-      </p>
-    </section>
-
-  </aside>
-</div>
-
-{# ---- Premium Scan Progress Overlay ---- #}
-<div class="scan-overlay" id="scan-progress" hidden>
-  <div class="scan-overlay-backdrop"></div>
-  <div class="scan-overlay-content">
-
-    {# Animated Scanner Orb #}
-    <div class="scanner-orb">
-      <div class="scanner-orb-ring scanner-orb-ring--1"></div>
-      <div class="scanner-orb-ring scanner-orb-ring--2"></div>
-      <div class="scanner-orb-ring scanner-orb-ring--3"></div>
-      <div class="scanner-orb-core">
-        <i data-lucide="shield-check"></i>
-      </div>
-      <div class="scanner-orb-pulse"></div>
     </div>
 
     {# Status Text #}
-    <div class="scan-overlay-status">
+    <div class="scan-overlay-status" style="width: 100%;">
       <h2 class="scan-overlay-title">Scanning in progress</h2>
       <p class="scan-overlay-target" id="scan-progress-target">—</p>
     </div>
@@ -448,12 +386,66 @@
       </li>
     </ol>
 
-    <p class="scan-overlay-hint">
+    <p class="scan-overlay-hint" style="margin-top: 16px;">
       <i data-lucide="info" style="width: 14px; height: 14px;"></i>
       This page will redirect automatically when the scan completes.
     </p>
-
   </div>
+
+  {# ---- Right: contextual info ---- #}
+  <aside class="stack" style="gap: 24px;">
+
+    {% if last_scan %}
+    <section class="premium-panel" style="padding: 20px;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+        <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: var(--text-2);">
+          <i data-lucide="clock" style="width: 14px; height: 14px;"></i>
+        </div>
+        <span style="font-weight: 600; font-size: 14px; color: var(--text-1);">Previous Scan</span>
+      </div>
+      
+      <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 12px; border: 1px solid var(--border-1);">
+        <div class="last-scan-target" title="{{ last_scan.target_url }}" style="font-family: var(--font-mono); font-size: 13px; color: var(--text-1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 12px;">{{ last_scan.target_url }}</div>
+        
+        <div class="row row--gap-3" style="margin-bottom: 12px;">
+          {% if last_scan.status == 'completed' and last_scan.total_vulnerabilities > 0 %}
+            <span class="badge badge--danger" style="border-radius: 4px;">{{ last_scan.total_vulnerabilities }} finding{{ '' if last_scan.total_vulnerabilities == 1 else 's' }}</span>
+          {% elif last_scan.status == 'completed' %}
+            <span class="badge badge--success" style="border-radius: 4px;">Clean</span>
+          {% elif last_scan.status == 'failed' %}
+            <span class="badge badge--warning" style="border-radius: 4px;">Failed</span>
+          {% else %}
+            <span class="badge" style="border-radius: 4px;">{{ last_scan.status|capitalize }}</span>
+          {% endif %}
+          <span class="t-caption">{{ last_scan.completed_at.strftime('%b %d, %H:%M') if last_scan.completed_at else '—' }}</span>
+        </div>
+        
+        <div class="last-scan-stats" style="background: transparent; border: none; padding: 0;">
+          <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-3); width: 100%;">
+            <span><strong style="color: var(--text-1);">{{ last_scan.total_pages or 0 }}</strong> pages</span>
+            <span><strong style="color: var(--text-1);">{{ last_scan.total_forms or 0 }}</strong> forms</span>
+            <span><strong style="color: var(--text-1);">{{ last_scan.total_vulnerabilities or 0 }}</strong> findings</span>
+          </div>
+        </div>
+      </div>
+      
+      <a href="{{ url_for('results.show_results', scan_id=last_scan.id) }}" style="display: block; text-align: center; margin-top: 16px; color: var(--accent); font-size: 13px; font-weight: 500; text-decoration: none; padding: 8px; border-radius: 6px; background: rgba(99, 102, 241, 0.05);">
+        View detailed report
+      </a>
+    </section>
+    {% endif %}
+
+    <section style="background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--border-2); border-radius: 16px; padding: 24px; text-align: center;">
+      <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); color: var(--danger); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+        <i data-lucide="shield-alert"></i>
+      </div>
+      <h3 style="font-size: 15px; font-weight: 600; color: var(--text-1); margin-bottom: 8px;">Scan Responsibly</h3>
+      <p style="font-size: 13px; color: var(--text-3); line-height: 1.5; margin: 0;">
+        This scanner sends active attack payloads to the target. Use it only on systems you own or where you have written authorization.
+      </p>
+    </section>
+
+  </aside>
 </div>
 
 <style>
@@ -461,127 +453,58 @@
    Scan Progress Overlay — Premium Animation
    ======================================================================== */
 
-/* Overlay Container */
-.scan-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
+/* ---- Sleek Pulsing Shield ---- */
+.shield-spinner {
+  position: relative;
+  width: 80px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: overlayIn 0.5s var(--ease-quint) forwards;
-}
-.scan-overlay[hidden] { display: none; }
-
-@keyframes overlayIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  margin: 0 auto;
 }
 
-.scan-overlay-backdrop {
+.shield-ring {
   position: absolute;
   inset: 0;
-  background: oklch(8% 0.01 295 / 0.92);
-  backdrop-filter: blur(24px) saturate(1.4);
-  -webkit-backdrop-filter: blur(24px) saturate(1.4);
-}
-
-.scan-overlay-content {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 32px;
-  max-width: 480px;
-  width: 100%;
-  padding: 0 24px;
-  animation: contentSlideUp 0.6s 0.15s var(--ease-quint) both;
-}
-
-@keyframes contentSlideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* ---- Scanner Orb ---- */
-.scanner-orb {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.scanner-orb-core {
-  width: 52px;
-  height: 52px;
   border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: var(--accent);
+  border-right-color: rgba(99, 102, 241, 0.3);
+  animation: shieldSpin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+}
+
+.shield-core {
+  position: relative;
+  z-index: 2;
+  width: 48px; height: 48px;
   background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  border-radius: 12px;
   display: grid;
   place-items: center;
   color: white;
-  box-shadow: 0 0 30px var(--accent-glow), 0 0 60px oklch(68% 0.22 305 / 0.15);
-  z-index: 2;
-  animation: coreBreath 3s ease-in-out infinite;
+  box-shadow: 0 8px 24px var(--accent-glow);
+  animation: shieldPulse 2s ease-in-out infinite;
 }
-.scanner-orb-core svg { width: 24px; height: 24px; }
-
-@keyframes coreBreath {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 30px var(--accent-glow), 0 0 60px oklch(68% 0.22 305 / 0.15); }
-  50%      { transform: scale(1.08); box-shadow: 0 0 40px var(--accent-glow), 0 0 80px oklch(68% 0.22 305 / 0.25); }
+.shield-core svg {
+  width: 24px; height: 24px;
+  animation: shieldIconFlip 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
-.scanner-orb-ring {
-  position: absolute;
-  border-radius: 50%;
-  border: 1.5px solid transparent;
+@keyframes shieldIconFlip {
+  0%   { transform: perspective(400px) rotateY(0deg); }
+  50%  { transform: perspective(400px) rotateY(180deg) scale(1.1); }
+  100% { transform: perspective(400px) rotateY(360deg); }
 }
 
-.scanner-orb-ring--1 {
-  width: 80px; height: 80px;
-  border-top-color: var(--accent);
-  border-right-color: oklch(68% 0.22 305 / 0.3);
-  animation: orbitSpin 2.5s linear infinite;
-}
-.scanner-orb-ring--2 {
-  width: 100px; height: 100px;
-  border-bottom-color: var(--accent-bright);
-  border-left-color: oklch(78% 0.18 305 / 0.2);
-  animation: orbitSpin 3.8s linear infinite reverse;
-}
-.scanner-orb-ring--3 {
-  width: 120px; height: 120px;
-  border-top-color: oklch(68% 0.22 305 / 0.2);
-  border-right-color: oklch(78% 0.18 305 / 0.1);
-  animation: orbitSpin 5s linear infinite;
+@keyframes shieldSpin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-@keyframes orbitSpin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
-.scanner-orb-pulse {
-  position: absolute;
-  width: 52px; height: 52px;
-  border-radius: 50%;
-  background: var(--accent);
-  opacity: 0;
-  z-index: 1;
-  animation: orbPulse 2.5s ease-out infinite;
-}
-
-@keyframes orbPulse {
-  0%   { transform: scale(1); opacity: 0.4; }
-  100% { transform: scale(3); opacity: 0; }
+@keyframes shieldPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 8px 24px var(--accent-glow); }
+  50%      { transform: scale(1.05); box-shadow: 0 12px 32px rgba(99, 102, 241, 0.4); }
 }
 
 /* ---- Status Text ---- */
@@ -711,6 +634,41 @@
   color: var(--text-1);
 }
 
+/* Custom step icon animations when active */
+.scan-pipeline-step[data-step="crawl"].is-active svg {
+  animation: stepSpinSlow 3s linear infinite !important;
+  transform-origin: center !important;
+}
+.scan-pipeline-step[data-step="sqli"].is-active svg {
+  animation: stepDbPulse 0.6s ease-in-out infinite alternate !important;
+  transform-origin: bottom center !important;
+}
+.scan-pipeline-step[data-step="xss"].is-active svg {
+  animation: stepCodeBlink 0.8s ease-in-out infinite alternate !important;
+  transform-origin: center !important;
+}
+.scan-pipeline-step[data-step="ai"].is-active svg {
+  animation: stepCpuProcess 1s ease-in-out infinite alternate !important;
+  transform-origin: center !important;
+}
+
+@keyframes stepSpinSlow {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes stepDbPulse {
+  0%   { transform: scaleY(1); }
+  100% { transform: scaleY(0.75) translateY(4px); }
+}
+@keyframes stepCodeBlink {
+  0%   { opacity: 1; transform: scale(1); }
+  100% { opacity: 0.2; transform: scale(0.8); }
+}
+@keyframes stepCpuProcess {
+  0%   { transform: scale(0.9); opacity: 0.7; }
+  100% { transform: scale(1.2); opacity: 1; }
+}
+
 /* Done state */
 .scan-pipeline-step.is-done {
   opacity: 0.7;
@@ -798,20 +756,6 @@
   margin: 0;
 }
 
-/* ---- Reduced motion ---- */
-@media (prefers-reduced-motion: reduce) {
-  .scanner-orb-ring,
-  .scanner-orb-pulse,
-  .scanner-orb-core,
-  .pipeline-spinner,
-  .scan-overlay-bar-fill::after {
-    animation: none !important;
-  }
-  .scan-overlay,
-  .scan-overlay-content {
-    animation: none !important;
-  }
-}
 </style>
 
 {% endblock %}
@@ -822,7 +766,7 @@
   const form = document.getElementById('scan-form');
   if (!form) return;
 
-  const overlay     = document.getElementById('scan-progress');
+  const overlay     = document.getElementById('scan-progress-panel');
   const fillBar     = document.getElementById('scan-progress-fill');
   const glowBar     = document.getElementById('scan-progress-glow');
   const pctLabel    = document.getElementById('scan-progress-pct');
@@ -854,9 +798,11 @@
       }
     });
 
-    // Show overlay
+    // Show inline progress panel
     if (overlay) {
+      form.style.display = 'none';
       overlay.hidden = false;
+      overlay.style.display = 'flex';
       // Re-create icons inside the overlay
       if (window.lucide) {
         setTimeout(() => lucide.createIcons({ nodes: [overlay] }), 50);

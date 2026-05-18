@@ -25,10 +25,9 @@ flowchart TB
         Scanner["Scanner\nscanner.py"]
     end
 
-    subgraph AIModule["AI Module (ai/)"]
-        FeatureExtractor["Feature Extractor\nfeature_extractor.py"]
-        Predictor["Predictor\npredictor.py"]
-        Model["ML Model\nclassifier.pkl"]
+    subgraph AIModule["AI Advisor (ai/)"]
+        AIAdvisor["AI Service\nai_advisor.py"]
+        LLMs["LLM Providers\nGemini / Blackbox"]
     end
 
     subgraph DataLayer["Data Layer"]
@@ -41,9 +40,9 @@ flowchart TB
     Routes -->|"start_scan()"| Scanner
     Scanner --> Crawler
     Crawler -->|"pages, forms"| Detector
-    Detector -->|"responses"| FeatureExtractor
-    FeatureExtractor -->|"features"| Predictor
-    Predictor --> Model
+    Detector -->|"vulnerabilities"| AIAdvisor
+    AIAdvisor -->|"prompt"| LLMs
+    LLMs -->|"remediation json"| AIAdvisor
     Scanner -->|"vulnerabilities"| DB
     Scanner -->|"ai_results"| DB
     Crawler -.-> Payloads
@@ -92,24 +91,18 @@ flowchart TB
 - Detect SQL error keywords and XSS reflection patterns
 - Return list of `Vulnerability` objects
 
-### 2.3 AI Module
+### 2.3 AI Advisor
 
 | Module | File | Responsibility |
 |--------|------|----------------|
-| Feature Extractor | `ai/feature_extractor.py` | Extract numeric features from HTTP responses |
-| Predictor | `ai/predictor.py` | Load model and predict classification |
-| Trainer | `ai/trainer.py` | Train and save the ML model |
+| AI Service | `app/services/ai_advisor.py` | Send vulnerability data to LLMs and parse structured JSON responses |
+| Multi-Model | External APIs | Google Gemini and Blackbox AI models for generating remediation steps |
 
-**Feature set:**
-
-| Feature | Type | Description |
-|---------|------|-------------|
-| `response_length` | Numeric | Length of HTTP response body |
-| `status_code` | Numeric | HTTP status code (200, 500, etc.) |
-| `keyword_presence` | Boolean | SQL error keywords found in response |
-| `payload_reflection` | Boolean | XSS payload reflected in response |
-
-**Model:** LogisticRegression (primary), RandomForest (comparison). Both trained via scikit-learn.
+**AI Capabilities:**
+- Generate detailed explanation of why a vulnerability occurs.
+- Provide step-by-step remediation guide.
+- Generate secure code examples.
+- Answer follow-up questions via interactive chat panel.
 
 ### 2.4 Data Layer
 
@@ -154,10 +147,11 @@ erDiagram
     AI_RESULT {
         int id PK
         int scan_id FK
-        string classification
-        float confidence
-        json features
-        datetime classified_at
+        string url
+        text explanation
+        text remediation
+        text code_example
+        datetime created_at
     }
     SCAN ||--o{ PAGE : contains
     SCAN ||--o{ VULNERABILITY : contains
@@ -175,7 +169,7 @@ sequenceDiagram
     participant Scanner as Scanner Engine
     participant Crawler
     participant Detector
-    participant AI as AI Module
+    participant AI as AI Advisor
     participant DB as Database
 
     User->>Flask: Submit target URL
@@ -205,11 +199,11 @@ sequenceDiagram
         end
         Detector-->>Scanner: xss_findings[]
 
-        Scanner->>AI: extract_features(response)
-        AI-->>Scanner: features{}
-        Scanner->>AI: predict(features)
-        AI-->>Scanner: classification, confidence
-        Scanner->>DB: save_ai_result()
+        alt Vulnerability Found
+            Scanner->>AI: get_remediation(vulnerability)
+            AI-->>Scanner: remediation_json (Explanation, Fix, Code)
+            Scanner->>DB: save_ai_result()
+        end
     end
 
     Scanner->>DB: save_vulnerabilities()
@@ -230,7 +224,7 @@ flowchart LR
     subgraph Core
         Crawler["Crawler"]
         Detector["Detector"]
-        AI["AI Module"]
+        AI["AI Advisor"]
     end
 
     subgraph Output
@@ -240,8 +234,8 @@ flowchart LR
 
     URL -->|Start Scan| Crawler
     Crawler -->|pages + forms| Detector
-    Detector -->|responses| AI
-    AI -->|classification| Results
+    Detector -->|vulnerabilities| AI
+    AI -->|remediation| Results
     Detector -->|vulnerabilities| Results
     Results --> History
 
@@ -257,9 +251,9 @@ flowchart LR
 |-------------|-------------|
 | URL → Crawler | User submits URL; crawler starts BFS from it |
 | Crawler → Detector | Crawler passes discovered forms to detector for testing |
-| Detector → AI | Detector sends responses to AI for classification |
+| Detector → AI | Scanner passes confirmed vulnerabilities to AI Advisor for remediation analysis |
 | Detector → Results | Vulnerabilities saved and displayed |
-| AI → Results | AI classifications saved and displayed |
+| AI → Results | AI remediation advice saved and displayed |
 
 ---
 
@@ -274,10 +268,7 @@ flowchart LR
 | `app/services/scanner.py` | Pipeline orchestrator |
 | `app/services/crawler.py` | Page & form discovery |
 | `app/services/detector.py` | SQLi & XSS testing |
-| `app/services/ai_analyzer.py` | AI analysis integration |
-| `ai/feature_extractor.py` | Feature extraction |
-| `ai/predictor.py` | Model prediction |
-| `ai/trainer.py` | Model training |
+| `app/services/ai_advisor.py` | LLM Remediation integration |
 | `app/models/scan.py` | Scan session model |
 | `app/models/page.py` | Page model |
 | `app/models/vulnerability.py` | Vulnerability model |
